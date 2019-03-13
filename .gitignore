@@ -225,3 +225,15 @@ pip-log.txt
 #Mr Developer
 .mr.developer.cfg
 /.idea/
+
+
+# dependencies
+/EmojiTea/app/node_modules
+/EmojiTea/app/.pnp
+/EmojiTea/app.pnp.js
+
+# testing
+/EmojiTea/app/coverage
+
+# production
+/EmojiTea/app/build

@@ -8,8 +8,8 @@
 		<version>1.0</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>JstxGWT</artifactId>
-	<packaging>war</packaging>
+	<artifactId>EmojiTea</artifactId>
+	<packaging>jar</packaging>
 	<version>${jstx.core.version}</version>
 
 	<build>
@@ -55,35 +55,35 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>net.ltgt.gwt.maven</groupId>
-				<artifactId>gwt-maven-plugin</artifactId>
-				<version>1.0-rc-8</version>
+				<groupId>org.teavm</groupId>
+				<artifactId>teavm-maven-plugin</artifactId>
+				<version>0.6.0-dev-701</version>
+				<dependencies>
+					<!-- This dependency is required by TeaVM to emulate subset of Java 
+						class library -->
+					<dependency>
+						<groupId>org.teavm</groupId>
+						<artifactId>teavm-classlib</artifactId>
+						<version>0.6.0-dev-701</version>
+					</dependency>
+				</dependencies>
 				<executions>
 					<execution>
 						<goals>
 							<goal>compile</goal>
-							<goal>test</goal>
 						</goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<targetDirectory>${project.build.directory}/generated/js/teavm</targetDirectory>
+							<mainClass>co.q64.emoji.tea.EmojiTea</mainClass>
+							<minifying>false</minifying>
+							<debugInformationGenerated>false</debugInformationGenerated>
+							<sourceMapsGenerated>false</sourceMapsGenerated>
+							<sourceFilesCopied>false</sourceFilesCopied>
+							<optimizationLevel>FULL</optimizationLevel>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<moduleName>co.q64.jstx.gwt.JstxGWT</moduleName>
-					<moduleShortName>JstxGWT</moduleShortName>
-					<failOnError>true</failOnError>
-					<sourceLevel>1.8</sourceLevel>
-					<compilerArgs>
-						<arg>-compileReport</arg>
-						<arg>-XcompilerMetrics</arg>
-					</compilerArgs>
-					<jvmArgs>
-						<args>-javaagent:${lombok.lib}=ECJ</args>
-					</jvmArgs>
-					<warDir>${project.build.directory}/${project.build.finalName}</warDir>
-					<classpathScope>compile+runtime</classpathScope>
-					<startupUrls>
-						<startupUrl>JstxGWT.html</startupUrl>
-					</startupUrls>
-				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -92,31 +92,7 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.8</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>run</goal>
-						</goals>
-						<configuration>
-							<tasks>
-								<delete>
-									<dirset
-										dir="${project.build.directory}/${project.build.finalName}"
-										includes="META-INF" />
-									<dirset
-										dir="${project.build.directory}/${project.build.finalName}"
-										includes="WEB-INF" />
-								</delete>
-							</tasks>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -153,6 +129,23 @@
 										</versionRange>
 										<goals>
 											<goal>properties</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.teavm</groupId>
+										<artifactId>
+											teavm-maven-plugin
+										</artifactId>
+										<versionRange>
+											[0.6.0-dev-701,)
+										</versionRange>
+										<goals>
+											<goal>compile</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
@@ -197,33 +190,8 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-servlet</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-user</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.gwt</groupId>
-			<artifactId>gwt-dev</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>co.q64.emoji</groupId>
 			<artifactId>EmojiCore</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>co.q64.jstx</groupId>
-			<artifactId>JstxCore</artifactId>
-			<classifier>sources</classifier>
 		</dependency>
 		<dependency>
 			<groupId>com.google.dagger</groupId>
@@ -234,13 +202,33 @@
 			<artifactId>javax.inject</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.google.dagger</groupId>
-			<artifactId>dagger-gwt</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.google.auto.factory</groupId>
 			<artifactId>auto-factory</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.teavm</groupId>
+			<artifactId>teavm-classlib</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.teavm</groupId>
+			<artifactId>teavm-jso</artifactId>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>teavm-dev</id>
+			<url>https://dl.bintray.com/konsoletyper/teavm</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>teavm-dev</id>
+			<url>https://dl.bintray.com/konsoletyper/teavm</url>
+		</pluginRepository>
+	</pluginRepositories>
 </project>

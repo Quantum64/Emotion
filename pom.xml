@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<groupId>co.q64.emoji</groupId>
+	<artifactId>EmojiStack</artifactId>
+	<version>1.0</version>
+	<packaging>pom</packaging>
+
 
 	<properties>
 		<jstx.core.version>1.0.4</jstx.core.version>
@@ -12,10 +19,6 @@
 		<artifactId>oss-parent</artifactId>
 		<version>7</version>
 	</parent>
-	<groupId>co.q64.jstx</groupId>
-	<artifactId>Jstx</artifactId>
-	<version>1.0</version>
-	<packaging>pom</packaging>
 
 	<build>
 		<pluginManagement>
@@ -32,8 +35,8 @@
 		</pluginManagement>
 	</build>
 	<modules>
-		<module>JstxCore</module>
-		<module>JstxGWT</module>
+		<module>EmojiCore</module>
+		<module>EmojiTea</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -66,26 +69,9 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>4.11</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>co.q64.jstx</groupId>
-				<artifactId>JstxCore</artifactId>
+				<groupId>co.q64.emoji</groupId>
+				<artifactId>EmojiCore</artifactId>
 				<version>${jstx.core.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>co.q64.jstx</groupId>
-				<artifactId>JstxCore</artifactId>
-				<version>${jstx.core.version}</version>
-				<classifier>sources</classifier>
-			</dependency>
-			<dependency>
-				<groupId>com.google.dagger</groupId>
-				<artifactId>dagger-gwt</artifactId>
-				<version>2.15</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -96,15 +82,28 @@
 			<dependency>
 				<groupId>org.openjdk.jmh</groupId>
 				<artifactId>jmh-core</artifactId>
-				<version>1.20</version>
+				<version>1.21</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.openjdk.jmh</groupId>
 				<artifactId>jmh-generator-annprocess</artifactId>
-				<version>1.20</version>
+				<version>1.21</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.teavm</groupId>
+				<artifactId>teavm-classlib</artifactId>
+				<version>0.6.0-dev-701</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.teavm</groupId>
+				<artifactId>teavm-jso</artifactId>
+				<version>0.6.0-dev-701</version>
+				<scope>provided</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
 </project>
