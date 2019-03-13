@@ -107,6 +107,7 @@ public class CompilerOutput {
 			if (program.length() % 2 == 1) {
 				program += opcodes.getChars(OpcodeMarker.EXIT).getCharacter();
 			}
+			/*
 			char[] chars = program.toCharArray();
 			StringBuilder compressed = new StringBuilder();
 			for (int i = 0; i < chars.length; i += 2) {
@@ -118,6 +119,7 @@ public class CompilerOutput {
 				result.add("With insanity compression (" + chars.length / 2 + " bytes)");
 				result.add(compressed.toString());
 			}
+			*/
 		} else {
 			result.add(error);
 		}

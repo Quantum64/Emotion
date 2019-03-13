@@ -1,11 +1,15 @@
 package co.q64.emoji.tea;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
+
+import org.teavm.jso.JSBody;
+import org.teavm.jso.JSFunctor;
+import org.teavm.jso.JSObject;
 
 import co.q64.emoji.tea.inject.DaggerJstxComponent;
 import co.q64.emoji.tea.inject.JstxComponent;
 import co.q64.jstx.compiler.CompilerOutput;
-import co.q64.jstx.runtime.Output;
 
 public class EmojiTea {
 	JstxComponent component;
@@ -17,22 +21,29 @@ public class EmojiTea {
 
 	private void init() {
 		component = DaggerJstxComponent.create();
-		CompilerOutput output = component.getCompiler().compile(Arrays.asList("load hello", "load  world", "+"));
-		String program = output.getProgram();
-		System.out.println("Compiled program: " + program);
-		component.getJstx().runProgram(program, "", new TestOutput());
+		setFunctions(program -> component.getCompiler().compile(Arrays.asList(program.replaceAll("\\r", "").split("\n"))).getDisplayOutput().stream().collect(Collectors.joining("\n")), (program, args) -> {
+			CompilerOutput compiled = component.getCompiler().compile(Arrays.asList(program.replaceAll("\\r", "").split("\n")));
+			if (!compiled.isSuccess()) {
+				return "Fatal: Could not run program due to compiler error!";
+			}
+			OutputBuffer buffer = new OutputBuffer();
+			component.getJstx().runProgram(compiled.getProgram(), args, buffer);
+			return buffer.toString();
+		});
 	}
-	
-	static class TestOutput implements Output {
 
-		@Override
-		public void print(String message) {
-			System.out.print(message);
-		}
-
-		@Override
-		public void println(String message) {
-			System.out.println(message);
-		}
+	@JSFunctor
+	@FunctionalInterface
+	private static interface Compile extends JSObject {
+		public String compile(String program);
 	}
+
+	@JSFunctor
+	@FunctionalInterface
+	private static interface Execute extends JSObject {
+		public String execute(String program, String args);
+	}
+
+	@JSBody(params = { "emojiCompiler", "emojiExecutor" }, script = "window.compile = emojiCompiler;window.execute = emojiExecutor;")
+	private static native void setFunctions(Compile compile, Execute execute);
 }

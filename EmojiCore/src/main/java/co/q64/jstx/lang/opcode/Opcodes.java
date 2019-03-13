@@ -88,10 +88,16 @@ public class Opcodes {
 	public Optional<Integer> lookupSymbol(String symbol) {
 		Chars[] chars = new Chars[2];
 		if (symbol.length() > 0) {
-			char[] ar = symbol.toCharArray();
-			chars[0] = Chars.fromCode(String.valueOf(ar[0]));
-			if (symbol.length() > 1) {
-				chars[1] = Chars.fromCode(String.valueOf(ar[1]));
+			String[] ar = new String[symbol.codePointCount(0, symbol.length())];
+			for (int i = 0, j = 0; i < symbol.length(); j++) {
+				int cp = symbol.codePointAt(i);
+				char c[] = Character.toChars(cp);
+				ar[j] = new String(c);
+				i += Character.charCount(cp);
+			}
+			chars[0] = Chars.fromCode(ar[0]);
+			if (ar.length > 1) {
+				chars[1] = Chars.fromCode(ar[1]);
 			}
 		}
 		return lookupId(chars);

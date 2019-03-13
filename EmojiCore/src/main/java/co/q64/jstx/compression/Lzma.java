@@ -16,7 +16,7 @@ public class Lzma {
 	protected @Inject Lzma() {}
 
 	public boolean canCompress(String str) {
-		return true;
+		return str.length() > 25;
 	}
 
 	public byte[] compress(String str) {

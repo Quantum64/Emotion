@@ -37,6 +37,7 @@ public class Lexer {
 	protected @Inject Lzma lzma;
 
 	public List<Instruction> parse(String program, Output output) {
+		/*
 		String codepage = Arrays.stream(Chars.values()).map(Chars::getCharacter).collect(Collectors.joining());
 		for (char c : program.toCharArray()) {
 			if (!codepage.contains(String.valueOf(c))) {
@@ -53,13 +54,20 @@ public class Lexer {
 				break;
 			}
 		}
+		*/
 		boolean readingLiteral = false, smazSpecial = false;
 		int smazToRead = 0, baseToRead = 0, shortToRead = 0, specialToRead = 0, lzmaToRead = 0;
 		StringBuilder currentLiteral = null;
 		ByteBuffer currentBuffer = null;
 		String opcodeQueue = "";
 		List<Instruction> instructions = new ArrayList<Instruction>();
-		char[] chars = program.toCharArray();
+		String[] chars = new String[program.codePointCount(0, program.length())];
+		for (int i = 0, j = 0; i < program.length(); j++) {
+			int cp = program.codePointAt(i);
+			char c[] = Character.toChars(cp);
+			chars[j] = new String(c);
+			i += Character.charCount(cp);
+		}
 		for (int index = 0; index < chars.length; index++) {
 			String c = String.valueOf(chars[index]);
 			if (opcodeQueue.isEmpty()) {
