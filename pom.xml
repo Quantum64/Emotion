@@ -3,14 +3,14 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<groupId>co.q64.emoji</groupId>
-	<artifactId>EmojiStack</artifactId>
+	<groupId>co.q64.emotion</groupId>
+	<artifactId>Emotion</artifactId>
 	<version>1.0</version>
 	<packaging>pom</packaging>
 
 
 	<properties>
-		<jstx.core.version>1.0.4</jstx.core.version>
+		<emotion.core.version>1.0.4</emotion.core.version>
 	</properties>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -35,8 +35,8 @@
 		</pluginManagement>
 	</build>
 	<modules>
-		<module>EmojiCore</module>
-		<module>EmojiTea</module>
+		<module>EmotionEngine</module>
+		<module>EmotionTea</module>
 	</modules>
 	<dependencyManagement>
 		<dependencies>
@@ -69,9 +69,9 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>co.q64.emoji</groupId>
-				<artifactId>EmojiCore</artifactId>
-				<version>${jstx.core.version}</version>
+				<groupId>co.q64.emotion</groupId>
+				<artifactId>EmotionEngine</artifactId>
+				<version>${emotion.core.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>

@@ -228,12 +228,12 @@ pip-log.txt
 
 
 # dependencies
-/EmojiTea/app/node_modules
-/EmojiTea/app/.pnp
-/EmojiTea/app.pnp.js
+/EmotionTea/app/node_modules
+/EmotionTea/app/.pnp
+/EmotionTea/app.pnp.js
 
 # testing
-/EmojiTea/app/coverage
+/EmotionTea/app/coverage
 
 # production
-/EmojiTea/app/build
+/EmotionTea/app/build
