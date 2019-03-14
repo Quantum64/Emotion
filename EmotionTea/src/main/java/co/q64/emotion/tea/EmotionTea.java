@@ -29,7 +29,7 @@ public class EmotionTea {
 			OutputBuffer buffer = new OutputBuffer();
 			component.getEngine().runProgram(compiled.getProgram(), args, buffer);
 			return buffer.toString();
-		});
+		}, () -> component.getOpcodes().getNames().toArray(new String[0]), name -> component.getOpcodes().getDescription(name));
 	}
 
 	@JSFunctor
@@ -44,6 +44,19 @@ public class EmotionTea {
 		public String execute(String program, String args);
 	}
 
-	@JSBody(params = { "emojiCompiler", "emojiExecutor" }, script = "window.compile = emojiCompiler;window.execute = emojiExecutor;")
-	private static native void setFunctions(Compile compile, Execute execute);
+	@JSFunctor
+	@FunctionalInterface
+	private static interface GetOpcodes extends JSObject {
+		public String[] getOpcodes();
+	}
+
+	@JSFunctor
+	@FunctionalInterface
+	private static interface GetOpcodeName extends JSObject {
+		public String getOpcodeName(String opcode);
+	}
+
+	@JSBody(params = { "emotionCompiler", "emotionExecutor", "emotionGetOpcodes", "emotionGetOpcodeName" }, //
+			script = "window.compile = emotionCompiler;window.execute = emotionExecutor;window.getOpcodes = emotionGetOpcodes; window.getOpcodeName = emotionGetOpcodeName;")
+	private static native void setFunctions(Compile compile, Execute execute, GetOpcodes getOpcodes, GetOpcodeName getOpcodeName);
 }

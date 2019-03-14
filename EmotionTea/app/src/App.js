@@ -4,11 +4,8 @@ import './App.css';
 import Button from '@material-ui/core/Button';
 import MonacoEditor from 'react-monaco-editor';
 
-// eslint-disable-next-line import/no-webpack-loader-syntax
-import * as engine from 'exports-loader?main!../../target/generated/js/teavm/classes';
-
 class App extends Component {
-
+  hack = null
   constructor(props) {
     super(props);
     window.addEventListener('load', () => this.onPageLoad());
@@ -21,12 +18,46 @@ class App extends Component {
   }
 
   onPageLoad() {
-    console.log("Page loaded!");
-    const time = performance.now();
-    engine();
-    console.log("Engine init took " + (performance.now() - time) + " milliseconds.")
-    this.setState({
-      loaded: true
+    // eslint-disable-next-line import/no-webpack-loader-syntax
+    import('exports-loader?main!../../target/generated/js/teavm/classes').then(engine => {
+      console.log(engine);
+      console.log("Page loaded!");
+      const time = performance.now();
+      engine.default();
+      console.log("Engine init took " + (performance.now() - time) + " milliseconds.")
+      this.setState({
+        loaded: true
+      });
+      if (this.hack != null) {
+        const keywords = window.getOpcodes();
+        const tokens = [];
+        const suggestions = [];
+  
+        keywords.push("load");
+        for (let keyword of keywords) {
+          if (keyword.startsWith("UNUSED") || keyword.startsWith("load ") || keyword.startsWith("sdr 0x") || keyword.startsWith("ldr 0x")) {
+            continue;
+          }
+          tokens.push(["^" + keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "keyword"]);
+          suggestions.push({
+            label: keyword,
+            insertText: keyword,
+            kind: keyword === "load" ? this.hack.languages.CompletionItemKind.Constant : this.hack.languages.CompletionItemKind.Function
+          })
+        }
+        this.hack.languages.setMonarchTokensProvider("elang", {
+          tokenizer: {
+            root: tokens
+          }
+        });
+        this.hack.languages.registerCompletionItemProvider("elang", {
+          provideCompletionItems: () => {
+            return {
+              suggestions: suggestions
+            };
+          }
+        });
+      }
     });
   }
 
@@ -43,6 +74,21 @@ class App extends Component {
         output: output
       });
     }
+  }
+
+  mutateEditor(monaco) {
+    console.log(monaco)
+    this.hack = monaco;
+    monaco.editor.defineTheme('emotion', {
+      base: 'vs',
+      inherit: true,
+      rules: [
+        { token: 'keyword', foreground: '0000ff' },
+      ]
+    });
+    monaco.languages.register({
+      id: "elang"
+    });
   }
 
   render() {
@@ -62,19 +108,20 @@ class App extends Component {
       <MonacoEditor
         width="800"
         height="600"
-        language="javascript"
-        theme="vs-dark"
+        language="elang"
+        theme="emotion"
         value={code}
         options={options}
         onChange={(value, event) => this.onCodeEdit(value, event)}
+        editorWillMount={(editor) => this.mutateEditor(editor)}
       />
     );
     const compiled = (
       <MonacoEditor
         width="800"
         height="600"
-        language="javascript"
-        theme="vs-dark"
+        language="elang"
+        theme="emotion"
         value={result}
         options={options}
         onChange={(value, event) => this.onCodeEdit(value, event)}
@@ -84,8 +131,8 @@ class App extends Component {
       <MonacoEditor
         width="800"
         height="600"
-        language="javascript"
-        theme="vs-dark"
+        language="elang"
+        theme="emotion"
         value={buffer}
         options={options}
       />
