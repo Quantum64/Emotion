@@ -35,7 +35,7 @@ import dagger.Component;
 @Singleton
 @GwtIncompatible(GWT.MESSAGE)
 public class EmotionMain {
-	protected @Inject EmotionEngine jstx;
+	protected @Inject EmotionEngine emotion;
 	protected @Inject Output output;
 	protected @Inject Lexer lexer;
 	protected @Inject Opcodes opcodes;
@@ -71,20 +71,20 @@ public class EmotionMain {
 					output.println("Specify a script file name!");
 					return;
 				}
-				CompilerOutput compiled = jstx.compileProgram(Files.readAllLines(new File(args.next()).toPath()));
+				CompilerOutput compiled = emotion.compileProgram(Files.readAllLines(new File(args.next()).toPath()));
 				for (String s : compiled.getDisplayOutput()) {
 					output.println(s);
 				}
 				if (compiled.isSuccess()) {
 					output.println("");
-					jstx.runProgram(compiled.getProgram(), getArgs(args), output);
+					emotion.runProgram(compiled.getProgram(), getArgs(args), output);
 				}
 			} else if (current.equalsIgnoreCase("debug")) {
 				if (!args.hasNext()) {
 					output.println("Specify a script file name!");
 					return;
 				}
-				CompilerOutput compiled = jstx.compileProgram(Files.readAllLines(new File(args.next()).toPath()));
+				CompilerOutput compiled = emotion.compileProgram(Files.readAllLines(new File(args.next()).toPath()));
 				for (String s : compiled.getDisplayOutput()) {
 					output.println(s);
 				}
@@ -151,7 +151,7 @@ public class EmotionMain {
 			} else if (current.equalsIgnoreCase("opcodes")) {
 				output.println(opcodes.getDebugInfo());
 			} else {
-				jstx.runProgram(Files.readAllLines(new File(current).toPath()).stream().collect(Collectors.joining()), getArgs(args), output);
+				emotion.runProgram(Files.readAllLines(new File(current).toPath()).stream().collect(Collectors.joining()), getArgs(args), output);
 			}
 		} catch (FileNotFoundException e) {
 			output.println("The file '" + e.getMessage() + "' could not be found!");

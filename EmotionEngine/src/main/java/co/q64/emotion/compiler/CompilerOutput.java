@@ -55,7 +55,7 @@ public class CompilerOutput {
 			}
 			result.add(getProgram());
 			result.add(new String());
-			result.add("Size: " + getProgram().length() + " bytes");
+			result.add("Size: " + getProgram().codePointCount(0, getProgram().length()) + " bytes");
 			result.add("Instructions: " + instructionLines.size());
 			result.add(new String());
 			for (int i = 0; i < compiledLines.size(); i++) {
@@ -91,8 +91,8 @@ public class CompilerOutput {
 				if (instruction.startsWith("load")) {
 					description = "Push literal " + instruction.substring(5);
 				}
-				for (int u = 0; u < offsetLength - compiled.length(); u++) {
-					offset += " ";
+				for (int u = 0; u < offsetLength - compiled.codePointCount(0, compiled.length()); u++) {
+					offset += "  ";
 				}
 				if (compiled.equals(" ")) {
 					compiled = "<whitespace character>";
