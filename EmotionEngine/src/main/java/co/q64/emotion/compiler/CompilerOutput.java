@@ -76,10 +76,12 @@ public class CompilerOutput {
 			result.add(new String());
 			offsetLength = 0;
 			for (String s : compiledLines) {
-				if (s.length() > offsetLength) {
-					offsetLength = s.length();
+				int points = s.codePointCount(0, s.length());
+				if (points > offsetLength) {
+					offsetLength = points;
 				}
 			}
+			System.out.println("Line code points:");
 			for (int i = 0; i < compiledLines.size(); i++) {
 				if (instructionLines.size() <= i) {
 					continue;
@@ -91,6 +93,7 @@ public class CompilerOutput {
 				if (instruction.startsWith("load")) {
 					description = "Push literal " + instruction.substring(5);
 				}
+				System.out.println(compiled.codePointCount(0, compiled.length()));
 				for (int u = 0; u < offsetLength - compiled.codePointCount(0, compiled.length()); u++) {
 					offset += "  ";
 				}
@@ -99,10 +102,10 @@ public class CompilerOutput {
 				}
 				result.add(compiled + offset + " # " + description);
 			}
-			String program = getProgram();
-			if (program.length() % 2 == 1) {
-				program += opcodes.getChars(OpcodeMarker.EXIT).getCharacter();
-			}
+			//String program = getProgram();
+			//if (program.length() % 2 == 1) {
+			//	  program += opcodes.getChars(OpcodeMarker.EXIT).getCharacter();
+			//}
 			/*
 			char[] chars = program.toCharArray();
 			StringBuilder compressed = new StringBuilder();

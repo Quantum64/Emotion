@@ -229,6 +229,7 @@ pip-log.txt
 
 # dependencies
 /EmotionTea/app/node_modules
+/EmotionTea/app/node
 /EmotionTea/app/.pnp
 /EmotionTea/app.pnp.js
 

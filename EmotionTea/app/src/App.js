@@ -17,6 +17,7 @@ import Paper from '@material-ui/core/Paper';
 import MonacoEditor from 'react-monaco-editor';
 
 const automaticLayout = false;
+const forcePageReladSinceTheEditorSucksAndHasSuperAnnoyingIssuesWithAutomaticResize = true;
 
 class App extends Component {
   editors = []
@@ -37,11 +38,17 @@ class App extends Component {
     }
   }
 
+  componentWillMount() {
+    const url = new URL(window.location);
+    const param = url.searchParams.get("state");
+    if (param !== null) {
+      this.decodeState(param);
+    }
+  }
+
   onPageLoad() {
     // eslint-disable-next-line import/no-webpack-loader-syntax
     import('exports-loader?main!../../target/generated/js/teavm/classes').then(engine => {
-      console.log(engine);
-      console.log("Page loaded!");
       const time = performance.now();
       engine.default();
       console.log("Engine init took " + (performance.now() - time) + " milliseconds.")
@@ -89,6 +96,36 @@ class App extends Component {
     return true;
   }
 
+  injectStateUrl() {
+    const state = this.encodeState();
+    const url = new URL(window.location);
+    url.searchParams.set("state", state);
+    window.history.replaceState("statedata", "", url);
+  }
+
+  encodeState() {
+    let obj = undefined;
+    switch (this.state.mode) {
+      case "editor":
+        obj = {
+          editorCode: this.state.editorCode,
+          editorArguments: this.state.editorArguments
+        }
+        break;
+      default:
+        obj = {};
+        break;
+    }
+    obj.mode = this.state.mode;
+    return btoa(encodeURIComponent(JSON.stringify(obj)));
+  }
+
+  decodeState(state) {
+    this.setState({
+      ...JSON.parse(decodeURIComponent(atob(state)))
+    });
+  }
+
   updateSize() {
     for (const editor of this.editors) {
       editor.layout();
@@ -124,6 +161,12 @@ class App extends Component {
   }
 
   updateMode(mode) {
+    if (forcePageReladSinceTheEditorSucksAndHasSuperAnnoyingIssuesWithAutomaticResize) {
+      this.state.mode = mode;
+      this.injectStateUrl();
+      window.location.reload();
+      return;
+    }
     this.setState({
       mode: mode
     });
@@ -158,9 +201,12 @@ class App extends Component {
             <MonacoEditor width="100%" height="100%" language="elang" theme="emotion"
               value={code}
               options={options}
-              onChange={(value, event) => this.setState({
-                editorCode: value
-              })}
+              onChange={(value, event) => {
+                this.setState({
+                  editorCode: value
+                });
+                this.injectStateUrl();
+              }}
               editorWillMount={(editor) => this.mutateEditor(editor)}
             />
           </Grid>
@@ -235,10 +281,8 @@ class App extends Component {
   }
 
   getDecompileContent() {
-    console.log("gi")
     let code = this.state.decompilerProgram;
     let result = "Initializing Engine...";
-    let bytes = 0;
     if (this.state.loaded) {
       result = window.decompile(code);
     }
@@ -275,7 +319,7 @@ class App extends Component {
               value={result}
               options={optionsDisabled}
             />
-          </Grid>    
+          </Grid>
         </Grid>
       </React.Fragment>
     );
@@ -283,17 +327,29 @@ class App extends Component {
 
   getReferenceContent() {
     const rows = [];
-    for (let opcode of window.getOpcodes()) {
-      if (!this.isValidOpcode(opcode)) {
-        continue;
+    if (this.state.loaded) {
+      for (let opcode of window.getOpcodes()) {
+        if (!this.isValidOpcode(opcode)) {
+          continue;
+        }
+        rows.push(
+          <TableRow key={opcode}>
+            <TableCell>
+              {opcode}
+            </TableCell>
+            <TableCell>
+              {window.getOpcodeName(opcode)}
+            </TableCell>
+          </TableRow>);
       }
+    } else {
       rows.push(
-        <TableRow key={opcode}>
+        <TableRow key="loading">
           <TableCell>
-            {opcode}
+            Loading
           </TableCell>
           <TableCell>
-            {window.getOpcodeName(opcode)}
+            The engine has not fully loaded yet.
           </TableCell>
         </TableRow>);
     }
@@ -319,19 +375,87 @@ class App extends Component {
     );
   }
 
+  getCodepageContent() {
+    const rows = [];
+    if (this.state.loaded) {
+      let index = 0;
+      for (let character of window.getCodepage()) {
+        rows.push(
+          <TableRow key={character}>
+            <TableCell>
+              {index}
+            </TableCell>
+            <TableCell>
+              0x{index.toString(16)}
+            </TableCell>
+            <TableCell>
+              {character}
+            </TableCell>
+          </TableRow>);
+        index++;
+      }
+    } else {
+      rows.push(
+        <TableRow key="loading">
+          <TableCell>
+            Loading Engine
+          </TableCell>
+        </TableRow>);
+    }
+    return (
+      <div>
+        <Typography variant="h2" style={{ color: "grey" }}>
+          Codepage
+        </Typography>
+        <Paper>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Id</TableCell>
+                <TableCell>Hex</TableCell>
+                <TableCell>Character</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows}
+            </TableBody>
+          </Table>
+        </Paper>
+      </div>
+    );
+  }
+
   render() {
     let content = null;
     switch (this.state.mode) {
-      case "editor":
+      case "compiler":
         content = this.getEditorContent();
         break;
       case "reference":
         content = this.getReferenceContent();
         break;
-      case "decompile":
+      case "lexer":
         content = this.getDecompileContent();
         break;
+      case "codepage":
+        content = this.getCodepageContent();
+        break;
+      default:
+        break;
     }
+
+    const modes = ["interpreter", "compiler", "lexer", "debugger", "reference", "codepage"];
+    const buttons = [];
+    for (let mode of modes) {
+      buttons.push(
+        <Grid item key={mode}>
+          <Button variant="outlined" size="small" color="default" style={{ color: "white" }} onClick={() => this.updateMode(mode)}>
+            {mode}
+          </Button>
+        </Grid>
+      );
+    }
+
     return (
       <div style={{ height: "100%" }}>
         <CssBaseline />
@@ -343,26 +467,7 @@ class App extends Component {
                   Emotion
                 </Typography>
               </Grid>
-              <Grid item>
-                <Button variant="outlined" size="small" color="default" style={{ color: "white" }}>
-                  Interpreter
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button variant="outlined" size="small" color="default" style={{ color: "white" }} onClick={() => this.updateMode("editor")}>
-                  Compiler
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button variant="outlined" size="small" color="default" style={{ color: "white" }} onClick={() => this.updateMode("decompile")}>
-                  Lexer
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button variant="outlined" size="small" color="default" style={{ color: "white" }} onClick={() => this.updateMode("reference")}>
-                  Reference
-                </Button>
-              </Grid>
+              {buttons}
             </Grid>
           </Toolbar>
         </AppBar>

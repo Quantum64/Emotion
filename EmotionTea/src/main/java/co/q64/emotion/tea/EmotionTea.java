@@ -10,6 +10,7 @@ import org.teavm.jso.JSProperty;
 
 import co.q64.emotion.compiler.CompilerOutput;
 import co.q64.emotion.lang.Instruction;
+import co.q64.emotion.lang.opcode.Chars;
 import co.q64.emotion.tea.inject.DaggerEmotionComponent;
 import co.q64.emotion.tea.inject.EmotionComponent;
 
@@ -45,6 +46,8 @@ public class EmotionTea {
 				output.println(insn.getInstruction());
 			}
 			return output.toString();
+		}, () -> {
+			return Arrays.asList(Chars.values()).stream().map(Chars::getCharacter).collect(Collectors.toList()).toArray(new String[0]);
 		});
 	}
 
@@ -78,6 +81,12 @@ public class EmotionTea {
 		public String getOpcodeName(String opcode);
 	}
 
+	@JSFunctor
+	@FunctionalInterface
+	private static interface GetCodepage extends JSObject {
+		public String[] getCodepage();
+	}
+
 	private static interface CompiledCode extends JSObject {
 		public @JSProperty String getProgram();
 
@@ -88,9 +97,9 @@ public class EmotionTea {
 		public @JSProperty void setOutput(String output);
 	}
 
-	@JSBody(params = { "emotionCompiler", "emotionExecutor", "emotionGetOpcodes", "emotionGetOpcodeName", "emotionDecompile" }, //
-			script = "window.compile = emotionCompiler; window.execute = emotionExecutor; window.getOpcodes = emotionGetOpcodes; window.getOpcodeName = emotionGetOpcodeName; window.decompile = emotionDecompile;")
-	private static native void setFunctions(Compile compile, Execute execute, GetOpcodes getOpcodes, GetOpcodeName getOpcodeName, Decompile decompile);
+	@JSBody(params = { "emotionCompiler", "emotionExecutor", "emotionGetOpcodes", "emotionGetOpcodeName", "emotionDecompile", "emotionGetCodepage" }, //
+			script = "window.compile = emotionCompiler; window.execute = emotionExecutor; window.getOpcodes = emotionGetOpcodes; window.getOpcodeName = emotionGetOpcodeName; window.decompile = emotionDecompile; window.getCodepage = emotionGetCodepage;")
+	private static native void setFunctions(Compile compile, Execute execute, GetOpcodes getOpcodes, GetOpcodeName getOpcodeName, Decompile decompile, GetCodepage codepage);
 
 	@JSBody(script = "return {};")
 	private static native CompiledCode createCompiledCode();

@@ -146,16 +146,16 @@ public class Compiler {
 				return Optional.of(output.create("Attempted to load a 0 length literal (probably an empty load instruction). Line: " + (index + 1)));
 			}
 			if (load.length() == 1) {
-				if (codepage.contains(load)) {
+				if (load.matches("\\A\\p{ASCII}*\\z")) {
 					result.append(opcodes.getChars(OpcodeMarker.LITERAL1).getCharacter());
-					result.append(Chars.fromInt(~Chars.fromCode(load).getId() & 0xff).getCharacter());
+					result.append(Chars.fromInt(load.toCharArray()[0]).getCharacter());
 					return Optional.empty();
 				}
 			}
 			if (load.length() == 2) {
 				boolean canInclude = true;
 				for (char c : load.toCharArray()) {
-					if (!codepage.contains(String.valueOf(c))) {
+					if (!String.valueOf(c).matches("\\A\\p{ASCII}*\\z")) {
 						canInclude = false;
 						break;
 					}
@@ -163,7 +163,7 @@ public class Compiler {
 				if (canInclude) {
 					result.append(opcodes.getChars(OpcodeMarker.LITERAL2).getCharacter());
 					for (char c : load.toCharArray()) {
-						result.append(Chars.fromInt(~Chars.fromCode(String.valueOf(c)).getId() & 0xff).getCharacter());
+						result.append(Chars.fromInt(c).getCharacter());
 					}
 					return Optional.empty();
 				}

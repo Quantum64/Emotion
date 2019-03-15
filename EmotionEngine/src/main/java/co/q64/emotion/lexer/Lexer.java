@@ -68,7 +68,7 @@ public class Lexer {
 			String c = String.valueOf(chars[index]);
 			if (opcodeQueue.isEmpty()) {
 				if (shortToRead > 0) {
-					currentLiteral.append(Chars.fromInt(~Chars.fromCode(c).getId() & 0xff).getCharacter());
+					currentLiteral.append(String.valueOf((char) (Chars.fromCode(c).getId())));
 					shortToRead--;
 					if (shortToRead == 0) {
 						instructions.add(instructionFactory.create(literalFactory.create(currentLiteral.toString())));

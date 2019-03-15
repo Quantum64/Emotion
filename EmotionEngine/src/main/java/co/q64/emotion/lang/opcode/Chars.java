@@ -142,7 +142,7 @@ public enum Chars {
 	x83(0x83, "🙇"),
 	x84(0x84, "🤦"),
 	x85(0x85, "🤷"),
-	x86(0x86, "💂‍"),
+	x86(0x86, "👽‍"),
 	x87(0x87, "👷"),
 	x88(0x88, "🤴"),
 	x89(0x89, "👸"),
@@ -295,4 +295,24 @@ public enum Chars {
 	public byte getByte() {
 		return (byte) (id - 128);
 	}
+
+	/*
+	public static void main(String[] args) {
+		int matches = 0;
+		int scanned = 0;
+		for (Chars c : Chars.values()) {
+			for (Chars u : Chars.values()) {
+				scanned++;
+				if (u.getId() == c.getId()) {
+					continue;
+				}
+				if (u.getCharacter().equals(c.getCharacter())) {
+					System.out.println(u.getCharacter());
+					matches++;
+				}
+			}
+		}
+		System.out.println("Compared " + scanned + " characters and found " + matches + " matches.");
+	}
+	*/
 }

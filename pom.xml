@@ -21,6 +21,7 @@
 	</parent>
 
 	<build>
+		<defaultGoal>clean install package</defaultGoal>
 		<pluginManagement>
 			<plugins>
 				<plugin>
