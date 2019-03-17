@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -72,29 +70,16 @@ public class Compiler {
 			if (firstInstruction.isEmpty()) {
 				continue;
 			}
-			// uhh no???
-			// Add debug information to output from last round
-			//if (index > 0) {
-			//	if (result.toString().substring(characters).length() > 0) {
-			//		compiledInsns.add(result.toString().substring(characters));
-			//	}
-			//}
-			//characters = +result.length();
 			if (firstInstruction.startsWith("def ") && firstInstruction.length() > 4) {
-				//if (markers.containsKey(ins.substring(4))) {
 				if(functions.contains(firstInstruction.substring(4))) {
 					return output.create("AST structure violation: Function '" + firstInstruction.substring(4) + "' defined multiple times! Line: " + line);
 				}
-				//markers.put(ins.substring(4), functorIndex);
-				//functorIndex++;
 				instructionsToCompile.clear();
 				instructionsToCompile.add("def");
 			} else if(firstInstruction.startsWith("def")) {
 				return output.create("Unnamed function definition. Line: " + line);
 			}
 			if (firstInstruction.startsWith("jump ") && firstInstruction.length() > 5) {
-				//itr.set("def " + ins.substring(5));
-				//itr.add("jump");
 				String functionName = firstInstruction.substring(5);
 				int currentFunctorIndex = 0, locatedFunctorIndex = -1;
 				for (String ins : instructions) {
@@ -123,29 +108,6 @@ public class Compiler {
 			}
 			compiledInsns.add(compiled.toString());
 		}
-		//compiledInsns.add(result.toString().substring(characters));
-		//for (ListIterator<String> itr = compiledInsns.listIterator(); itr.hasNext();) {
-		//	if (itr.next() == null) {
-		//		itr.remove();
-		//	}
-		//}
-		/*
-		for (ListIterator<String> itr = compiledInsns.listIterator(); itr.hasNext();) {
-			String ins = itr.next();
-			if (ins.startsWith("jump ") && ins.length() > 5) {
-				Integer target = markers.get(ins.substring(5));
-				if (target == null) {
-					return output.create("AST structure violation: Function '" + ins.substring(5) + "' was never defined!");
-				}
-				StringBuilder jumpInstruction = new StringBuilder();
-				processInstruction("load " + target, jumpInstruction, index);
-				itr.set(jumpInstruction.toString());
-				jumpInstruction.setLength(0);
-				processInstruction("jump", jumpInstruction, index);
-				itr.add(jumpInstruction.toString());
-			}
-		}
-		*/
 		int debt = 0;
 		for (ListIterator<String> itr = compiledInsns.listIterator(); itr.hasNext();) {
 			Optional<Integer> opt = opcodes.lookupSymbol(itr.next());

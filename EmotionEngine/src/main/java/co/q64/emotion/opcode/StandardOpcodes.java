@@ -66,7 +66,7 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("load 8", stack -> stack.push(8));
 		r("load 9", stack -> stack.push(9));
 		//r("endif", ENDIF, stack -> {}, "End a conditional block.");
-		r("def", FUNCTION, stack -> stack.getProgram().crash("Attempted to execute an AST control flow structure. [FUNCTION]"));
+		r("def", FUNCTION, stack -> stack.getProgram().crash("Attempted to execute an AST control flow structure. [FUNCTION]"), "Declares a function.");
 		r("UNUSED literal begin", LITERAL, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
 		r("UNUSED literal special", SPECIAL, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
 		r("UNUSED literal compression mode 1", COMPRESSION1, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));

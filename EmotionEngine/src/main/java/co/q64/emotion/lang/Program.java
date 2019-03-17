@@ -7,7 +7,6 @@ import co.q64.emotion.ast.AST;
 import co.q64.emotion.ast.ASTBuilder;
 import co.q64.emotion.ast.ASTFunction;
 import co.q64.emotion.ast.ASTNode;
-import co.q64.emotion.factory.IteratorFactoryFactory;
 import co.q64.emotion.lang.opcode.Opcodes;
 import co.q64.emotion.runtime.Output;
 import lombok.Getter;
@@ -16,7 +15,6 @@ import lombok.Getter;
 public class Program {
 	private StackFactory stackFactory;
 	private RegistersFactory registersFactory;
-	private IteratorFactory iteratorFactory;
 	private Opcodes opcodes;
 	private ASTBuilder astBuilder;
 
@@ -28,23 +26,17 @@ public class Program {
 	private @Getter String source;
 	private @Getter String args;
 
-	//private @Getter int instruction;
 	private @Getter boolean printOnTerminate, terminated;
-	//private Deque<Integer> jumps = new ArrayDeque<>();
-	//private @Getter boolean lastConditional = false; // TODO replace with stack?
 	private long start;
 
-	protected Program(@Provided StackFactory stackFactory, @Provided RegistersFactory registersFactory, @Provided IteratorFactoryFactory iteratorFactory, @Provided Opcodes opcodes, @Provided ASTBuilder astBuilder, String source, String args, Output output) {
+	protected Program(@Provided StackFactory stackFactory, @Provided RegistersFactory registersFactory, @Provided Opcodes opcodes, @Provided ASTBuilder astBuilder, String source, String args, Output output) {
 		this.stackFactory = stackFactory;
 		this.registersFactory = registersFactory;
-		this.iteratorFactory = iteratorFactory.getFactory();
-		//this.instructions = lexer.parse(source, output);
 		this.source = source;
 		this.opcodes = opcodes;
 		this.args = args;
 		this.output = output;
 		this.astBuilder = astBuilder;
-		//instructions.add(0, new Instruction());
 	}
 
 	public void execute() {
@@ -57,28 +49,11 @@ public class Program {
 		this.registers = registersFactory.create();
 		this.printOnTerminate = true;
 		this.terminated = false;
-		//this.instruction = 0;
 		this.start = System.currentTimeMillis();
 		this.ast = astBuilder.build(this, source);
-		//this.jumps.clear();
 		if (!args.isEmpty()) {
 			stack.push(args);
 		}
-		/*
-		while (full) {
-			if (terminated) { // move to ast insn
-				break;
-			}
-			//if (instructions.size() <= instruction) {
-			//	break;
-			//}
-			if (System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(2) > start) {
-				crash("Unusually long execution time! (2000ms)");
-				continue;
-			}
-			
-		}
-		*/
 		executeAst();
 		if (printOnTerminate) {
 			println(stack.pop().toString());
@@ -124,66 +99,6 @@ public class Program {
 		this.terminated = true;
 		this.printOnTerminate = false;
 	}
-
-	/*
-	public void jump(int node) {
-		jumps.push(instruction);
-		jumpToNode(node);
-	}
-	
-	public void jumpToNode(int node) {
-		if (node >= instructions.size()) {
-			crash("Jump to node attempted to jump outside the program! (Instruction " + (instruction - 1) + " JMP to " + node + ")");
-			return;
-		}
-		instruction = node;
-	}
-	
-	public void jumpToEndif() {
-		int debt = 0;
-		for (int i = instruction; i < instructions.size(); i++) {
-			Instruction ins = instructions.get(i);
-			if (ins.getOpcode() == null) {
-				continue;
-			}
-			if (opcodes.getFlags(OpcodeMarker.CONDITIONAL).contains(ins.getOpcode()) || (ins.getOpcode().equals(opcodes.getFlag(OpcodeMarker.ELSE)))) {
-				debt++;
-			}
-			if (ins.getOpcode().equals(opcodes.getFlag(OpcodeMarker.ELSE)) || ins.getOpcode().equals(opcodes.getFlag(OpcodeMarker.ENDIF))) {
-				if (debt <= 0) {
-					instruction = i;
-					return;
-				}
-				debt--;
-			}
-		}
-		// If no endif instruction is found then we will simply jump over the next line.
-		// This special case should only be used for base-layer conditionals. Nested conditionals will
-		// see the endif statement meant for the base-layer conditional and jump there instead
-		instruction++;
-	}
-	
-	private void jumpToEnd() {
-		for (int i = instruction; i < instructions.size(); i++) {
-			Instruction ins = instructions.get(i);
-			if (ins.getOpcode() == null) {
-				continue;
-			}
-			if (ins.getOpcode().equals(opcodes.getFlag(OpcodeMarker.END))) {
-				instruction = i + 1; // Don't actually run the end instruction
-				return;
-			}
-		}
-	}
-	
-	public void jumpReturn() {
-		if (jumps.size() <= 0) {
-			crash("Call stack underflow detected! Likely attempted to return without calling a function: did program execution fall through a function declaration? (Instruction " + (instruction - 1) + " RETURN)");
-			return;
-		}
-		jumpToNode(jumps.poll());
-	}
-	*/
 
 	public void warn(String message) {
 		output.println("");

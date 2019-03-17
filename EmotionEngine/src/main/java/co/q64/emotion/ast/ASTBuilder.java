@@ -85,7 +85,7 @@ public class ASTBuilder {
 				break;
 			}
 		}
-		result.add(astFunctionFactory.create(program, nodes));
+		result.add(astFunctionFactory.create(nodes));
 	}
 
 	private void invertigateConditional(Program program, Iterator<Instruction> itr, AST result, Comparison type, Optional<Value> push) {

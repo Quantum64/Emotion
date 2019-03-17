@@ -4,15 +4,11 @@ import javax.inject.Inject;
 
 import com.google.auto.factory.AutoFactory;
 
-import co.q64.emotion.lang.Program;
-
 @AutoFactory
 public class ASTFunction implements ASTNode {
-	private Program program;
 	private ASTNode nodes;
 
-	protected @Inject ASTFunction(Program program, ASTNode nodes) {
-		this.program = program;
+	protected @Inject ASTFunction(ASTNode nodes) {
 		this.nodes = nodes;
 	}
 
