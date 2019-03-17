@@ -4,10 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,11 +17,8 @@ import co.q64.emotion.annotation.GWT;
 import co.q64.emotion.compiler.CompilerOutput;
 import co.q64.emotion.inject.StandardModule;
 import co.q64.emotion.inject.SystemModule;
-import co.q64.emotion.lang.Instruction;
-import co.q64.emotion.lang.Program;
 import co.q64.emotion.lang.ProgramFactory;
 import co.q64.emotion.lang.opcode.Opcodes;
-import co.q64.emotion.lang.value.Value;
 import co.q64.emotion.lexer.Lexer;
 import co.q64.emotion.runtime.Output;
 import co.q64.emotion.runtime.mock.MockOutput;
@@ -79,7 +72,7 @@ public class EmotionMain {
 					output.println("");
 					emotion.runProgram(compiled.getProgram(), getArgs(args), output);
 				}
-			} else if (current.equalsIgnoreCase("debug")) {
+			} /*else if (current.equalsIgnoreCase("debug")) {
 				if (!args.hasNext()) {
 					output.println("Specify a script file name!");
 					return;
@@ -98,12 +91,12 @@ public class EmotionMain {
 					List<Instruction> insns = lexer.parse(compiled.getProgram(), mockOutput);
 					List<String> outputBuffer = new ArrayList<String>();
 					Program program = programFactory.create(compiled.getProgram(), getArgs(args), new Output() {
-
+				
 						@Override
 						public void println(String message) {
 							outputBuffer.add(message);
 						}
-
+				
 						@Override
 						public void print(String message) {
 							if (outputBuffer.size() == 0) {
@@ -148,10 +141,12 @@ public class EmotionMain {
 						program.step();
 					}
 				}
-			} else if (current.equalsIgnoreCase("opcodes")) {
+				}*/ else if (current.equalsIgnoreCase("opcodes")) {
 				output.println(opcodes.getDebugInfo());
 			} else {
-				emotion.runProgram(Files.readAllLines(new File(current).toPath()).stream().collect(Collectors.joining()), getArgs(args), output);
+				String prog = emotion.compileProgram(Files.readAllLines(new File(current).toPath())).getProgram();
+				System.out.println("Running...");
+				emotion.runProgram(prog, getArgs(args), output);
 			}
 		} catch (FileNotFoundException e) {
 			output.println("The file '" + e.getMessage() + "' could not be found!");

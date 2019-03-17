@@ -27,12 +27,12 @@
 						<path>
 							<groupId>com.google.dagger</groupId>
 							<artifactId>dagger-compiler</artifactId>
-							<version>2.15</version>
+							<version>2.21</version>
 						</path>
 						<path>
 							<groupId>com.google.auto.factory</groupId>
 							<artifactId>auto-factory</artifactId>
-							<version>1.0-beta5</version>
+							<version>1.0-beta6</version>
 						</path>
 						<path>
 							<groupId>org.projectlombok</groupId>
@@ -92,51 +92,17 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>com.github.eirslett</groupId>
-				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.7.5</version>
-				<executions>
-					<execution>
-						<id>install node npm</id>
-						<goals>
-							<goal>install-node-and-npm</goal>
-						</goals>
-						<phase>integration-test</phase>
-					</execution>
-					<execution>
-						<id>npm install</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>integration-test</phase>
-					</execution>
-					<execution>
-						<id>npm rewire</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>integration-test</phase>
-						<configuration>
-							<arguments>install -g react-app-rewired</arguments>
-						</configuration>
-					</execution>
-					<execution>
-						<id>npm build</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>integration-test</phase>
-						<configuration>
-							<arguments>run build</arguments>
-						</configuration>
-					</execution>
-				</executions>
-				<configuration>
-					<nodeVersion>v10.15.3</nodeVersion>
-					<workingDirectory>app</workingDirectory>
-				</configuration>
-			</plugin>
+			<!-- <plugin> <groupId>com.github.eirslett</groupId> <artifactId>frontend-maven-plugin</artifactId> 
+				<version>1.7.5</version> <executions> <execution> <id>install node npm</id> 
+				<goals> <goal>install-node-and-npm</goal> </goals> <phase>integration-test</phase> 
+				</execution> <execution> <id>npm install</id> <goals> <goal>npm</goal> </goals> 
+				<phase>integration-test</phase> </execution> <execution> <id>npm rewire</id> 
+				<goals> <goal>npm</goal> </goals> <phase>integration-test</phase> <configuration> 
+				<arguments>install -g react-app-rewired</arguments> </configuration> </execution> 
+				<execution> <id>npm build</id> <goals> <goal>npm</goal> </goals> <phase>integration-test</phase> 
+				<configuration> <arguments>run build</arguments> </configuration> </execution> 
+				</executions> <configuration> <nodeVersion>v10.15.3</nodeVersion> <workingDirectory>app</workingDirectory> 
+				</configuration> </plugin> -->
 		</plugins>
 		<pluginManagement>
 			<plugins>

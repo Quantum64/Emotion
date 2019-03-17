@@ -20,7 +20,8 @@ const automaticLayout = false;
 const forcePageReladSinceTheEditorSucksAndHasSuperAnnoyingIssuesWithAutomaticResize = true;
 
 class App extends Component {
-  editors = []
+  editors = [];
+  emotion = null;
   hack = null;
 
   constructor(props) {
@@ -52,11 +53,12 @@ class App extends Component {
       const time = performance.now();
       engine.default();
       console.log("Engine init took " + (performance.now() - time) + " milliseconds.")
+      this.emotion = window.emotion;
       this.setState({
         loaded: true
       });
       if (this.hack != null) {
-        const keywords = window.getOpcodes();
+        const keywords = this.emotion.getOpcodes();
         const tokens = [];
         const suggestions = [];
 
@@ -133,8 +135,8 @@ class App extends Component {
   }
 
   runCodeEditor() {
-    if (this.state.loaded) {
-      const output = window.execute(this.state.editorCode, this.state.editorArguments);
+    if (this.state.loaded) { 
+      const output = this.emotion.execute(this.state.editorCode, this.state.editorArguments);
       console.log(this.state.editorArguments)
       this.setState({
         editorOutput: output
@@ -178,7 +180,7 @@ class App extends Component {
     let bytes = 0;
     if (this.state.loaded) {
       const time = performance.now();
-      const compiled = window.compile(code);
+      const compiled = this.emotion.compile(code);
       result = compiled.output;
       if (compiled.program !== undefined) {
         bytes = this.getCodeBytes(compiled.program);
@@ -284,7 +286,7 @@ class App extends Component {
     let code = this.state.decompilerProgram;
     let result = "Initializing Engine...";
     if (this.state.loaded) {
-      result = window.decompile(code);
+      result = this.emotion.decompile(code);
     }
 
     const options = { selectOnLineNumbers: true, automaticLayout: automaticLayout };
@@ -328,7 +330,7 @@ class App extends Component {
   getReferenceContent() {
     const rows = [];
     if (this.state.loaded) {
-      for (let opcode of window.getOpcodes()) {
+      for (let opcode of this.emotion.getOpcodes()) {
         if (!this.isValidOpcode(opcode)) {
           continue;
         }
@@ -338,7 +340,7 @@ class App extends Component {
               {opcode}
             </TableCell>
             <TableCell>
-              {window.getOpcodeName(opcode)}
+              {this.emotion.getOpcodeDescription(opcode)}
             </TableCell>
           </TableRow>);
       }
@@ -379,7 +381,7 @@ class App extends Component {
     const rows = [];
     if (this.state.loaded) {
       let index = 0;
-      for (let character of window.getCodepage()) {
+      for (let character of this.emotion.getCodepage()) {
         rows.push(
           <TableRow key={character}>
             <TableCell>

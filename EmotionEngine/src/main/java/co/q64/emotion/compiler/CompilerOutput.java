@@ -8,9 +8,7 @@ import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 
 import co.q64.emotion.annotation.Constants.Author;
-import co.q64.emotion.annotation.Constants.Name;
 import co.q64.emotion.annotation.Constants.Version;
-import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.Opcodes;
 import lombok.Getter;
 
@@ -18,27 +16,25 @@ import lombok.Getter;
 public class CompilerOutput {
 	private String author;
 	private String version;
-	private String name;
 	private Opcodes opcodes;
 	private @Getter boolean success;
 	private @Getter String error;
 	private List<String> compiledLines, instructionLines;
 
-	protected CompilerOutput(String author, String name, String version, Opcodes opcodes) {
+	protected CompilerOutput(String author, String version, Opcodes opcodes) {
 		this.author = author;
 		this.version = version;
-		this.name = name;
 		this.opcodes = opcodes;
 	}
 
-	protected CompilerOutput(@Provided @Author String author, @Provided @Name String name, @Provided @Version String version, @Provided Opcodes opcodes, String error) {
-		this(author, name, version, opcodes);
+	protected CompilerOutput(@Provided @Author String author, @Provided @Version String version, @Provided Opcodes opcodes, String error) {
+		this(author, version, opcodes);
 		this.error = error;
 		this.success = false;
 	}
 
-	protected CompilerOutput(@Provided @Author String author, @Provided @Name String name, @Provided @Version String version, @Provided Opcodes opcodes, List<String> compiledLines, List<String> instructionLines) {
-		this(author, name, version, opcodes);
+	protected CompilerOutput(@Provided @Author String author, @Provided @Version String version, @Provided Opcodes opcodes, List<String> compiledLines, List<String> instructionLines) {
+		this(author, version, opcodes);
 		this.compiledLines = compiledLines;
 		this.instructionLines = instructionLines;
 		this.success = true;
@@ -94,9 +90,9 @@ public class CompilerOutput {
 					description = "Push literal " + instruction.substring(5);
 				}
 				System.out.println(compiled.codePointCount(0, compiled.length()));
-				for (int u = 0; u < offsetLength - compiled.codePointCount(0, compiled.length()); u++) {
-					offset += "  ";
-				}
+				//for (int u = 0; u < offsetLength - compiled.codePointCount(0, compiled.length()); u++) {
+				//	offset += "  ";
+				//}
 				if (compiled.equals(" ")) {
 					compiled = "<whitespace character>";
 				}

@@ -17,15 +17,14 @@ public class Iterator {
 	private LiteralFactory literal;
 	private Program program;
 	private boolean onStack;
-	private int line, index;
+	private int index;
 	private Value o, i;
 
-	protected Iterator(@Provided LiteralFactoryFactory literal, Program program, int instruction, boolean onStack) {
-		this.registers = program.getRegisters();
+	protected Iterator(@Provided LiteralFactoryFactory literal, Program program, boolean onStack) {
 		this.program = program;
+		this.registers = program.getRegisters();
 		this.onStack = onStack;
 		this.literal = literal.getFactory();
-		this.line = program.getInstruction();
 		this.index = 0;
 		this.values = new LinkedList<>(program.getStack().pop().iterate());
 	}
@@ -39,7 +38,7 @@ public class Iterator {
 				program.getStack().push(registers.getO());
 			}
 			index++;
-			program.jumpToNode(line);
+			//program.jumpToNode(line);
 			return false;
 		}
 		return true;

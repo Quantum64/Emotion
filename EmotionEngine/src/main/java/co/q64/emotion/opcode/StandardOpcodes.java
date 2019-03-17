@@ -8,6 +8,8 @@ import static co.q64.emotion.lang.opcode.OpcodeMarker.ELSE;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.END;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.ENDIF;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.EXIT;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.ITERATE;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.ITERATE_STACK;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL1;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL2;
@@ -97,17 +99,17 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("sdr b", stack -> stack.getProgram().getRegisters().setB(stack.pop()), "Store the first stack value in the b register.");
 		r("sdr c", stack -> stack.getProgram().getRegisters().setC(stack.pop()), "Store the first stack value in the c register.");
 		r("sdr d", stack -> stack.getProgram().getRegisters().setD(stack.pop()), "Store the first stack value in the d register.");
-		r("iterate", stack -> stack.getProgram().iterate(false), "Enter an iteration block over the first stack value.");
-		r("iterate stack", stack -> stack.getProgram().iterate(true), "Enter an iteration block over the first stack value and push the iteration element register at the begining of each loop.");
-		r("end", END, stack -> stack.getProgram().end(), "End an iteration block.");
+		r("iterate", ITERATE, stack -> stack.getProgram().crash("Attempted to execute an AST control flow structure. [ITERATE]"), "Enter an iteration block over the first stack value.");
+		r("iterate stack", ITERATE_STACK, stack -> stack.getProgram().crash("Attempted to execute an AST control flow structure. [ITERATE STACK]"), "Enter an iteration block over the first stack value and push the iteration element register at the begining of each loop.");
+		r("end", END, stack -> stack.getProgram().crash("Attempted to execute an AST control flow structure [END]."), "End an iteration block.");
 		r("print", stack -> stack.getProgram().print(stack.pop().toString()), "Print the first stack value.");
 		r("print space", stack -> stack.getProgram().print(" "), "Print a space character.");
 		r("println", stack -> stack.getProgram().println(stack.pop().toString()), "Print the first stack value, then a newline.");
 		r("exit", EXIT, stack -> stack.getProgram().terminate(), "End program execution, then prints the top stack value followed by a newline.");
 		r("terminate", stack -> stack.getProgram().terminateNoPrint(), "End program execution.");
-		r("restart", stack -> stack.getProgram().jumpToNode(1), "Jump to the first instruction in the program without pushing the call stack.");
-		r("jump", stack -> stack.getProgram().jump(stack.pop().asInt()), "Push the next instruction pointer to the call stack then jump to the first stack value interpreted as an instruction pointer.");
-		r("return", stack -> stack.getProgram().jumpReturn(), "Jump to the top instruction pointer on the call stack.");
+		//r("restart", stack -> stack.getProgram().jumpToNode(1), "Jump to the first instruction in the program without pushing the call stack.");
+		//r("jump", stack -> stack.getProgram().jump(stack.pop().asInt()), "Push the next instruction pointer to the call stack then jump to the first stack value interpreted as an instruction pointer.");
+		//r("return", stack -> stack.getProgram().jumpReturn(), "Jump to the top instruction pointer on the call stack.");
 		r("str", stack -> stack.push(stack.pop().toString()), "Push the first stack value as a string.");
 		r("args", stack -> stack.push(stack.getProgram().getArgs()), "Push the command line arguments.");
 		r("args list", stack -> stack.push(Arrays.stream(stack.getProgram().getArgs().split(" ")).collect(Collectors.toList())), "Push the command line arguments as a list seperated by spaces.");
@@ -132,9 +134,9 @@ public class StandardOpcodes extends OpcodeRegistry {
 
 	private void processEsle(Stack stack) {
 		Program p = stack.getProgram();
-		if (p.isLastConditional()) {
-			p.jumpToEndif();
-		}
+		//if (p.isLastConditional()) {
+		//	p.jumpToEndif();
+		//}
 	}
 
 	private void conditional(Stack stack, BiFunction<Value, Value, Boolean> func) {
@@ -142,11 +144,11 @@ public class StandardOpcodes extends OpcodeRegistry {
 		Value a = stack.pop();
 		Program p = stack.getProgram();
 		if (func.apply(a, b)) {
-			p.updateLastConditional(true);
+			//p.updateLastConditional(true);
 			return;
 		}
-		p.updateLastConditional(false);
-		p.jumpToEndif();
+		//p.updateLastConditional(false);
+		//p.jumpToEndif();
 	}
 
 	private void pushStackAsList(Stack stack) {

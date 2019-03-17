@@ -30,6 +30,21 @@ public class Literal implements Value {
 
 	@Override
 	public boolean compare(Value value, Comparison type) {
+		switch (type) {
+		case EQUAL:
+		case GREATER:
+		case LESS:
+			return simpleCompare(value, type);
+		case EQUAL_LESS:
+		case EQUAL_GREATER:
+			return simpleCompare(value, type) || simpleCompare(value, Comparison.EQUAL);
+		default:
+			break;
+		}
+		return false;
+	}
+
+	private boolean simpleCompare(Value value, Comparison type) {
 		if (isFloat() && value.isFloat()) {
 			if (isInteger() && value.isInteger()) {
 				switch (type) {
@@ -39,6 +54,8 @@ public class Literal implements Value {
 					return asLong() > value.asLong();
 				case LESS:
 					return asLong() < value.asLong();
+				default:
+					break;
 				}
 			}
 			switch (type) {
@@ -48,6 +65,8 @@ public class Literal implements Value {
 				return asDouble() > value.asDouble();
 			case LESS:
 				return asDouble() < value.asDouble();
+			default:
+				break;
 			}
 		}
 		if (isBoolean() && value.isBoolean()) {
@@ -58,6 +77,8 @@ public class Literal implements Value {
 				return asBoolean() == value.asBoolean();
 			case LESS:
 				return asBoolean() == value.asBoolean();
+			default:
+				break;
 			}
 		}
 		if (value.isBoolean() && isInteger()) {
@@ -83,6 +104,8 @@ public class Literal implements Value {
 			return toString().length() > value.toString().length();
 		case LESS:
 			return toString().length() < value.toString().length();
+		default:
+			break;
 		}
 		return false;
 	}

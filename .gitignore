@@ -2,6 +2,7 @@
 ## Custom
 #################
 
+.gradle/
 *settings.xml
 build.number
 build.number
@@ -17,6 +18,7 @@ site/
 bin/
 tmp/
 target/
+build/
 production/
 META-INF/
 *.class

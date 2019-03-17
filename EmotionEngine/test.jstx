@@ -1,8 +1,5 @@
-jump hello
-def hello
-load hello
-load world
-flatten soft
-string.titleCase
-load !
-+
+load abc
+iterate stack
+println
+end
+end

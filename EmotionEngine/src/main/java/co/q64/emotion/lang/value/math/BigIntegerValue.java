@@ -51,6 +51,8 @@ public class BigIntegerValue implements Value {
 				return result > 0;
 			case LESS:
 				return result < 0;
+			default:
+				break;
 			}
 		}
 		return false;

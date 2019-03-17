@@ -8,6 +8,6 @@ module.exports = function override(config, env) {
     config.plugins.push(
         new MonacoWebpackPlugin()
     );
-    delete config.plugins.ModuleScopePlugin;
+    config.resolve.plugins.pop();
     return config;
 }
