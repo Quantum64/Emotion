@@ -30,7 +30,7 @@ class App extends Component {
     window.addEventListener("resize", () => this.updateSize());
 
     this.state = {
-      mode: "editor",
+      mode: "compiler",
       editorCode: "",
       editorOutput: "",
       editorArguments: "",

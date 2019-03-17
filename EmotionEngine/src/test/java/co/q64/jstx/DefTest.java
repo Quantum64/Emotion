@@ -7,7 +7,7 @@ import co.q64.jstx.util.SimpleJstxTest;
 public class DefTest {
 	@Test
 	public void testDef() {
-		new SimpleJstxTest("load 2", "load 3", "jump add", "load 1", "def add", "+").execute("5");
+		new SimpleJstxTest("load 2", "load 3", "jump add", "def add", "+", "end").execute("5");
 	}
 
 	@Test

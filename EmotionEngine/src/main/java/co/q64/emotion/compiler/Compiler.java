@@ -59,57 +59,83 @@ public class Compiler {
 				instructions.add(current);
 			}
 		}
-		int index = -1, characters = 0, functorIndex = 0;
+		int line = 0;
+		//int functorIndex = 0;
 		List<String> compiledInsns = new ArrayList<>();
-		Map<String, Integer> markers = new HashMap<>();
-		StringBuilder result = new StringBuilder();
+		List<String> functions = new ArrayList<>();
+		//Map<String, Integer> markers = new HashMap<>();
 		for (ListIterator<String> itr = instructions.listIterator(); itr.hasNext();) {
-			String ins = itr.next();
-			index++;
-			if (ins.isEmpty()) {
+			List<String> instructionsToCompile = new ArrayList<>(Arrays.asList(itr.next()));
+			String firstInstruction = instructionsToCompile.get(0);
+			StringBuilder compiled = new StringBuilder();
+			line++;
+			if (firstInstruction.isEmpty()) {
 				continue;
 			}
+			// uhh no???
 			// Add debug information to output from last round
-			if (index > 0) {
-				if (result.toString().substring(characters).length() > 0) {
-					compiledInsns.add(result.toString().substring(characters));
+			//if (index > 0) {
+			//	if (result.toString().substring(characters).length() > 0) {
+			//		compiledInsns.add(result.toString().substring(characters));
+			//	}
+			//}
+			//characters = +result.length();
+			if (firstInstruction.startsWith("def ") && firstInstruction.length() > 4) {
+				//if (markers.containsKey(ins.substring(4))) {
+				if(functions.contains(firstInstruction.substring(4))) {
+					return output.create("AST structure violation: Function '" + firstInstruction.substring(4) + "' defined multiple times! Line: " + line);
 				}
+				//markers.put(ins.substring(4), functorIndex);
+				//functorIndex++;
+				instructionsToCompile.clear();
+				instructionsToCompile.add("def");
+			} else if(firstInstruction.startsWith("def")) {
+				return output.create("Unnamed function definition. Line: " + line);
 			}
-			characters = +result.length();
-			if (ins.startsWith("def ") && ins.length() > 4) {
-				markers.put(ins.substring(4), functorIndex);
-				functorIndex++;
-				itr.set("def");
-				Optional<CompilerOutput> output = processInstruction(ins, result, index);
+			if (firstInstruction.startsWith("jump ") && firstInstruction.length() > 5) {
+				//itr.set("def " + ins.substring(5));
+				//itr.add("jump");
+				String functionName = firstInstruction.substring(5);
+				int currentFunctorIndex = 0, locatedFunctorIndex = -1;
+				for (String ins : instructions) {
+					if (ins.startsWith("def ") && ins.length() > 4) {
+						String currentFuncName = ins.substring(4);
+						if (currentFuncName.equals(functionName)) {
+							locatedFunctorIndex = currentFunctorIndex;
+							break;
+						}
+						currentFunctorIndex++;
+
+					}
+				}
+				if (locatedFunctorIndex < 0) {
+					return output.create("AST structure violation: Function '" + functionName + "' was never defined! Line: " + line);
+				}
+				instructionsToCompile.clear();
+				instructionsToCompile.add("load " + locatedFunctorIndex);
+				instructionsToCompile.add("jump");
+			}
+			for (String instruction : instructionsToCompile) {
+				Optional<CompilerOutput> output = processInstruction(instruction, compiled, line);
 				if (output.isPresent()) {
 					return output.get();
 				}
-				continue;
 			}
-			if (ins.startsWith("jump ") && ins.length() > 5) {
-				compiledInsns.add(null);
-				result.append(ins);
-				itr.set("def " + ins.substring(5));
-				itr.add("jump");
-				continue;
-			}
-			Optional<CompilerOutput> output = processInstruction(ins, result, index);
-			if (output.isPresent()) {
-				return output.get();
-			}
+			compiledInsns.add(compiled.toString());
 		}
-		compiledInsns.add(result.toString().substring(characters));
-		for (ListIterator<String> itr = compiledInsns.listIterator(); itr.hasNext();) {
-			if (itr.next() == null) {
-				itr.remove();
-			}
-		}
+		//compiledInsns.add(result.toString().substring(characters));
+		//for (ListIterator<String> itr = compiledInsns.listIterator(); itr.hasNext();) {
+		//	if (itr.next() == null) {
+		//		itr.remove();
+		//	}
+		//}
+		/*
 		for (ListIterator<String> itr = compiledInsns.listIterator(); itr.hasNext();) {
 			String ins = itr.next();
 			if (ins.startsWith("jump ") && ins.length() > 5) {
 				Integer target = markers.get(ins.substring(5));
 				if (target == null) {
-					return output.create("AST structure violation - Function '" + ins.substring(5) + "' was never defined!");
+					return output.create("AST structure violation: Function '" + ins.substring(5) + "' was never defined!");
 				}
 				StringBuilder jumpInstruction = new StringBuilder();
 				processInstruction("load " + target, jumpInstruction, index);
@@ -119,6 +145,7 @@ public class Compiler {
 				itr.add(jumpInstruction.toString());
 			}
 		}
+		*/
 		int debt = 0;
 		for (ListIterator<String> itr = compiledInsns.listIterator(); itr.hasNext();) {
 			Optional<Integer> opt = opcodes.lookupSymbol(itr.next());
@@ -141,14 +168,14 @@ public class Compiler {
 			}
 		}
 		if (debt > 0) {
-			return output.create("AST control flow violation - " + debt + " end instruction" + (debt == 1 ? "" : "s") + " missing!");
+			return output.create("AST control flow violation: " + debt + " end instruction" + (debt == 1 ? "" : "s") + " missing!");
 		} else if (debt < 0) {
-			return output.create("AST control flow violation - " + debt + " extra end instruction" + (debt == 1 ? "" : "s"));
+			return output.create("AST control flow violation: " + Math.abs(debt) + " extra end instruction" + (debt == 1 ? "" : "s"));
 		}
 		return output.create(compiledInsns, instructions);
 	}
 
-	private Optional<CompilerOutput> processInstruction(String ins, StringBuilder result, int index) {
+	private Optional<CompilerOutput> processInstruction(String ins, StringBuilder result, int line) {
 		Optional<List<Chars>> opt = opcodes.lookupName(ins);
 		if (opt.isPresent()) {
 			StringBuilder current = new StringBuilder();
@@ -174,7 +201,7 @@ public class Compiler {
 		if (ins.startsWith("load ")) {
 			String load = ins.substring(5);
 			if (load.length() == 0) {
-				return Optional.of(output.create("Attempted to load a 0 length literal (probably an empty load instruction). Line: " + (index + 1)));
+				return Optional.of(output.create("Attempted to load a 0 length literal (probably an empty load instruction). Line: " + line));
 			}
 			if (load.length() == 1) {
 				if (load.matches("\\A\\p{ASCII}*\\z")) {
@@ -311,7 +338,7 @@ public class Compiler {
 					}));
 					return Optional.empty();
 				}
-				return Optional.of(output.create("Failed to process literal. Line: " + (index + 1)));
+				return Optional.of(output.create("Failed to process literal. Line: " + line));
 			}
 			result.append(opcodes.getChars(OpcodeMarker.LITERAL).getCharacter());
 			for (char c : load.toCharArray()) {
@@ -320,6 +347,6 @@ public class Compiler {
 			result.append(opcodes.getChars(OpcodeMarker.SPECIAL).getCharacter());
 			return Optional.empty();
 		}
-		return Optional.of(output.create("Invalid instruction '" + ins + "' in source. Line: " + (index + 1)));
+		return Optional.of(output.create("Invalid instruction '" + ins + "' in source. Line: " + line));
 	}
 }

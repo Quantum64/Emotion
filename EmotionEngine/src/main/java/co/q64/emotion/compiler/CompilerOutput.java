@@ -96,7 +96,7 @@ public class CompilerOutput {
 				if (compiled.equals(" ")) {
 					compiled = "<whitespace character>";
 				}
-				result.add(compiled + offset + " # " + description);
+				result.add(compiled + offset + " " + description);
 			}
 			//String program = getProgram();
 			//if (program.length() % 2 == 1) {

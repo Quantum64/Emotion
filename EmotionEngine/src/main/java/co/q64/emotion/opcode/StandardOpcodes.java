@@ -5,7 +5,6 @@ import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION2;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION3;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.ELSE;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.END;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.ENDIF;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.EQUAL;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.EXIT;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.FALSE;

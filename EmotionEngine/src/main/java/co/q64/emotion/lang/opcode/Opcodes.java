@@ -115,6 +115,9 @@ public class Opcodes {
 	}
 
 	private Optional<Integer> lookupId(Chars[] chars) {
+		if (chars[0] == null) {
+			return Optional.empty();
+		}
 		if (chars[0].getId() < 156) {
 			return Optional.of(chars[0].getId());
 		}

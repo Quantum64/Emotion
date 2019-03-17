@@ -144,9 +144,15 @@ public class EmotionMain {
 				}*/ else if (current.equalsIgnoreCase("opcodes")) {
 				output.println(opcodes.getDebugInfo());
 			} else {
-				String prog = emotion.compileProgram(Files.readAllLines(new File(current).toPath())).getProgram();
-				System.out.println("Running...");
-				emotion.runProgram(prog, getArgs(args), output);
+				CompilerOutput co = emotion.compileProgram(Files.readAllLines(new File(current).toPath()));
+				for (String s : co.getDisplayOutput()) {
+					System.out.println(s);
+				}
+				if (co.isSuccess()) {
+					String prog = co.getProgram();
+					System.out.println("Running...");
+					emotion.runProgram(prog, getArgs(args), output);
+				}
 			}
 		} catch (FileNotFoundException e) {
 			output.println("The file '" + e.getMessage() + "' could not be found!");
