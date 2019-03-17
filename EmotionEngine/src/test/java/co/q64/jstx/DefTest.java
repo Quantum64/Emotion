@@ -36,13 +36,13 @@ public class DefTest {
 				"jump addOne",
 				"*",
 				"end",
-				"return",
+				"end",
 				"",
 				"# Adds one to the current value on the stack",
 				"def addOne",
 				"load 1",
 				"+",
-				"return"
+				"end"
 		// @formatter:on
 		).execute("21203628800");
 	}

@@ -1,5 +1,7 @@
 package co.q64.emotion.ast;
 
+import java.util.Optional;
+
 import javax.inject.Inject;
 
 import com.google.auto.factory.AutoFactory;
@@ -13,16 +15,21 @@ public class ASTConditional implements ASTNode {
 	private Program program;
 	private AST pass, fail;
 	private Comparison type;
+	private Optional<Value> push;
 
-	protected @Inject ASTConditional(Program program, AST pass, AST fail, Comparison type) {
+	protected @Inject ASTConditional(Program program, AST pass, AST fail, Comparison type, Optional<Value> push) {
 		this.program = program;
 		this.pass = pass;
 		this.fail = fail;
 		this.type = type;
+		this.push = push;
 	}
 
 	@Override
 	public void enter() {
+		if (push.isPresent()) {
+			program.getStack().push(push.get());
+		}
 		Value b = program.getStack().pop();
 		Value a = program.getStack().pop();
 		if (a.compare(b, type)) {

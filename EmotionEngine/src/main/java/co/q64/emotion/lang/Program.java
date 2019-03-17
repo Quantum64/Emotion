@@ -5,6 +5,8 @@ import com.google.auto.factory.Provided;
 
 import co.q64.emotion.ast.AST;
 import co.q64.emotion.ast.ASTBuilder;
+import co.q64.emotion.ast.ASTFunction;
+import co.q64.emotion.ast.ASTNode;
 import co.q64.emotion.factory.IteratorFactoryFactory;
 import co.q64.emotion.lang.opcode.Opcodes;
 import co.q64.emotion.runtime.Output;
@@ -87,6 +89,19 @@ public class Program {
 		ast.enter();
 	}
 
+	public void jumpToFunction(int funcDecal) {
+		int functor = 0;
+		for (ASTNode node : ast.getNodes()) {
+			if (node instanceof ASTFunction) {
+				if (functor == funcDecal) {
+					((ASTFunction) node).enterFunction();
+					return;
+				}
+				functor++;
+			}
+		}
+	}
+
 	// Probably unsupported with AST
 	public void step() {
 		//if (instructions.size() < instruction) {
@@ -115,7 +130,7 @@ public class Program {
 		jumps.push(instruction);
 		jumpToNode(node);
 	}
-
+	
 	public void jumpToNode(int node) {
 		if (node >= instructions.size()) {
 			crash("Jump to node attempted to jump outside the program! (Instruction " + (instruction - 1) + " JMP to " + node + ")");
@@ -123,7 +138,7 @@ public class Program {
 		}
 		instruction = node;
 	}
-
+	
 	public void jumpToEndif() {
 		int debt = 0;
 		for (int i = instruction; i < instructions.size(); i++) {
@@ -147,7 +162,7 @@ public class Program {
 		// see the endif statement meant for the base-layer conditional and jump there instead
 		instruction++;
 	}
-
+	
 	private void jumpToEnd() {
 		for (int i = instruction; i < instructions.size(); i++) {
 			Instruction ins = instructions.get(i);
@@ -160,7 +175,7 @@ public class Program {
 			}
 		}
 	}
-
+	
 	public void jumpReturn() {
 		if (jumps.size() <= 0) {
 			crash("Call stack underflow detected! Likely attempted to return without calling a function: did program execution fall through a function declaration? (Instruction " + (instruction - 1) + " RETURN)");

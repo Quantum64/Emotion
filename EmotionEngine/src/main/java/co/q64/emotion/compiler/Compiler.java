@@ -59,7 +59,7 @@ public class Compiler {
 				instructions.add(current);
 			}
 		}
-		int index = -1, characters = 0;
+		int index = -1, characters = 0, functorIndex = 0;
 		List<String> compiledInsns = new ArrayList<>();
 		Map<String, Integer> markers = new HashMap<>();
 		StringBuilder result = new StringBuilder();
@@ -77,8 +77,13 @@ public class Compiler {
 			}
 			characters = +result.length();
 			if (ins.startsWith("def ") && ins.length() > 4) {
-				markers.put(ins.substring(4), compiledInsns.size() + 1);
-				itr.remove();
+				markers.put(ins.substring(4), functorIndex);
+				functorIndex++;
+				itr.set("def");
+				Optional<CompilerOutput> output = processInstruction(ins, result, index);
+				if (output.isPresent()) {
+					return output.get();
+				}
 				continue;
 			}
 			if (ins.startsWith("jump ") && ins.length() > 5) {
@@ -104,7 +109,7 @@ public class Compiler {
 			if (ins.startsWith("jump ") && ins.length() > 5) {
 				Integer target = markers.get(ins.substring(5));
 				if (target == null) {
-					return output.create("Jump '" + ins.substring(5) + "' was never defined!");
+					return output.create("AST structure violation - Function '" + ins.substring(5) + "' was never defined!");
 				}
 				StringBuilder jumpInstruction = new StringBuilder();
 				processInstruction("load " + target, jumpInstruction, index);
@@ -113,6 +118,32 @@ public class Compiler {
 				processInstruction("jump", jumpInstruction, index);
 				itr.add(jumpInstruction.toString());
 			}
+		}
+		int debt = 0;
+		for (ListIterator<String> itr = compiledInsns.listIterator(); itr.hasNext();) {
+			Optional<Integer> opt = opcodes.lookupSymbol(itr.next());
+			if (opt.isPresent()) {
+				int id = opt.get();
+				if (opcodes.getFlags(OpcodeMarker.EQUAL).contains(id) || //
+						opcodes.getFlags(OpcodeMarker.NOT_EQUAL).contains(id) || //
+						opcodes.getFlags(OpcodeMarker.GREATER).contains(id) || //
+						opcodes.getFlags(OpcodeMarker.LESS).contains(id) || //
+						opcodes.getFlags(OpcodeMarker.GREATER_EQUAL).contains(id) || //
+						opcodes.getFlags(OpcodeMarker.LESS_EQUAL).contains(id) || //
+						opcodes.getFlags(OpcodeMarker.FUNCTION).contains(id) || //
+						opcodes.getFlags(OpcodeMarker.ITERATE).contains(id) || //
+						opcodes.getFlags(OpcodeMarker.ITERATE_STACK).contains(id)) {
+					debt++;
+				}
+				if (opcodes.getFlags(OpcodeMarker.END).contains(id)) {
+					debt--;
+				}
+			}
+		}
+		if (debt > 0) {
+			return output.create("AST control flow violation - " + debt + " end instruction" + (debt == 1 ? "" : "s") + " missing!");
+		} else if (debt < 0) {
+			return output.create("AST control flow violation - " + debt + " extra end instruction" + (debt == 1 ? "" : "s"));
 		}
 		return output.create(compiledInsns, instructions);
 	}
