@@ -10,7 +10,7 @@
 
 
 	<properties>
-		<emotion.core.version>1.0.4</emotion.core.version>
+		<emotion.core.version>1.1.0</emotion.core.version>
 	</properties>
 
 	<modelVersion>4.0.0</modelVersion>

@@ -75,7 +75,7 @@ class App extends Component {
             continue;
           }
           const suffix = keyword.startsWith("load") ? "" : "$";
-          tokens.push(["^" + keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + suffix, "keyword"]);
+          tokens.push(["^(\\s*)" + keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + suffix, "keyword"]);
           suggestions.push({
             label: keyword,
             insertText: keyword,
@@ -155,7 +155,7 @@ class App extends Component {
       });
     }
   }
-  
+
   runCodeInterpreter() {
     if (this.state.loaded) {
       const output = this.emotion.interpret(this.state.interpreterCode, this.state.interpreterArguments);
@@ -503,6 +503,7 @@ class App extends Component {
         <Typography variant="h2" style={{ color: "grey" }}>
           Emotion Reference
         </Typography>
+        I may write a programming guide at some point when I have time... but for now just try sticking the below opcodes in the compiler and see what happens.
         <Paper>
           <Table>
             <TableHead>
@@ -551,6 +552,9 @@ class App extends Component {
       <div>
         <Typography variant="h2" style={{ color: "grey" }}>
           Codepage
+        </Typography>
+        <Typography variant="h6" gutterBottom>
+          The codepage is comprised of 256 emoji, each representing one byte.
         </Typography>
         <Paper>
           <Table>
