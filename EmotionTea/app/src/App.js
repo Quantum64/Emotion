@@ -13,6 +13,14 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Avatar from '@material-ui/core/Avatar';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import ListItemText from '@material-ui/core/ListItemText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog from '@material-ui/core/Dialog';
+import TextField from '@material-ui/core/TextField';
 
 import MonacoEditor from 'react-monaco-editor';
 
@@ -34,6 +42,7 @@ class App extends Component {
       editorCode: "",
       editorOutput: "",
       editorArguments: "",
+      editorGeneratedOpen: false,
       decompilerProgram: "",
       loaded: false
     }
@@ -99,26 +108,26 @@ class App extends Component {
   }
 
   injectStateUrl() {
-    const state = this.encodeState();
+    const state = this.encodeState(this.state);
     const url = new URL(window.location);
     url.searchParams.set("state", state);
     window.history.replaceState("statedata", "", url);
   }
 
-  encodeState() {
+  encodeState(state) {
     let obj = undefined;
-    switch (this.state.mode) {
-      case "editor":
+    switch (state.mode) {
+      case "compiler":
         obj = {
-          editorCode: this.state.editorCode,
-          editorArguments: this.state.editorArguments
+          editorCode: state.editorCode,
+          editorArguments: state.editorArguments
         }
         break;
       default:
         obj = {};
         break;
     }
-    obj.mode = this.state.mode;
+    obj.mode = state.mode;
     return btoa(encodeURIComponent(JSON.stringify(obj)));
   }
 
@@ -135,7 +144,7 @@ class App extends Component {
   }
 
   runCodeEditor() {
-    if (this.state.loaded) { 
+    if (this.state.loaded) {
       const output = this.emotion.execute(this.state.editorCode, this.state.editorArguments);
       console.log(this.state.editorArguments)
       this.setState({
@@ -174,6 +183,37 @@ class App extends Component {
     });
   }
 
+  generateStackExchange() {
+    console.log("called!");
+    if (!this.state.loaded) {
+      return "";
+    }
+    const result = [];
+    const compiled = this.emotion.compile(this.state.editorCode);
+    if (compiled.program !== undefined) {
+      const codepageUrl = window.location.origin + "/?state=" + this.encodeState({ mode: "codepage" });
+      const tryItUrl = window.location.origin + "/?state=" + this.encodeState({ mode: "codepage" });
+      result.push("# [Jstx][1], " + this.getCodeBytes(compiled.program) + " [bytes][2]");
+      result.push("");
+      result.push("    " + compiled.program);
+      result.push("Explanation");
+      result.push("");
+      for (const line of compiled.explanation) {
+        result.push("    " + line);
+      }
+      result.push("");
+      result.push("[Try it online!][3]");
+      result.push("");
+      result.push("");
+      result.push("  [1]: https://github.com/Quantum64/Emotion");
+      result.push("  [2]: " + codepageUrl);
+      result.push("  [3]: " + tryItUrl);
+    } else {
+      result.push("Program did not compile!");
+    }
+    return result.join("\n");
+  }
+
   getEditorContent() {
     let code = this.state.editorCode;
     let result = "Initializing Engine...";
@@ -207,7 +247,6 @@ class App extends Component {
                 this.setState({
                   editorCode: value
                 });
-                this.injectStateUrl();
               }}
               editorWillMount={(editor) => this.mutateEditor(editor)}
             />
@@ -239,6 +278,13 @@ class App extends Component {
                       <Grid item>
                         <Button size="small" variant="contained" color="primary" onClick={() => this.runCodeEditor()}>
                           Run Code
+                        </Button>
+                        <Button size="small" variant="contained" color="secondary" onClick={() => {
+                          this.setState({
+                            editorGeneratedOpen: true
+                          });
+                        }}>
+                          Generate StackExchange
                         </Button>
                       </Grid>
                     </Grid>
@@ -278,6 +324,16 @@ class App extends Component {
             </Grid>
           </Grid>
         </Grid>
+        <GeneratedAnswer
+          selectedValue={this.state.selectedValue}
+          open={this.state.editorGeneratedOpen}
+          onClose={() => {
+            this.setState({
+              editorGeneratedOpen: false
+            });
+          }}
+          value={() => this.generateStackExchange()}
+        />
       </React.Fragment>
     );
   }
@@ -428,6 +484,8 @@ class App extends Component {
   }
 
   render() {
+    this.injectStateUrl();
+
     let content = null;
     switch (this.state.mode) {
       case "compiler":
@@ -484,3 +542,34 @@ class App extends Component {
 }
 
 export default App;
+
+class GeneratedAnswer extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  handleClose = () => {
+    this.props.onClose(this.props.selectedValue);
+  };
+
+  render() {
+    const { classes, onClose, selectedValue, ...other } = this.props;
+
+    return (
+      <Dialog fullWidth onClose={this.handleClose} aria-labelledby="simple-dialog-title" {...other}>
+        <DialogTitle id="simple-dialog-title">Generated StackExchange Answer</DialogTitle>
+        <div style={{ padding: 10 }}>
+          <TextField
+            id="outlined-textarea"
+            label="Copy Me!"
+            multiline
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            value={this.props.value()}
+          />
+        </div>
+      </Dialog>
+    );
+  }
+}

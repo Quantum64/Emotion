@@ -8,6 +8,7 @@ import static co.q64.emotion.lang.opcode.OpcodeMarker.END;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.EQUAL;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.EXIT;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.FALSE;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.FUNCTION;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.GREATER;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.GREATER_EQUAL;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.ITERATE;
@@ -23,25 +24,21 @@ import static co.q64.emotion.lang.opcode.OpcodeMarker.PRIORITIZATION;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.SPECIAL;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.STANDARD;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.TRUE;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.FUNCTION;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import co.q64.emotion.lang.Program;
 import co.q64.emotion.lang.Stack;
 import co.q64.emotion.lang.opcode.OpcodeCache;
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
 import co.q64.emotion.lang.value.Null;
 import co.q64.emotion.lang.value.Value;
-import co.q64.emotion.types.Comparison;
 import co.q64.emotion.types.Operation;
 
 @Singleton
@@ -66,7 +63,7 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("load 8", stack -> stack.push(8));
 		r("load 9", stack -> stack.push(9));
 		//r("endif", ENDIF, stack -> {}, "End a conditional block.");
-		r("def", FUNCTION, stack -> stack.getProgram().crash("Attempted to execute an AST control flow structure. [FUNCTION]"), "Declares a function.");
+		r("def", FUNCTION, stack -> astFail(stack, "FUNCTION"), "Declares a function.");
 		r("UNUSED literal begin", LITERAL, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
 		r("UNUSED literal special", SPECIAL, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
 		r("UNUSED literal compression mode 1", COMPRESSION1, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
@@ -75,18 +72,18 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("UNUSED literal begin 2 character", LITERAL1, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
 		r("UNUSED literal begin 1 character", LITERAL2, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
 		r("UNUSED literal LZMA", LZMA, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
-		r("if =", EQUAL, stack -> conditional(stack, (v, o) -> v.compare(o, Comparison.EQUAL)), "Enter a conditional block if the top two stack values are equal.");
-		r("if !=", NOT_EQUAL, stack -> conditional(stack, (v, o) -> !v.compare(o, Comparison.EQUAL)), "Enter a conditional block if the top two stack values not equal.");
-		r("if >", GREATER, stack -> conditional(stack, (v, o) -> v.compare(o, Comparison.GREATER)), "Enter a conditional block if the second stack value is greater than the top stack value.");
-		r("if >=", GREATER_EQUAL, stack -> conditional(stack, (v, o) -> v.compare(o, Comparison.GREATER) || v.compare(o, Comparison.EQUAL)), "Enter a conditional block if the second stack value is greater than or equal to the top stack value.");
-		r("if <", LESS, stack -> conditional(stack, (v, o) -> v.compare(o, Comparison.LESS)), "Enter a conditional block if the second stack value is less than the top stack value.");
-		r("if <=", LESS_EQUAL, stack -> conditional(stack, (v, o) -> v.compare(o, Comparison.LESS) || v.compare(o, Comparison.EQUAL)), "Enter a conditional block if the second stack value is less than or equal to the top stack value.");
-		r("if true", TRUE, stack -> conditional(stack.push(true), (v, o) -> v.compare(o, Comparison.EQUAL)), "Enter a conditional block if first stack value exactly equals true.");
-		r("if false", FALSE, stack -> conditional(stack.push(false), (v, o) -> v.compare(o, Comparison.EQUAL)), "Enter a conditional block if first stack value exactly equals false.");
+		r("if =", EQUAL, stack -> astFail(stack, "IF ="), "Enter a conditional block if the top two stack values are equal.");
+		r("if !=", NOT_EQUAL, stack -> astFail(stack, "IF !="), "Enter a conditional block if the top two stack values not equal.");
+		r("if >", GREATER, stack -> astFail(stack, "IF >"), "Enter a conditional block if the second stack value is greater than the top stack value.");
+		r("if >=", GREATER_EQUAL, stack -> astFail(stack, "IF >="), "Enter a conditional block if the second stack value is greater than or equal to the top stack value.");
+		r("if <", LESS, stack -> astFail(stack, "IF <"), "Enter a conditional block if the second stack value is less than the top stack value.");
+		r("if <=", LESS_EQUAL, stack -> astFail(stack, "IF <="), "Enter a conditional block if the second stack value is less than or equal to the top stack value.");
+		r("if true", TRUE, stack -> astFail(stack, "IF TRUE"), "Enter a conditional block if first stack value exactly equals true.");
+		r("if false", FALSE, stack -> astFail(stack, "IF FALSE"), "Enter a conditional block if first stack value exactly equals false.");
 		r("load true", stack -> stack.push(true));
 		r("load false", stack -> stack.push(false));
 		r("load null", stack -> stack.push(nul));
-		r("else", ELSE, stack -> processEsle(stack), "Enter a conditional block if and only if the last conditional block was not executed.");
+		r("else", ELSE, stack -> astFail(stack, "ELSE"), "Enter a conditional block if and only if the last conditional block was not executed.");
 		r("pop", stack -> stack.pop(), "Remove the first stack values from the stack.");
 		r("pop 2", stack -> stack.pop(2), "Remove the first two stack values from the stack.");
 		r("clr", stack -> stack.clr(), "Remove all values on the stack.");
@@ -107,9 +104,9 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("sdr b", stack -> stack.getProgram().getRegisters().setB(stack.pop()), "Store the first stack value in the b register.");
 		r("sdr c", stack -> stack.getProgram().getRegisters().setC(stack.pop()), "Store the first stack value in the c register.");
 		r("sdr d", stack -> stack.getProgram().getRegisters().setD(stack.pop()), "Store the first stack value in the d register.");
-		r("iterate", ITERATE, stack -> stack.getProgram().crash("Attempted to execute an AST control flow structure. [ITERATE]"), "Enter an iteration block over the first stack value.");
-		r("iterate stack", ITERATE_STACK, stack -> stack.getProgram().crash("Attempted to execute an AST control flow structure. [ITERATE STACK]"), "Enter an iteration block over the first stack value and push the iteration element register at the begining of each loop.");
-		r("end", END, stack -> stack.getProgram().crash("Attempted to execute an AST control flow structure [END]."), "Ends a control flow structure.");
+		r("iterate", ITERATE, stack -> stack.getProgram().crash("[ITERATE]"), "Enter an iteration block over the first stack value.");
+		r("iterate stack", ITERATE_STACK, stack -> astFail(stack, "[ITERATE STACK]"), "Enter an iteration block over the first stack value and push the iteration element register at the begining of each loop.");
+		r("end", END, stack -> astFail(stack, "END"), "Ends a control flow structure.");
 		r("print", stack -> stack.getProgram().print(stack.pop().toString()), "Print the first stack value.");
 		r("print space", stack -> stack.getProgram().print(" "), "Print a space character.");
 		r("println", stack -> stack.getProgram().println(stack.pop().toString()), "Print the first stack value, then a newline.");
@@ -140,23 +137,8 @@ public class StandardOpcodes extends OpcodeRegistry {
 		// 79
 	}
 
-	private void processEsle(Stack stack) {
-		Program p = stack.getProgram();
-		//if (p.isLastConditional()) {
-		//	p.jumpToEndif();
-		//}
-	}
-
-	private void conditional(Stack stack, BiFunction<Value, Value, Boolean> func) {
-		Value b = stack.pop();
-		Value a = stack.pop();
-		Program p = stack.getProgram();
-		if (func.apply(a, b)) {
-			//p.updateLastConditional(true);
-			return;
-		}
-		//p.updateLastConditional(false);
-		//p.jumpToEndif();
+	private void astFail(Stack stack, String type) {
+		stack.getProgram().crash("Attempted to execute an AST control flow structure. [" + type + "]");
 	}
 
 	private void pushStackAsList(Stack stack) {

@@ -18,4 +18,9 @@ public class ASTFunction implements ASTNode {
 	public void enterFunction() {
 		nodes.enter();
 	}
+
+	@Override
+	public String toString() {
+		return "<function " + nodes.toString() + ">";
+	}
 }

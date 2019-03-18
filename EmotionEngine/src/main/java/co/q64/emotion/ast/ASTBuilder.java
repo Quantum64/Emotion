@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -14,6 +15,7 @@ import co.q64.emotion.lang.opcode.Opcodes;
 import co.q64.emotion.lang.value.LiteralFactory;
 import co.q64.emotion.lang.value.Value;
 import co.q64.emotion.lexer.Lexer;
+import co.q64.emotion.runtime.Output;
 import co.q64.emotion.types.Comparison;
 
 @Singleton
@@ -29,8 +31,16 @@ public class ASTBuilder {
 
 	protected @Inject ASTBuilder() {}
 
-	public AST build(Program program, String source) {
-		List<Instruction> instructions = lexer.parse(source, program.getOutput());
+	public AST build(@Nullable Program program, String source) {
+		Output output = new Output() {
+			public void println(String message) {}
+
+			public void print(String message) {}
+		};
+		if (program != null) {
+			output = program.getOutput();
+		}
+		List<Instruction> instructions = lexer.parse(source, output);
 		AST result = astFactory.create();
 		for (Iterator<Instruction> itr = instructions.iterator(); itr.hasNext();) {
 			investigateNextInstruction(program, itr, result);

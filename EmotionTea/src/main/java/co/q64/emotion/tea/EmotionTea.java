@@ -31,6 +31,7 @@ public class EmotionTea {
 			cc.setOutput(co.getDisplayOutput().stream().collect(Collectors.joining("\n")));
 			if (co.isSuccess()) {
 				cc.setProgram(co.getProgram());
+				cc.setExplanation(co.getExplanation().toArray(new String[0]));
 			}
 			return cc;
 		});
@@ -111,7 +112,7 @@ public class EmotionTea {
 	private @JSFunctor @FunctionalInterface static interface DebuggerInit extends JSObject {
 		public String[] getCodepage();
 	}
-	
+
 	private @JSFunctor @FunctionalInterface static interface DebuggerStep extends JSObject {
 		public String[] getCodepage();
 	}
@@ -124,6 +125,10 @@ public class EmotionTea {
 		public @JSProperty String getOutput();
 
 		public @JSProperty void setOutput(String output);
+
+		public @JSProperty String[] getExplanation();
+
+		public @JSProperty void setExplanation(String[] explanation);
 	}
 
 	@JSBody(params = { "emotionEngine" }, script = "window.emotion = emotionEngine;")

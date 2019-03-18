@@ -1,5 +1,6 @@
 package co.q64.emotion.ast;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import com.google.auto.factory.AutoFactory;
@@ -12,17 +13,24 @@ public class ASTInstruction implements ASTNode {
 	private Program program;
 	private Instruction insn;
 
-	protected @Inject ASTInstruction(Program program, Instruction insn) {
+	protected @Inject ASTInstruction(@Nullable Program program, Instruction insn) {
 		this.program = program;
 		this.insn = insn;
 	}
 
 	@Override
 	public void enter() {
-		try {
-			insn.execute(program.getStack());
-		} catch (Exception e) {
-			program.crash(e.getClass().getSimpleName() + ": " + e.getMessage() + " [Instruction: " + insn.getInstruction() + "]");
+		if (program.shouldContinueExecution()) {
+			try {
+				insn.execute(program.getStack());
+			} catch (Exception e) {
+				program.crash(e.getClass().getSimpleName() + ": " + e.getMessage() + " [Instruction: " + insn.getInstruction() + "]");
+			}
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return insn.getInstruction();
 	}
 }

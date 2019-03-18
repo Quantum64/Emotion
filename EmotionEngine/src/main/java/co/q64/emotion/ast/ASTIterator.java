@@ -1,5 +1,6 @@
 package co.q64.emotion.ast;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import com.google.auto.factory.AutoFactory;
@@ -17,7 +18,7 @@ public class ASTIterator implements ASTNode {
 	private ASTNode nodes;
 	private boolean stack;
 
-	protected @Inject ASTIterator(@Provided IteratorFactoryFactory iteratorFactoryFactory, Program program, ASTNode nodes, boolean stack) {
+	protected @Inject ASTIterator(@Provided IteratorFactoryFactory iteratorFactoryFactory, @Nullable Program program, ASTNode nodes, boolean stack) {
 		this.iteratorFactory = iteratorFactoryFactory.getFactory();
 		this.program = program;
 		this.nodes = nodes;
@@ -28,7 +29,15 @@ public class ASTIterator implements ASTNode {
 	public void enter() {
 		Iterator itr = iteratorFactory.create(program, stack);
 		while (!itr.next()) {
+			if (!program.shouldContinueExecution()) {
+				break;
+			}
 			nodes.enter();
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "(iterate " + nodes.toString() + ")";
 	}
 }

@@ -80,7 +80,7 @@
 							<debugInformationGenerated>false</debugInformationGenerated>
 							<sourceMapsGenerated>false</sourceMapsGenerated>
 							<sourceFilesCopied>false</sourceFilesCopied>
-							<optimizationLevel>FULL</optimizationLevel>
+							<optimizationLevel>SIMPLE</optimizationLevel>
 						</configuration>
 					</execution>
 				</executions>

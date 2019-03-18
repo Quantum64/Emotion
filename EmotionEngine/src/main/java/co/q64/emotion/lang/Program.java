@@ -1,5 +1,7 @@
 package co.q64.emotion.lang;
 
+import java.util.concurrent.TimeUnit;
+
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 
@@ -19,7 +21,6 @@ public class Program {
 	private ASTBuilder astBuilder;
 
 	private @Getter Output output;
-	//private @Getter List<Instruction> instructions;
 	private @Getter AST ast;
 	private @Getter Stack stack;
 	private @Getter Registers registers;
@@ -75,6 +76,16 @@ public class Program {
 				functor++;
 			}
 		}
+	}
+
+	public boolean shouldContinueExecution() {
+		if (!terminated) {
+			if (System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(2) > start) {
+				crash("Unusually long execution time! (2000ms)");
+				terminated = true;
+			}
+		}
+		return !terminated;
 	}
 
 	// Probably unsupported with AST

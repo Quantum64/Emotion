@@ -53,30 +53,27 @@ public class Compiler {
 				updated.append(c);
 			}
 			current = updated.toString().trim();
-			if (!current.isEmpty()) {
-				instructions.add(current);
-			}
+			instructions.add(current);
 		}
 		int line = 0;
-		//int functorIndex = 0;
 		List<String> compiledInsns = new ArrayList<>();
 		List<String> functions = new ArrayList<>();
-		//Map<String, Integer> markers = new HashMap<>();
 		for (ListIterator<String> itr = instructions.listIterator(); itr.hasNext();) {
 			List<String> instructionsToCompile = new ArrayList<>(Arrays.asList(itr.next()));
 			String firstInstruction = instructionsToCompile.get(0);
 			StringBuilder compiled = new StringBuilder();
 			line++;
 			if (firstInstruction.isEmpty()) {
+				itr.remove();
 				continue;
 			}
 			if (firstInstruction.startsWith("def ") && firstInstruction.length() > 4) {
-				if(functions.contains(firstInstruction.substring(4))) {
+				if (functions.contains(firstInstruction.substring(4))) {
 					return output.create("AST structure violation: Function '" + firstInstruction.substring(4) + "' defined multiple times! Line: " + line);
 				}
 				instructionsToCompile.clear();
 				instructionsToCompile.add("def");
-			} else if(firstInstruction.startsWith("def")) {
+			} else if (firstInstruction.startsWith("def")) {
 				return output.create("Unnamed function definition. Line: " + line);
 			}
 			if (firstInstruction.startsWith("jump ") && firstInstruction.length() > 5) {
@@ -283,6 +280,7 @@ public class Compiler {
 				}));
 				return Optional.empty();
 			}
+			// TODO Rework this
 			boolean mustCompress = false;
 			for (char c : load.toCharArray()) {
 				if (!codepage.contains(String.valueOf(c))) {

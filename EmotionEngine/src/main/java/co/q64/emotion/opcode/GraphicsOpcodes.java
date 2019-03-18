@@ -5,12 +5,17 @@ import javax.inject.Singleton;
 
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
+import co.q64.emotion.lang.value.Value;
+import co.q64.emotion.lang.value.graphics.Image;
+import co.q64.emotion.lang.value.graphics.ImageFactory;
 import co.q64.emotion.runtime.Graphics;
+import co.q64.emotion.util.Color;
 import co.q64.emotion.util.ColorFactory;
 
 @Singleton
 public class GraphicsOpcodes extends OpcodeRegistry {
 	protected @Inject Graphics graphics;
+	protected @Inject ImageFactory imageFactory;
 	protected @Inject ColorFactory colors;
 
 	protected @Inject GraphicsOpcodes() {
@@ -19,9 +24,10 @@ public class GraphicsOpcodes extends OpcodeRegistry {
 
 	@Override
 	public void register() {
-		r("graphics.image", stack -> stack.push(graphics.createImage(100, 100, colors.create(255, 255, 255))), "Push a 100x100 image filled with white pixels.");
-		r("graphics.imageWithColor", stack -> stack.push(graphics.createImage(100, 100, colors.create(stack.pop().toString()))), "Push a 100x100 image filled with pixels colored the first stack value.");
-		r("graphics.imageWithSize", stack -> stack.push(graphics.createImage(stack.peek(2).asInt(), stack.pull(2).asInt(), colors.create(255, 255, 255))), "Push an image filled with white pixels with a width of the second stack value and a height of the first stack value.");
+		r("graphics.image", stack -> stack.push(createImage(100, 100)), "Push a 100x100 image filled with transparent pixels.");
+		r("graphics.imageWithColor", stack -> stack.push(createImageWithColor(100, 100, colors.create(stack.pop().toString()))), "Push a 100x100 image filled with pixels colored the first stack value.");
+		
+		r("graphics.imageWithSize", stack -> stack.push(createImage(stack.peek(2).asInt(), stack.pull(2).asInt())), "Push an image filled with transparent pixels with a width of the second stack value and a height of the first stack value.");
 		r("graphics.imageWithSquareSize", stack -> stack.push(graphics.createImage(stack.peek().asInt(), stack.pop().asInt(), colors.create(255, 255, 255))), "Push an image filled with white pixels with a width and height of the first stack value.");
 		r("graphics.imageWithSizeAndColor", stack -> stack.push(graphics.createImage(stack.peek(3).asInt(), stack.peek(2).asInt(), colors.create(stack.pull(3).toString()))), "Push an image color filled with the first stack value with a width of the third stack value and a height of the second stack value.");
 		r("graphics.imageWithSquareSizeAndColor", stack -> stack.push(graphics.createImage(stack.peek(2).asInt(), stack.peek(2).asInt(), colors.create(stack.pull(2).toString()))), "Push an image color filled with the first stack value with a width and height of the second stack value.");
@@ -45,5 +51,22 @@ public class GraphicsOpcodes extends OpcodeRegistry {
 		r("graphics.drawEllipseAt", stack -> graphics.drawEllipse(stack.peek(5), stack.peek(2).asInt(), stack.peek().asInt(), stack.peek(4).asInt(), stack.peek(3).asInt(), stack.pop(4).asInt() == -1), "Draw an ellipse on the image on the fifth stack value with a width of the fourth stack value and a height of the third stack value at the second stack value, the first stack value.");
 		r("graphics.fillEllipse", stack -> graphics.drawEllipse(stack.peek(3), 0, 0, stack.peek(2).asInt(), stack.pull(2).asInt(), true), "Fill an ellipse on the image on the first stack value with a radius of 50 pixels at 0, 0.");
 		r("graphics.fillEllipseAt", stack -> graphics.drawEllipse(stack.peek(5), stack.peek(2).asInt(), stack.peek().asInt(), stack.peek(4).asInt(), stack.peek(3).asInt(), stack.pop(4).asInt() != -1), "Fill an ellipse on the image on the fifth stack value with a width of the fourth stack value and a height of the third stack value at the second stack value, the first stack value.");
+	}
+
+	private Image createImage(int width, int height) {
+		return imageFactory.create(width, height);
+	}
+
+	private Image createImageWithColor(int width, int height, Color color) {
+		Image image = imageFactory.create(width, height);
+		image.fill(color);
+		return image;
+	}
+	
+	private Image asImage(Value value) {
+		if (value instanceof Image) {
+			return (Image) value;
+		}
+		throw new IllegalArgumentException("The provided argument was not an Image!");
 	}
 }

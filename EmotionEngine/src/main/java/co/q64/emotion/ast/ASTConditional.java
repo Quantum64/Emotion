@@ -2,6 +2,7 @@ package co.q64.emotion.ast;
 
 import java.util.Optional;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import com.google.auto.factory.AutoFactory;
@@ -17,7 +18,7 @@ public class ASTConditional implements ASTNode {
 	private Comparison type;
 	private Optional<Value> push;
 
-	protected @Inject ASTConditional(Program program, AST pass, AST fail, Comparison type, Optional<Value> push) {
+	protected @Inject ASTConditional(@Nullable Program program, AST pass, AST fail, Comparison type, Optional<Value> push) {
 		this.program = program;
 		this.pass = pass;
 		this.fail = fail;
@@ -37,5 +38,10 @@ public class ASTConditional implements ASTNode {
 		} else {
 			fail.enter();
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "{if " + type.name() + pass.toString() + " else " + fail.toString() + "}";
 	}
 }
