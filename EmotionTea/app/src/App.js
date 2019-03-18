@@ -13,11 +13,6 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import Avatar from '@material-ui/core/Avatar';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import ListItemText from '@material-ui/core/ListItemText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Dialog from '@material-ui/core/Dialog';
 import TextField from '@material-ui/core/TextField';
@@ -43,6 +38,9 @@ class App extends Component {
       editorOutput: "",
       editorArguments: "",
       editorGeneratedOpen: false,
+      interpreterCode: "",
+      interpreterArguments: "",
+      interpreterOutput: "",
       decompilerProgram: "",
       loaded: false
     }
@@ -121,7 +119,13 @@ class App extends Component {
         obj = {
           editorCode: state.editorCode,
           editorArguments: state.editorArguments
-        }
+        };
+        break;
+      case "interpreter":
+        obj = {
+          interpreterCode: state.interpreterCode,
+          interpreterArguments: state.interpreterArguments
+        };
         break;
       default:
         obj = {};
@@ -146,9 +150,17 @@ class App extends Component {
   runCodeEditor() {
     if (this.state.loaded) {
       const output = this.emotion.execute(this.state.editorCode, this.state.editorArguments);
-      console.log(this.state.editorArguments)
       this.setState({
         editorOutput: output
+      });
+    }
+  }
+  
+  runCodeInterpreter() {
+    if (this.state.loaded) {
+      const output = this.emotion.interpret(this.state.interpreterCode, this.state.interpreterArguments);
+      this.setState({
+        interpreterOutput: output
       });
     }
   }
@@ -192,8 +204,8 @@ class App extends Component {
     const compiled = this.emotion.compile(this.state.editorCode);
     if (compiled.program !== undefined) {
       const codepageUrl = window.location.origin + "/?state=" + this.encodeState({ mode: "codepage" });
-      const tryItUrl = window.location.origin + "/?state=" + this.encodeState({ mode: "codepage" });
-      result.push("# [Jstx][1], " + this.getCodeBytes(compiled.program) + " [bytes][2]");
+      const tryItUrl = window.location.origin + "/?state=" + this.encodeState({ mode: "interpreter", interpreterCode: compiled.program, interpreterArguments: this.state.editorArguments });
+      result.push("# [Emotion][1], " + this.getCodeBytes(compiled.program) + " [bytes][2]");
       result.push("");
       result.push("    " + compiled.program);
       result.push("Explanation");
@@ -279,6 +291,8 @@ class App extends Component {
                         <Button size="small" variant="contained" color="primary" onClick={() => this.runCodeEditor()}>
                           Run Code
                         </Button>
+                      </Grid>
+                      <Grid item>
                         <Button size="small" variant="contained" color="secondary" onClick={() => {
                           this.setState({
                             editorGeneratedOpen: true
@@ -334,6 +348,79 @@ class App extends Component {
           }}
           value={() => this.generateStackExchange()}
         />
+      </React.Fragment>
+    );
+  }
+
+  getInterpreterContent() {
+    const code = this.state.interpreterCode;
+    const args = this.state.interpreterArguments;
+    //let result = "Initializing Engine...";
+    //let bytes = 0;
+    const bytes = this.getCodeBytes(code);
+
+    const options = { selectOnLineNumbers: true, automaticLayout: automaticLayout };
+    const optionsArguments = { ...options, minimap: { enabled: false } }
+    const optionsDisabled = { ...optionsArguments, readOnly: true }
+    return (
+      <React.Fragment>
+        <Grid container direction="column" spacing={0} style={{ height: "100%" }}>
+          <Grid item>
+            <Typography variant="h6">
+              Code ({bytes} bytes)
+            </Typography>
+          </Grid>
+          <Grid item xs>
+            <MonacoEditor width="100%" height="100%" language="elang" theme="emotion"
+              value={code}
+              options={options}
+              onChange={(value, event) => {
+                this.setState({
+                  interpreterCode: value
+                });
+              }}
+              editorWillMount={(editor) => this.mutateEditor(editor)}
+            />
+          </Grid>
+          <br />
+          <Grid item>
+            <Typography variant="h6">
+              Arguments
+            </Typography>
+          </Grid>
+          <Grid item xs>
+            <MonacoEditor width="100%" height="100%" language="text" theme="emotion"
+              value={args}
+              options={optionsArguments}
+              onChange={(value, event) => {
+                this.setState({
+                  interpreterArguments: value
+                });
+              }}
+            />
+          </Grid>
+          <br />
+          <Grid item>
+            <Grid container direction="row" alignItems="center" spacing={16} style={{ padding: 5 }}>
+              <Grid item>
+                <Typography variant="h6">
+                  Output
+                </Typography>
+              </Grid>
+              <Grid item>
+                <Button size="small" variant="contained" color="primary" onClick={() => this.runCodeInterpreter()}>
+                  Run Code
+                </Button>
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs>
+            <MonacoEditor width="100%" height="100%" language="text" theme="emotion"
+              value={this.state.interpreterOutput}
+              options={optionsDisabled}
+            />
+          </Grid>
+        </Grid>
       </React.Fragment>
     );
   }
@@ -488,6 +575,9 @@ class App extends Component {
 
     let content = null;
     switch (this.state.mode) {
+      case "interpreter":
+        content = this.getInterpreterContent();
+        break;
       case "compiler":
         content = this.getEditorContent();
         break;
@@ -504,7 +594,7 @@ class App extends Component {
         break;
     }
 
-    const modes = ["interpreter", "compiler", "lexer", "debugger", "reference", "codepage"];
+    const modes = ["interpreter", "compiler", "lexer", "reference", "codepage"];
     const buttons = [];
     for (let mode of modes) {
       buttons.push(

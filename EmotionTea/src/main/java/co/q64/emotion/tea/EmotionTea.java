@@ -51,6 +51,11 @@ public class EmotionTea {
 			component.getEngine().runProgram(compiled.getProgram(), args, buffer);
 			return buffer.toString();
 		});
+		emotion.setInterpret((program, args) -> {
+			OutputBuffer buffer = new OutputBuffer();
+			component.getEngine().runProgram(program, args, buffer);
+			return buffer.toString();
+		});
 		emotion.setGetOpcodeDescription(name -> component.getOpcodes().getDescription(name));
 		emotion.setGetOpcodes(() -> component.getOpcodes().getNames().toArray(new String[0]));
 		emotion.setGetCodepage(() -> {
@@ -67,6 +72,10 @@ public class EmotionTea {
 		public @JSProperty Execute getExecute();
 
 		public @JSProperty void setExecute(Execute execute);
+
+		public @JSProperty Interpret getInterpret();
+
+		public @JSProperty void setInterpret(Interpret interpret);
 
 		public @JSProperty Decompile getDecompile();
 
@@ -91,6 +100,10 @@ public class EmotionTea {
 
 	private @JSFunctor @FunctionalInterface static interface Execute extends JSObject {
 		public String execute(String program, String args);
+	}
+
+	private @JSFunctor @FunctionalInterface static interface Interpret extends JSObject {
+		public String interpret(String program, String args);
 	}
 
 	private @JSFunctor @FunctionalInterface static interface Decompile extends JSObject {
