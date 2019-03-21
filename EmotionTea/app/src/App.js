@@ -196,15 +196,18 @@ class App extends Component {
   }
 
   generateStackExchange() {
-    console.log("called!");
     if (!this.state.loaded) {
       return "";
     }
     const result = [];
     const compiled = this.emotion.compile(this.state.editorCode);
     if (compiled.program !== undefined) {
-      const codepageUrl = window.location.origin + "/?state=" + this.encodeState({ mode: "codepage" });
-      const tryItUrl = window.location.origin + "/?state=" + this.encodeState({ mode: "interpreter", interpreterCode: compiled.program, interpreterArguments: this.state.editorArguments });
+      let baseUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+      if (!baseUrl.endsWith("/")) {
+        baseUrl += "/";
+      }
+      const codepageUrl = baseUrl + "/?state=" + this.encodeState({ mode: "codepage" });
+      const tryItUrl = baseUrl + "/?state=" + this.encodeState({ mode: "interpreter", interpreterCode: compiled.program, interpreterArguments: this.state.editorArguments });
       result.push("# [Emotion][1], " + this.getCodeBytes(compiled.program) + " [bytes][2]");
       result.push("");
       result.push("    " + compiled.program);

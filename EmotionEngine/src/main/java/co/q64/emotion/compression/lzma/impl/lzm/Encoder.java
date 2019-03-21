@@ -1118,13 +1118,13 @@ public class Encoder {
 		return new Chunker(this);
 	}
 
-	public static final int kPropSize = 5;
+	public static final int kPropSize = 1;
 	byte[] properties = new byte[kPropSize];
 
 	public void WriteCoderProperties(java.io.OutputStream outStream) throws IOException {
 		properties[0] = (byte) ((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits);
-		for (int i = 0; i < 4; i++)
-			properties[1 + i] = (byte) (_dictionarySize >> (8 * i));
+		//for (int i = 0; i < 4; i++)
+		//	properties[1 + i] = (byte) (_dictionarySize >> (8 * i));
 		outStream.write(properties, 0, kPropSize);
 	}
 
@@ -1173,6 +1173,7 @@ public class Encoder {
 		return true;
 	}
 
+	/*
 	public boolean SetDictionarySize(int dictionarySize) {
 		int kDicLogSizeMaxCompress = 29;
 		if (dictionarySize < (1 << Base.kDicLogSizeMin) || dictionarySize > (1 << kDicLogSizeMaxCompress))
@@ -1184,6 +1185,7 @@ public class Encoder {
 		_distTableSize = dicLogSize * 2;
 		return true;
 	}
+	*/
 
 	public boolean SetNumFastBytes(int numFastBytes) {
 		if (numFastBytes < 5 || numFastBytes > Base.kMatchMaxLen)

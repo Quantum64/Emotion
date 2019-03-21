@@ -36,8 +36,8 @@ public enum CompressionMode {
 	void configure(Encoder encoder) {
 		if (!encoder.SetAlgorithm(this.algorithm))
 			throw new RuntimeException("unexpected failure");
-		if (!encoder.SetDictionarySize(1 << this.dictionarySize))
-			throw new RuntimeException("unexpected failure");
+		//if (!encoder.SetDictionarySize(1 << this.dictionarySize))
+		//	throw new RuntimeException("unexpected failure");
 		if (!encoder.SetNumFastBytes(this.fb))
 			throw new RuntimeException("unexpected failure");
 		if (!encoder.SetMatchFinder(this.matchFinder))

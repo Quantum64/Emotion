@@ -85,8 +85,10 @@ public class LZMACompressor {
 		mode.configure(encoder);
 		encoder.SetEndMarkerMode(true);
 		encoder.WriteCoderProperties(output);
+		/*
 		for (int i = 0; i < 64; i += 8)
 			output.write((int) (length >> i) & 0xff);
+		*/
 		this.chunker = encoder.CodeInChunks(input, output, length, -1);
 		while (execute()) {}
 	}

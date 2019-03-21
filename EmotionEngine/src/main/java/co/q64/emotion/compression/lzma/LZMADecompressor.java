@@ -43,7 +43,7 @@ public class LZMADecompressor {
 	LZMADecompressor() {}
 
 	void init(InputStream input, OutputStream output) throws IOException {
-		byte[] properties = new byte[5];
+		byte[] properties = new byte[1];
 		for (int i = 0; i < properties.length; i++) {
 			int r = input.read();
 			if (r == -1)
@@ -53,6 +53,7 @@ public class LZMADecompressor {
 		Decoder decoder = new Decoder();
 		if (!decoder.SetDecoderProperties(properties))
 			throw new IOException("corrupted input");
+		/*
 		long expectedLength = -1;
 		for (int i = 0; i < 64; i += 8) {
 			int r = input.read();
@@ -61,6 +62,8 @@ public class LZMADecompressor {
 			expectedLength |= ((long) r) << i;
 		}
 		this.length = expectedLength;
+		*/
+		this.length = Long.MAX_VALUE;
 		this.chunker = decoder.CodeInChunks(input, output, this.length);
 		while (execute()) {}
 	}

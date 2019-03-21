@@ -124,7 +124,8 @@ public class Decoder {
 
 	LiteralDecoder m_LiteralDecoder = new LiteralDecoder();
 
-	int m_DictionarySize = -1;
+	static final int kDefaultDictionaryLogSize = 22;
+	int m_DictionarySize = (1 << kDefaultDictionaryLogSize);
 	int m_DictionarySizeCheck = -1;
 
 	int m_PosStateMask;
@@ -134,14 +135,14 @@ public class Decoder {
 			m_PosSlotDecoder[i] = new BitTreeDecoder(Base.kNumPosSlotBits);
 	}
 
-	boolean SetDictionarySize(int dictionarySize) {
-		if (dictionarySize < 0)
-			return false;
-		if (m_DictionarySize != dictionarySize) {
-			m_DictionarySize = dictionarySize;
-			m_DictionarySizeCheck = Math.max(m_DictionarySize, 1);
-			m_OutWindow.Create(Math.max(m_DictionarySizeCheck, (1 << 12)));
-		}
+	boolean SetDictionarySize() {
+		//if (dictionarySize < 0)
+		//	return false;
+		//if (m_DictionarySize != dictionarySize) {
+		//m_DictionarySize = dictionarySize;
+		m_DictionarySizeCheck = Math.max(m_DictionarySize, 1);
+		m_OutWindow.Create(Math.max(m_DictionarySizeCheck, (1 << 12)));
+		//}
 		return true;
 	}
 
@@ -191,6 +192,7 @@ public class Decoder {
 		return new Chunker(this);
 	}
 
+	/*
 	public boolean Code(InputStream inStream, OutputStream outStream, long outSize) throws IOException {
 		CodeInit(inStream, outStream, outSize);
 		while (outSize < 0 || nowPos64 < outSize) {
@@ -206,6 +208,7 @@ public class Decoder {
 		CodeFinish();
 		return true;
 	}
+	*/
 
 	private void CodeInit(InputStream inStream, OutputStream outStream, long outSize) throws IOException {
 		m_RangeDecoder.SetStream(inStream);
@@ -306,18 +309,18 @@ public class Decoder {
 	}
 
 	public boolean SetDecoderProperties(byte[] properties) {
-		if (properties.length < 5)
-			return false;
+		//if (properties.length < 5)
+		//	return false;
 		int val = properties[0] & 0xFF;
 		int lc = val % 9;
 		int remainder = val / 9;
 		int lp = remainder % 5;
 		int pb = remainder / 5;
-		int dictionarySize = 0;
-		for (int i = 0; i < 4; i++)
-			dictionarySize += ((int) (properties[1 + i]) & 0xFF) << (i * 8);
+		//int dictionarySize = 0;
+		//for (int i = 0; i < 4; i++)
+		//	dictionarySize += ((int) (properties[1 + i]) & 0xFF) << (i * 8);
 		if (!SetLcLpPb(lc, lp, pb))
 			return false;
-		return SetDictionarySize(dictionarySize);
+		return SetDictionarySize();
 	}
 }
