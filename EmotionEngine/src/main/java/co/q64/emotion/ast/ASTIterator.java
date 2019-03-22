@@ -15,10 +15,10 @@ import co.q64.emotion.lang.Program;
 public class ASTIterator implements ASTNode {
 	private IteratorFactory iteratorFactory;
 	private Program program;
-	private ASTNode nodes;
+	private AST nodes;
 	private boolean stack;
 
-	protected @Inject ASTIterator(@Provided IteratorFactoryFactory iteratorFactoryFactory, @Nullable Program program, ASTNode nodes, boolean stack) {
+	protected @Inject ASTIterator(@Provided IteratorFactoryFactory iteratorFactoryFactory, @Nullable Program program, AST nodes, boolean stack) {
 		this.iteratorFactory = iteratorFactoryFactory.getFactory();
 		this.program = program;
 		this.nodes = nodes;
@@ -26,14 +26,24 @@ public class ASTIterator implements ASTNode {
 	}
 
 	@Override
-	public void enter() {
+	public ASTBackpropagation enter() {
 		Iterator itr = iteratorFactory.create(program, stack);
-		while (!itr.next()) {
+		loop: while (!itr.next()) {
 			if (!program.shouldContinueExecution()) {
 				break;
 			}
-			nodes.enter();
+			for (ASTNode node : nodes.getNodes()) {
+				switch (node.enter()) {
+				case BREAK:
+					break loop;
+				case CONTINUE:
+					continue loop;
+				default:
+					break;
+				}
+			}
 		}
+		return ASTBackpropagation.NONE;
 	}
 
 	@Override

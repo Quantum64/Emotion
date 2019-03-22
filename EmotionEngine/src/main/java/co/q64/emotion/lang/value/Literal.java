@@ -260,10 +260,10 @@ public class Literal implements Value {
 
 	@Override
 	public boolean asBoolean() {
-		if (literal.equals("1")) {
+		if (literal.equalsIgnoreCase("true")) {
 			return true;
 		}
-		return literal.equalsIgnoreCase("true");
+		return !literal.equals("0");
 	}
 
 	@Override

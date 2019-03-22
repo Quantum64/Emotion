@@ -1,4 +1,4 @@
-package co.q64.emotion.compression.lzma.impl.coder;
+package co.q64.emotion.compression.lzma;
 
 public class BitTreeDecoder {
 	short[] Models;

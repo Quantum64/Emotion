@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import co.q64.emotion.compression.Base;
+import co.q64.emotion.compression.Deflate;
 import co.q64.emotion.compression.Lzma;
 import co.q64.emotion.compression.Shoco;
 import co.q64.emotion.compression.Smaz;
@@ -25,6 +26,8 @@ import co.q64.emotion.lang.opcode.Opcodes;
 
 @Singleton
 public class Compiler {
+	private static final boolean isDeflateTooSlow = true;
+
 	protected @Inject Compiler() {}
 
 	protected @Inject Opcodes opcodes;
@@ -33,9 +36,8 @@ public class Compiler {
 	protected @Inject Base base;
 	protected @Inject Shoco shoco;
 	protected @Inject Lzma lzma;
+	protected @Inject Deflate deflate;
 	protected @Inject CompilerOutputFactory output;
-
-	private String codepage = Arrays.stream(Chars.values()).map(Chars::getCharacter).collect(Collectors.joining());
 
 	public CompilerOutput compile(List<String> input) {
 		cache.resetPrioritization();
@@ -164,7 +166,7 @@ public class Compiler {
 			}
 			if (load.length() == 1) {
 				if (load.matches("\\A\\p{ASCII}*\\z")) {
-					result.append(opcodes.getChars(OpcodeMarker.LITERAL1).getCharacter());
+					result.append(opcodes.getChars(OpcodeMarker.LITERAL_SINGLE).getCharacter());
 					result.append(Chars.fromInt(load.toCharArray()[0]).getCharacter());
 					return Optional.empty();
 				}
@@ -178,7 +180,7 @@ public class Compiler {
 					}
 				}
 				if (canInclude) {
-					result.append(opcodes.getChars(OpcodeMarker.LITERAL2).getCharacter());
+					result.append(opcodes.getChars(OpcodeMarker.LITERAL_PAIR).getCharacter());
 					for (char c : load.toCharArray()) {
 						result.append(Chars.fromInt(c).getCharacter());
 					}
@@ -190,7 +192,7 @@ public class Compiler {
 				byte[] compressed = base.compress(load);
 				if (compressed.length <= 256 && compressed.length > 0) {
 					StringBuilder sb = new StringBuilder();
-					sb.append(opcodes.getChars(OpcodeMarker.COMPRESSION1).getCharacter());
+					sb.append(opcodes.getChars(OpcodeMarker.COMPRESSION_BASE256).getCharacter());
 					sb.append(Chars.fromInt(compressed.length - 1).getCharacter());
 					for (byte b : compressed) {
 						sb.append(Chars.fromByte(b).getCharacter());
@@ -202,7 +204,7 @@ public class Compiler {
 				byte[] compressed = shoco.compress(load);
 				if (compressed.length <= 256 && compressed.length > 0) {
 					StringBuilder sb = new StringBuilder();
-					sb.append(opcodes.getChars(OpcodeMarker.SPECIAL).getCharacter());
+					sb.append(opcodes.getChars(OpcodeMarker.COMPRESSION_SHOCO).getCharacter());
 					sb.append(Chars.fromInt(compressed.length - 1).getCharacter());
 					for (byte b : compressed) {
 						sb.append(Chars.fromByte(b).getCharacter());
@@ -210,44 +212,11 @@ public class Compiler {
 					attempts.add(sb.toString());
 				}
 			}
-			if (Character.isUpperCase(load.charAt(0))) {
-				char[] chars = load.toCharArray();
-				boolean valid = true;
-				for (int i = 1; i < chars.length; i++) {
-					if (Character.isUpperCase(chars[i])) {
-						if (String.valueOf(chars[i - 1]).equals(" ")) {
-							continue;
-						}
-						valid = false;
-						break;
-					} else {
-						if (String.valueOf(chars[i - 1]).equals(" ")) {
-							valid = false;
-							break;
-						}
-					}
-				}
-				if (valid) {
-					String lower = load.toLowerCase();
-					if (smaz.canCompress(lower)) {
-						byte[] compressed = smaz.compress(lower);
-						if (compressed.length <= 256 && compressed.length > 0) {
-							StringBuilder sb = new StringBuilder();
-							sb.append(opcodes.getChars(OpcodeMarker.COMPRESSION3).getCharacter());
-							sb.append(Chars.fromInt(compressed.length - 1).getCharacter());
-							for (byte b : compressed) {
-								sb.append(Chars.fromByte(b).getCharacter());
-							}
-							attempts.add(sb.toString());
-						}
-					}
-				}
-			}
 			if (smaz.canCompress(load)) {
 				byte[] compressed = smaz.compress(load);
 				if (compressed.length <= 256 && compressed.length > 0) {
 					StringBuilder sb = new StringBuilder();
-					sb.append(opcodes.getChars(OpcodeMarker.COMPRESSION2).getCharacter());
+					sb.append(opcodes.getChars(OpcodeMarker.COMPRESSION_SMAZ).getCharacter());
 					sb.append(Chars.fromInt(compressed.length - 1).getCharacter());
 					for (byte b : compressed) {
 						sb.append(Chars.fromByte(b).getCharacter());
@@ -259,7 +228,7 @@ public class Compiler {
 				byte[] compressed = lzma.compress(load);
 				if (compressed.length > 0) {
 					StringBuilder sb = new StringBuilder();
-					sb.append(opcodes.getChars(OpcodeMarker.LZMA).getCharacter());
+					sb.append(opcodes.getChars(OpcodeMarker.COMPRESSION_LZMA).getCharacter());
 					sb.append(Chars.fromInt(compressed.length - 1 >= 255 ? 255 : compressed.length - 1).getCharacter());
 					if (compressed.length - 1 >= 255) {
 						sb.append(Chars.fromInt(compressed.length - 256).getCharacter());
@@ -268,6 +237,23 @@ public class Compiler {
 						sb.append(Chars.fromByte(b).getCharacter());
 					}
 					attempts.add(sb.toString());
+				}
+			}
+			if (deflate.canCompress(load)) {
+				if (!isDeflateTooSlow) {
+					byte[] compressed = deflate.compress(load);
+					if (compressed.length > 0) {
+						StringBuilder sb = new StringBuilder();
+						sb.append(opcodes.getChars(OpcodeMarker.COMPRESSION_DEFLATE).getCharacter());
+						sb.append(Chars.fromInt(compressed.length - 1 >= 255 ? 255 : compressed.length - 1).getCharacter());
+						if (compressed.length - 1 >= 255) {
+							sb.append(Chars.fromInt(compressed.length - 256).getCharacter());
+						}
+						for (byte b : compressed) {
+							sb.append(Chars.fromByte(b).getCharacter());
+						}
+						attempts.add(sb.toString());
+					}
 				}
 			}
 			List<String> less = attempts.stream().filter(s -> s.length() - 2 <= load.length()).collect(Collectors.toList());
@@ -280,32 +266,16 @@ public class Compiler {
 				}));
 				return Optional.empty();
 			}
-			// TODO Rework this
-			boolean mustCompress = false;
-			for (char c : load.toCharArray()) {
-				if (!codepage.contains(String.valueOf(c))) {
-					mustCompress = true;
-					break;
-				}
+			if (attempts.size() > 0) {
+				result.append(Collections.min(attempts, new Comparator<String>() {
+					@Override
+					public int compare(String s1, String s2) {
+						return s1.length() - s2.length();
+					}
+				}));
+				return Optional.empty();
 			}
-			if (load.contains(Chars.fromInt(~opcodes.getChars(OpcodeMarker.SPECIAL).getId() & 0xff).getCharacter()) || mustCompress) {
-				if (attempts.size() > 0) {
-					result.append(Collections.min(attempts, new Comparator<String>() {
-						@Override
-						public int compare(String s1, String s2) {
-							return s1.length() - s2.length();
-						}
-					}));
-					return Optional.empty();
-				}
-				return Optional.of(output.create("Failed to process literal. Line: " + line));
-			}
-			result.append(opcodes.getChars(OpcodeMarker.LITERAL).getCharacter());
-			for (char c : load.toCharArray()) {
-				result.append(Chars.fromInt(~Chars.fromCode(String.valueOf(c)).getId() & 0xff).getCharacter());
-			}
-			result.append(opcodes.getChars(OpcodeMarker.SPECIAL).getCharacter());
-			return Optional.empty();
+			return Optional.of(output.create("Failed to process literal. Line: " + line));
 		}
 		return Optional.of(output.create("Invalid instruction '" + ins + "' in source. Line: " + line));
 	}

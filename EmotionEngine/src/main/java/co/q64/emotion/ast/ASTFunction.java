@@ -13,7 +13,9 @@ public class ASTFunction implements ASTNode {
 	}
 
 	@Override
-	public void enter() {}
+	public ASTBackpropagation enter() {
+		return ASTBackpropagation.NONE; // Cannot backpropagate through functions
+	}
 
 	public void enterFunction() {
 		nodes.enter();

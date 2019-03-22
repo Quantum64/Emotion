@@ -1,4 +1,4 @@
-package co.q64.emotion.compression.lzma.impl.coder;
+package co.q64.emotion.compression.lzma;
 
 import java.io.IOException;
 

@@ -201,4 +201,32 @@ public class JavaDeflate {
 		}
 		return impl.getTotalOut();
 	}
+
+	/*
+	public static void main(String[] args) {
+		boolean noHeader = false;
+		String test = "Deflate compression testDeflate compression testDeflate compression testDeflate compression testDeflate compreaasssion test";
+		byte[] testBytes = test.getBytes(StandardCharsets.UTF_8);
+		System.out.println("Uncompressed size: " + testBytes.length + " data: " + Arrays.toString(testBytes));
+		byte[] compressedLong = new byte[4096];
+		JavaDeflate deflater = new JavaDeflate(-1, noHeader);
+		deflater.setInput(testBytes);
+		int result = deflater.deflate(compressedLong, 0, compressedLong.length, Z_FINISH);
+		long written = deflater.getBytesWritten();
+		boolean finished = deflater.finished();
+		byte[] compressed = new byte[(int) written];
+		System.arraycopy(compressedLong, 0, compressed, 0, (int) written);
+		System.out.println("Deflate result: " + result + " and written: " + written + " and finished: " + finished + " and data " + Arrays.toString(compressed));
+		
+		JavaInflate inflater = new JavaInflate(noHeader);
+		inflater.setInput(compressed);
+		byte[] inflatedLong = new byte[4096];
+		inflater.inflate(inflatedLong);
+		int read = (int) inflater.getBytesWritten();
+		byte[] inflated = new byte[read];
+		System.arraycopy(inflatedLong, 0, inflated, 0, read);
+		System.out.println("Inflated data: " + Arrays.toString(inflated));
+		System.out.println("Inflate result: " + new String(inflated, StandardCharsets.UTF_8) + " and read: " + read + " and finished: " + inflater.finished());
+	}
+	*/
 }

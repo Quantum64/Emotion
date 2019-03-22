@@ -27,16 +27,16 @@ public class ASTConditional implements ASTNode {
 	}
 
 	@Override
-	public void enter() {
+	public ASTBackpropagation enter() {
 		if (push.isPresent()) {
 			program.getStack().push(push.get());
 		}
 		Value b = program.getStack().pop();
 		Value a = program.getStack().pop();
 		if (a.compare(b, type)) {
-			pass.enter();
+			return pass.enter();
 		} else {
-			fail.enter();
+			return fail.enter();
 		}
 	}
 

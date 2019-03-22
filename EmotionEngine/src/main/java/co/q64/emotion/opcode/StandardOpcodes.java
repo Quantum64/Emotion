@@ -1,8 +1,10 @@
 package co.q64.emotion.opcode;
 
-import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION1;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION2;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION3;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.BREAK;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_BASE256;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_SMAZ;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_DEFLATE;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.CONTINUE;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.ELSE;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.END;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.EQUAL;
@@ -15,13 +17,12 @@ import static co.q64.emotion.lang.opcode.OpcodeMarker.ITERATE;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.ITERATE_STACK;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.LESS;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.LESS_EQUAL;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL1;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL2;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.LZMA;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL_SINGLE;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL_PAIR;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.LOOP;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_LZMA;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.NOT_EQUAL;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.PRIORITIZATION;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.SPECIAL;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_SHOCO;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.STANDARD;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.TRUE;
 
@@ -35,7 +36,6 @@ import javax.inject.Singleton;
 
 import co.q64.emotion.lang.Stack;
 import co.q64.emotion.lang.opcode.OpcodeCache;
-import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
 import co.q64.emotion.lang.value.Null;
 import co.q64.emotion.lang.value.Value;
@@ -64,14 +64,14 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("load 9", stack -> stack.push(9));
 		//r("endif", ENDIF, stack -> {}, "End a conditional block.");
 		r("def", FUNCTION, stack -> astFail(stack, "FUNCTION"), "Declares a function.");
-		r("UNUSED literal begin", LITERAL, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
-		r("UNUSED literal special", SPECIAL, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
-		r("UNUSED literal compression mode 1", COMPRESSION1, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
-		r("UNUSED literal compression mode 2", COMPRESSION2, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
-		r("UNUSED literal compression mode 3", COMPRESSION3, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
-		r("UNUSED literal begin 2 character", LITERAL1, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
-		r("UNUSED literal begin 1 character", LITERAL2, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
-		r("UNUSED literal LZMA", LZMA, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
+		//r("UNUSED literal begin", LITERAL, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
+		r("UNUSED literal special", COMPRESSION_SHOCO, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
+		r("UNUSED literal compression mode 1", COMPRESSION_BASE256, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
+		r("UNUSED literal compression mode 2", COMPRESSION_SMAZ, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
+		r("UNUSED literal compression mode 3", COMPRESSION_DEFLATE, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
+		r("UNUSED literal begin 2 character", LITERAL_SINGLE, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
+		r("UNUSED literal begin 1 character", LITERAL_PAIR, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
+		r("UNUSED literal LZMA", COMPRESSION_LZMA, stack -> stack.getProgram().crash("The interpreter attempted to execute an unused literal opcode!"));
 		r("if =", EQUAL, stack -> astFail(stack, "IF ="), "Enter a conditional block if the top two stack values are equal.");
 		r("if !=", NOT_EQUAL, stack -> astFail(stack, "IF !="), "Enter a conditional block if the top two stack values not equal.");
 		r("if >", GREATER, stack -> astFail(stack, "IF >"), "Enter a conditional block if the second stack value is greater than the top stack value.");
@@ -104,8 +104,10 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("sdr b", stack -> stack.getProgram().getRegisters().setB(stack.pop()), "Store the first stack value in the b register.");
 		r("sdr c", stack -> stack.getProgram().getRegisters().setC(stack.pop()), "Store the first stack value in the c register.");
 		r("sdr d", stack -> stack.getProgram().getRegisters().setD(stack.pop()), "Store the first stack value in the d register.");
-		r("iterate", ITERATE, stack -> stack.getProgram().crash("[ITERATE]"), "Enter an iteration block over the first stack value.");
-		r("iterate stack", ITERATE_STACK, stack -> astFail(stack, "[ITERATE STACK]"), "Enter an iteration block over the first stack value and push the iteration element register at the begining of each loop.");
+		r("iterate", ITERATE, stack -> stack.getProgram().crash("ITERATE"), "Enter an iteration block over the first stack value.");
+		r("iterate stack", ITERATE_STACK, stack -> astFail(stack, "ITERATE STACK"), "Enter an iteration block over the first stack value and push the iteration element register at the begining of each loop.");
+		r("break", BREAK, stack -> astFail(stack, "BREAK"), "Immediately exits a loop or iteration structure.");
+		r("continue", CONTINUE, stack -> astFail(stack, "CONTINUE"), "Jumps to the next iteration of a loop or iteration structure.");
 		r("end", END, stack -> astFail(stack, "END"), "Ends a control flow structure.");
 		r("print", stack -> stack.getProgram().print(stack.pop().toString()), "Print the first stack value.");
 		r("print space", stack -> stack.getProgram().print(" "), "Print a space character.");
@@ -113,6 +115,7 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("exit", EXIT, stack -> stack.getProgram().terminate(), "End program execution, then prints the top stack value followed by a newline.");
 		r("terminate", stack -> stack.getProgram().terminateNoPrint(), "End program execution.");
 		//r("restart", stack -> stack.getProgram().jumpToNode(1), "Jump to the first instruction in the program without pushing the call stack.");
+		r("loop", LOOP, stack -> astFail(stack, "LOOP"), "Control flow block that repeats until a break statement is encountered. Bewear infinite loops.");
 		r("jump", stack -> stack.getProgram().jumpToFunction(stack.pop().asInt()), "Jump to the top stack value interpreted as a functor index.");
 		//r("return", stack -> stack.getProgram().jumpReturn(), "Jump to the top instruction pointer on the call stack.");
 		r("str", stack -> stack.push(stack.pop().toString()), "Push the first stack value as a string.");
@@ -127,6 +130,7 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("/", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.DIVIDE)), "Push the quotient of the second and first stack values.");
 		r("%", stack -> stack.push(stack.peek(2).asInt() % stack.pull(2).asInt()), "Push the modulus of the second and first stack values.");
 		// 73
+		/*
 		r("remap.math", PRIORITIZATION, stack -> cache.prioritize(OpcodeMarker.MATH), "Prioritize math opcodes for one byte instructions.");
 		r("remap.list", PRIORITIZATION, stack -> cache.prioritize(OpcodeMarker.LIST), "Prioritize list opcodes for one byte instructions.");
 		r("remap.string", PRIORITIZATION, stack -> cache.prioritize(OpcodeMarker.STRING), "Prioritize string opcodes for one byte instructions.");
@@ -134,6 +138,7 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("remap.bignumber", PRIORITIZATION, stack -> cache.prioritize(OpcodeMarker.BIG_NUMBER), "Prioritize big number opcodes for one byte instructions.");
 		r("remap.graphics", PRIORITIZATION, stack -> cache.prioritize(OpcodeMarker.GRAPHICS), "Prioritize graphics opcodes for one byte instructions.");
 		r("remap.integer", PRIORITIZATION, stack -> cache.prioritize(OpcodeMarker.GRAPHICS), "Prioritize integer opcodes for one byte instructions.");
+		*/
 		// 79
 	}
 

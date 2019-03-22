@@ -13,7 +13,7 @@ import lombok.Getter;
 @AutoFactory
 public class AST implements ASTNode {
 	private @Getter List<ASTNode> nodes = new ArrayList<>();
-	
+
 	protected @Inject AST() {}
 
 	public void add(ASTNode node) {
@@ -21,10 +21,18 @@ public class AST implements ASTNode {
 	}
 
 	@Override
-	public void enter() {
+	public ASTBackpropagation enter() {
 		for (ASTNode node : nodes) {
-			node.enter();
+			switch (node.enter()) {
+			case BREAK:
+				return ASTBackpropagation.BREAK;
+			case CONTINUE:
+				return ASTBackpropagation.CONTINUE;
+			default:
+				break;
+			}
 		}
+		return ASTBackpropagation.NONE;
 	}
 
 	@Override

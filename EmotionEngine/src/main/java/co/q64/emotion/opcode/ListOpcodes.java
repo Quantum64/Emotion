@@ -1,6 +1,6 @@
 package co.q64.emotion.opcode;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import co.q64.emotion.lang.Stack;
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
 import co.q64.emotion.lang.value.LiteralFactory;
@@ -30,9 +31,7 @@ public class ListOpcodes extends OpcodeRegistry {
 	public void register() {
 		r("list.flatten", stack -> stack.push(stack.pop().iterate().stream().map(Object::toString).collect(Collectors.joining())), "Push all elements from the first stack value as a string.");
 		r("list.flattenSoft", stack -> stack.push(stack.pop().iterate().stream().map(Object::toString).collect(Collectors.joining(" "))), "Push all elements from the first stack value as a string seperated by a space.");
-		r("list.singleton", stack -> stack.push(Arrays.asList(stack.pop())), "Push the first stack value as a list.");
-		r("list.pair", stack -> stack.push(Arrays.asList(stack.peek(2), stack.pull(2))), "Push the second and first stack values as a list.");
-		r("list.triad", stack -> stack.push(Arrays.asList(stack.peek(3), stack.peek(2), stack.pull(3))), "Push the third, second, and first stack values as a list.");
+		r("list.singleton", stack -> stack.push(listFromStack(stack, 1)), "Push the first stack value as a list.");
 		r("list.join", stack -> stack.push(stack.peek(2).iterate().stream().map(Object::toString).collect(Collectors.joining(stack.pull(2).toString()))), "Push all elements from the second stack value as a string seperated by the first stack value.");
 		r("list.unique", stack -> stack.push(stack.pop().iterate().stream().distinct().collect(Collectors.toList())), "Push the first stack value with duplicate elements removed.");
 		r("list.explode", stack -> stack.pop().iterate().forEach(x -> stack.push(x)), "Push every value from the first stack value, interpreted as a list.");
@@ -110,6 +109,40 @@ public class ListOpcodes extends OpcodeRegistry {
 			Collections.shuffle(list);
 			stack.push(list);
 		}, "Push the list on the first stack value with elements in random order.");
+		
+		r("list.pair", stack -> stack.push(listFromStack(stack, 2)), "Push the second and first stack values as a list.");
+		r("list.triad", stack -> stack.push(listFromStack(stack, 3)), "Push the third, second, and first stack values as a list.");
+		r("list.quad", stack -> stack.push(listFromStack(stack, 4)), "Push the first four stack values in reverse order as a list.");
+		r("list.quint", stack -> stack.push(listFromStack(stack, 5)), "Push the first five stack values in reverse order as a list.");
+		r("list.hextuple", stack -> stack.push(listFromStack(stack, 6)), "Push the first six stack values in reverse order as a list.");
+		r("list.heptuple", stack -> stack.push(listFromStack(stack, 7)), "Push the first seven stack values in reverse order as a list.");
+		r("list.octuple", stack -> stack.push(listFromStack(stack, 8)), "Push the first eight stack values in reverse order as a list.");
+		r("list.nonuple", stack -> stack.push(listFromStack(stack, 9)), "Push the first nine stack values in reverse order as a list.");
+		r("list.decuple", stack -> stack.push(listFromStack(stack, 10)), "Push the first 10 stack values in reverse order as a list.");
+		r("list.undecuple", stack -> stack.push(listFromStack(stack, 11)), "Push the first 11 stack values in reverse order as a list.");
+		r("list.duodecuple", stack -> stack.push(listFromStack(stack, 12)), "Push the first 12 stack values in reverse order as a list.");
+		r("list.tredecuple", stack -> stack.push(listFromStack(stack, 13)), "Push the first 13 stack values in reverse order as a list.");
+		r("list.quattuordecuple", stack -> stack.push(listFromStack(stack, 14)), "Push the first 14 stack values in reverse order as a list.");
+		r("list.quindecuple", stack -> stack.push(listFromStack(stack, 15)), "Push the first 15 stack values in reverse order as a list.");
+		r("list.sexdecuple", stack -> stack.push(listFromStack(stack, 16)), "Push the first 16 stack values in reverse order as a list.");
+		r("list.septendecuple", stack -> stack.push(listFromStack(stack, 17)), "Push the first 17 stack values in reverse order as a list.");
+		r("list.octodecuple", stack -> stack.push(listFromStack(stack, 18)), "Push the first 18 stack values in reverse order as a list.");
+		r("list.novemdecuple", stack -> stack.push(listFromStack(stack, 19)), "Push the first 19 stack values in reverse order as a list.");
+		r("list.vigintuple", stack -> stack.push(listFromStack(stack, 20)), "Push the first 20 stack values in reverse order as a list.");
+		r("list.unvigintuple", stack -> stack.push(listFromStack(stack, 21)), "Push the first 21 stack values in reverse order as a list.");
+		r("list.duovigintuple", stack -> stack.push(listFromStack(stack, 22)), "Push the first 22 stack values in reverse order as a list.");
+		r("list.trevigintuple", stack -> stack.push(listFromStack(stack, 23)), "Push the first 23 stack values in reverse order as a list.");
+		r("list.quattuorvigintuple", stack -> stack.push(listFromStack(stack, 24)), "Push the first 24 stack values in reverse order as a list.");
+		r("list.quinvigintuple", stack -> stack.push(listFromStack(stack, 25)), "Push the first 25 stack values in reverse order as a list.");
+	}
+
+	private List<String> listFromStack(Stack stack, int elements) {
+		List<String> result = new ArrayList<>();
+		for (int i = 0; i < elements; i++) {
+			result.add(stack.pop().toString());
+		}
+		Collections.reverse(result);
+		return result;
 	}
 
 	@Singleton

@@ -1,13 +1,10 @@
-package co.q64.emotion.compression.lzma.impl.lzm;
+package co.q64.emotion.compression.lzma;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import co.q64.emotion.compression.lzma.impl.coder.BitTreeDecoder;
-import co.q64.emotion.compression.lzma.impl.lz.OutWindow;
-
-public class Decoder {
+public class LzmDecoder {
 	class LenDecoder {
 		short[] m_Choice = new short[2];
 		BitTreeDecoder[] m_LowCoder = new BitTreeDecoder[Base.kNumPosStatesMax];
@@ -23,7 +20,7 @@ public class Decoder {
 		}
 
 		public void Init() {
-			co.q64.emotion.compression.lzma.impl.coder.Decoder.InitBitModels(m_Choice);
+			co.q64.emotion.compression.lzma.Decoder.InitBitModels(m_Choice);
 			for (int posState = 0; posState < m_NumPosStates; posState++) {
 				m_LowCoder[posState].Init();
 				m_MidCoder[posState].Init();
@@ -31,7 +28,7 @@ public class Decoder {
 			m_HighCoder.Init();
 		}
 
-		public int Decode(co.q64.emotion.compression.lzma.impl.coder.Decoder rangeDecoder, int posState) throws IOException {
+		public int Decode(co.q64.emotion.compression.lzma.Decoder rangeDecoder, int posState) throws IOException {
 			if (rangeDecoder.DecodeBit(m_Choice, 0) == 0)
 				return m_LowCoder[posState].Decode(rangeDecoder);
 			int symbol = Base.kNumLowLenSymbols;
@@ -48,10 +45,10 @@ public class Decoder {
 			short[] m_Decoders = new short[0x300];
 
 			public void Init() {
-				co.q64.emotion.compression.lzma.impl.coder.Decoder.InitBitModels(m_Decoders);
+				co.q64.emotion.compression.lzma.Decoder.InitBitModels(m_Decoders);
 			}
 
-			public byte DecodeNormal(co.q64.emotion.compression.lzma.impl.coder.Decoder rangeDecoder) throws IOException {
+			public byte DecodeNormal(co.q64.emotion.compression.lzma.Decoder rangeDecoder) throws IOException {
 				int symbol = 1;
 				do
 					symbol = (symbol << 1) | rangeDecoder.DecodeBit(m_Decoders, symbol);
@@ -59,7 +56,7 @@ public class Decoder {
 				return (byte) symbol;
 			}
 
-			public byte DecodeWithMatchByte(co.q64.emotion.compression.lzma.impl.coder.Decoder rangeDecoder, byte matchByte) throws IOException {
+			public byte DecodeWithMatchByte(co.q64.emotion.compression.lzma.Decoder rangeDecoder, byte matchByte) throws IOException {
 				int symbol = 1;
 				do {
 					int matchBit = (matchByte >> 7) & 1;
@@ -105,7 +102,7 @@ public class Decoder {
 	}
 
 	OutWindow m_OutWindow = new OutWindow();
-	co.q64.emotion.compression.lzma.impl.coder.Decoder m_RangeDecoder = new co.q64.emotion.compression.lzma.impl.coder.Decoder();
+	co.q64.emotion.compression.lzma.Decoder m_RangeDecoder = new co.q64.emotion.compression.lzma.Decoder();
 
 	short[] m_IsMatchDecoders = new short[Base.kNumStates << Base.kNumPosStatesBitsMax];
 	short[] m_IsRepDecoders = new short[Base.kNumStates];
@@ -130,7 +127,7 @@ public class Decoder {
 
 	int m_PosStateMask;
 
-	public Decoder() {
+	public LzmDecoder() {
 		for (int i = 0; i < Base.kNumLenToPosStates; i++)
 			m_PosSlotDecoder[i] = new BitTreeDecoder(Base.kNumPosSlotBits);
 	}
@@ -160,13 +157,13 @@ public class Decoder {
 	void Init() throws IOException {
 		m_OutWindow.Init(false);
 
-		co.q64.emotion.compression.lzma.impl.coder.Decoder.InitBitModels(m_IsMatchDecoders);
-		co.q64.emotion.compression.lzma.impl.coder.Decoder.InitBitModels(m_IsRep0LongDecoders);
-		co.q64.emotion.compression.lzma.impl.coder.Decoder.InitBitModels(m_IsRepDecoders);
-		co.q64.emotion.compression.lzma.impl.coder.Decoder.InitBitModels(m_IsRepG0Decoders);
-		co.q64.emotion.compression.lzma.impl.coder.Decoder.InitBitModels(m_IsRepG1Decoders);
-		co.q64.emotion.compression.lzma.impl.coder.Decoder.InitBitModels(m_IsRepG2Decoders);
-		co.q64.emotion.compression.lzma.impl.coder.Decoder.InitBitModels(m_PosDecoders);
+		co.q64.emotion.compression.lzma.Decoder.InitBitModels(m_IsMatchDecoders);
+		co.q64.emotion.compression.lzma.Decoder.InitBitModels(m_IsRep0LongDecoders);
+		co.q64.emotion.compression.lzma.Decoder.InitBitModels(m_IsRepDecoders);
+		co.q64.emotion.compression.lzma.Decoder.InitBitModels(m_IsRepG0Decoders);
+		co.q64.emotion.compression.lzma.Decoder.InitBitModels(m_IsRepG1Decoders);
+		co.q64.emotion.compression.lzma.Decoder.InitBitModels(m_IsRepG2Decoders);
+		co.q64.emotion.compression.lzma.Decoder.InitBitModels(m_PosDecoders);
 
 		m_LiteralDecoder.Init();
 		int i;

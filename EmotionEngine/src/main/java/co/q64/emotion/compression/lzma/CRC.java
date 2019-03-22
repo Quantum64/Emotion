@@ -1,6 +1,6 @@
 // org.dellroad.lzma.client.SevenZip/CRC.java
 
-package co.q64.emotion.compression.lzma.impl;
+package co.q64.emotion.compression.lzma;
 
 public class CRC {
 	static public int[] Table = new int[256];

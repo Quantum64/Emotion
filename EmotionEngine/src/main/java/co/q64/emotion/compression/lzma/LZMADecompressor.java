@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import co.q64.emotion.compression.lzma.impl.lzm.Chunker;
-import co.q64.emotion.compression.lzma.impl.lzm.Decoder;
-
 /**
  * LZMA decompressor.
  */
@@ -50,7 +47,7 @@ public class LZMADecompressor {
 				throw new IOException("truncated input");
 			properties[i] = (byte) r;
 		}
-		Decoder decoder = new Decoder();
+		LzmDecoder decoder = new LzmDecoder();
 		if (!decoder.SetDecoderProperties(properties))
 			throw new IOException("corrupted input");
 		/*

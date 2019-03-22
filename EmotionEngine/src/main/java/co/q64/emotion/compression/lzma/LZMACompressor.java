@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import co.q64.emotion.compression.lzma.impl.lzm.Chunker;
-import co.q64.emotion.compression.lzma.impl.lzm.Encoder;
-
 /**
  * LZMA compressor.
  */
@@ -81,7 +78,7 @@ public class LZMACompressor {
 		if (length < -1)
 			throw new IllegalArgumentException("invalid length " + length);
 		this.length = length;
-		Encoder encoder = new Encoder();
+		LzmEncoder encoder = new LzmEncoder();
 		mode.configure(encoder);
 		encoder.SetEndMarkerMode(true);
 		encoder.WriteCoderProperties(output);

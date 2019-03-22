@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import co.q64.emotion.compression.Base;
+import co.q64.emotion.compression.Deflate;
 import co.q64.emotion.compression.Lzma;
 import co.q64.emotion.compression.Shoco;
 import co.q64.emotion.compression.Smaz;
@@ -31,28 +32,10 @@ public class Lexer {
 	protected @Inject Shoco shoco;
 	protected @Inject Base base;
 	protected @Inject Lzma lzma;
+	protected @Inject Deflate deflate;
 
 	public List<Instruction> parse(String program, Output output) {
-		/*
-		String codepage = Arrays.stream(Chars.values()).map(Chars::getCharacter).collect(Collectors.joining());
-		for (char c : program.toCharArray()) {
-			if (!codepage.contains(String.valueOf(c))) {
-				StringBuilder decoded = new StringBuilder();
-				for (int ch : insanity.codePoints(program).toArray()) {
-					int in = insanity.getIndex(ch);
-					byte[] data = new byte[2];
-					data[0] = (byte) (in & 0xFF);
-					data[1] = (byte) ((in >> 8) & 0xFF);
-					decoded.append(Chars.fromByte(data[1]).getCharacter());
-					decoded.append(Chars.fromByte(data[0]).getCharacter());
-				}
-				program = decoded.toString();
-				break;
-			}
-		}
-		*/
-		boolean readingLiteral = false, smazSpecial = false;
-		int smazToRead = 0, baseToRead = 0, shortToRead = 0, specialToRead = 0, lzmaToRead = 0;
+		int smazToRead = 0, baseToRead = 0, shortToRead = 0, shocoToRead = 0, lzmaToRead = 0, deflateToRead = 0;
 		StringBuilder currentLiteral = null;
 		ByteBuffer currentBuffer = null;
 		String opcodeQueue = "";
@@ -80,6 +63,7 @@ public class Lexer {
 					smazToRead--;
 					if (smazToRead == 0) {
 						String decomp = smaz.decompress(currentBuffer.array());
+						/*
 						if (smazSpecial) {
 							StringBuilder caseCorrector = new StringBuilder();
 							char[] chs = decomp.toCharArray();
@@ -92,14 +76,15 @@ public class Lexer {
 							}
 							decomp = caseCorrector.toString();
 						}
+						*/
 						instructions.add(instructionFactory.create(literalFactory.create(decomp)));
 					}
 					continue;
 				}
-				if (specialToRead > 0) {
+				if (shocoToRead > 0) {
 					currentBuffer.put(Chars.fromCode(c).getByte());
-					specialToRead--;
-					if (specialToRead == 0) {
+					shocoToRead--;
+					if (shocoToRead == 0) {
 						String decomp = shoco.decompress(currentBuffer.array());
 						instructions.add(instructionFactory.create(literalFactory.create(decomp)));
 					}
@@ -121,55 +106,43 @@ public class Lexer {
 					}
 					continue;
 				}
-				if (readingLiteral && opcodes.getChars(OpcodeMarker.SPECIAL).getCharacter().equals(c)) {
-					readingLiteral = false;
-					StringBuilder literal = new StringBuilder();
-					for (char ch : currentLiteral.toString().toCharArray()) {
-						literal.append(Chars.fromInt(~Chars.fromCode(String.valueOf(ch)).getId() & 0xff).getCharacter());
+				if (deflateToRead > 0) {
+					currentBuffer.put(Chars.fromCode(c).getByte());
+					deflateToRead--;
+					if (deflateToRead == 0) {
+						instructions.add(instructionFactory.create(literalFactory.create(deflate.decompress(currentBuffer.array()))));
 					}
-					instructions.add(instructionFactory.create(literalFactory.create(literal.toString())));
 					continue;
 				}
-				if (readingLiteral) {
-					currentLiteral.append(c);
-					continue;
-				}
-				if (opcodes.getChars(OpcodeMarker.COMPRESSION1).getCharacter().equals(c)) {
+				if (opcodes.getChars(OpcodeMarker.COMPRESSION_BASE256).getCharacter().equals(c)) {
 					index++;
 					baseToRead = Chars.fromCode(String.valueOf(chars[index])).getId() + 1;
 					currentBuffer = new ByteBuffer(baseToRead);
 					continue;
 				}
-				if (opcodes.getChars(OpcodeMarker.COMPRESSION2).getCharacter().equals(c) || opcodes.getChars(OpcodeMarker.COMPRESSION3).getCharacter().equals(c)) {
+				if (opcodes.getChars(OpcodeMarker.COMPRESSION_SMAZ).getCharacter().equals(c)) {
 					index++;
 					smazToRead = Chars.fromCode(String.valueOf(chars[index])).getId() + 1;
 					currentBuffer = new ByteBuffer(smazToRead);
-					smazSpecial = opcodes.getChars(OpcodeMarker.COMPRESSION3).getCharacter().equals(c);
 					continue;
 				}
-				if (opcodes.getChars(OpcodeMarker.LITERAL).getCharacter().equals(c)) {
-					readingLiteral = true;
-					currentLiteral = new StringBuilder();
-					continue;
-				}
-
-				if (opcodes.getChars(OpcodeMarker.LITERAL2).getCharacter().equals(c)) {
+				if (opcodes.getChars(OpcodeMarker.LITERAL_PAIR).getCharacter().equals(c)) {
 					currentLiteral = new StringBuilder();
 					shortToRead = 2;
 					continue;
 				}
-				if (opcodes.getChars(OpcodeMarker.LITERAL1).getCharacter().equals(c)) {
+				if (opcodes.getChars(OpcodeMarker.LITERAL_SINGLE).getCharacter().equals(c)) {
 					currentLiteral = new StringBuilder();
 					shortToRead = 1;
 					continue;
 				}
-				if (opcodes.getChars(OpcodeMarker.SPECIAL).getCharacter().equals(c)) {
+				if (opcodes.getChars(OpcodeMarker.COMPRESSION_SHOCO).getCharacter().equals(c)) {
 					index++;
-					specialToRead = Chars.fromCode(String.valueOf(chars[index])).getId() + 1;
-					currentBuffer = new ByteBuffer(specialToRead);
+					shocoToRead = Chars.fromCode(String.valueOf(chars[index])).getId() + 1;
+					currentBuffer = new ByteBuffer(shocoToRead);
 					continue;
 				}
-				if (opcodes.getChars(OpcodeMarker.LZMA).getCharacter().equals(c)) {
+				if (opcodes.getChars(OpcodeMarker.COMPRESSION_LZMA).getCharacter().equals(c)) {
 					index++;
 					lzmaToRead = Chars.fromCode(String.valueOf(chars[index])).getId() + 1;
 					if (lzmaToRead == 256) {
@@ -177,6 +150,16 @@ public class Lexer {
 						lzmaToRead += Chars.fromCode(String.valueOf(chars[index])).getId();
 					}
 					currentBuffer = new ByteBuffer(lzmaToRead);
+					continue;
+				}
+				if (opcodes.getChars(OpcodeMarker.COMPRESSION_DEFLATE).getCharacter().equals(c)) {
+					index++;
+					deflateToRead = Chars.fromCode(String.valueOf(chars[index])).getId() + 1;
+					if (deflateToRead == 256) {
+						index++;
+						deflateToRead += Chars.fromCode(String.valueOf(chars[index])).getId();
+					}
+					currentBuffer = new ByteBuffer(deflateToRead);
 					continue;
 				}
 			}

@@ -19,7 +19,7 @@ public class ASTInstruction implements ASTNode {
 	}
 
 	@Override
-	public void enter() {
+	public ASTBackpropagation enter() {
 		if (program.shouldContinueExecution()) {
 			try {
 				insn.execute(program.getStack());
@@ -27,8 +27,9 @@ public class ASTInstruction implements ASTNode {
 				program.crash(e.getClass().getSimpleName() + ": " + e.getMessage() + " [Instruction: " + insn.getInstruction() + "]");
 			}
 		}
+		return ASTBackpropagation.NONE;
 	}
-	
+
 	@Override
 	public String toString() {
 		return insn.getInstruction();

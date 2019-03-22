@@ -1,25 +1,25 @@
 
-package co.q64.emotion.compression.lzma.impl.lzm;
+package co.q64.emotion.compression.lzma;
 
 import java.io.IOException;
 
 public class Chunker {
 
-	private final Encoder encoder;
-	private final Decoder decoder;
+	private final LzmEncoder encoder;
+	private final LzmDecoder decoder;
 
 	private boolean alive;
 
 	long inBytesProcessed;
 	long outBytesProcessed;
 
-	Chunker(Encoder encoder) {
+	Chunker(LzmEncoder encoder) {
 		this.encoder = encoder;
 		this.decoder = null;
 		this.alive = true;
 	}
 
-	Chunker(Decoder decoder) {
+	Chunker(LzmDecoder decoder) {
 		this.decoder = decoder;
 		this.encoder = null;
 		this.alive = true;

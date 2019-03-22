@@ -1,18 +1,15 @@
 
 package co.q64.emotion.compression.lzma;
 
-import co.q64.emotion.compression.lzma.impl.lzm.Encoder;
-
 /**
  * Represents LZMA compression modes, from 1 (fastest compression) to 9 (best compression).
  */
 public enum CompressionMode {
 
-	MODE_1(1, 0, 16, 64, Encoder.EMatchFinderTypeBT2, 3, 0, 2), MODE_2(2, 0, 20, 64, Encoder.EMatchFinderTypeBT2, 3, 0, 2), MODE_3(3, 1, 19, 64, Encoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_4(4, 2, 20, 64, Encoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_5(5, 2, 21, 128, Encoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_6(6, 2, 22, 128, Encoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_7(7, 2, 23, 128, Encoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_8(8, 2, 24, 255, Encoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_9(9, 2, 25, 255, Encoder.EMatchFinderTypeBT4, 3, 0, 2);
+	MODE_1(1, 0, 16, 64, LzmEncoder.EMatchFinderTypeBT2, 3, 0, 2), MODE_2(2, 0, 20, 64, LzmEncoder.EMatchFinderTypeBT2, 3, 0, 2), MODE_3(3, 1, 19, 64, LzmEncoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_4(4, 2, 20, 64, LzmEncoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_5(5, 2, 21, 128, LzmEncoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_6(6, 2, 22, 128, LzmEncoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_7(7, 2, 23, 128, LzmEncoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_8(8, 2, 24, 255, LzmEncoder.EMatchFinderTypeBT4, 3, 0, 2), MODE_9(9, 2, 25, 255, LzmEncoder.EMatchFinderTypeBT4, 3, 0, 2);
 
 	private final int level;
 	private final int algorithm;
-	private final int dictionarySize;
 	private final int fb;
 	private final int matchFinder;
 	private final int lc;
@@ -22,7 +19,6 @@ public enum CompressionMode {
 	private CompressionMode(int level, int algorithm, int dictionarySize, int fb, int matchFinder, int lc, int lp, int pb) {
 		this.level = level;
 		this.algorithm = algorithm;
-		this.dictionarySize = dictionarySize;
 		this.fb = fb;
 		this.matchFinder = matchFinder;
 		this.lc = lc;
@@ -31,9 +27,9 @@ public enum CompressionMode {
 	}
 
 	/**
-	 * Configure the given {@link Encoder} based on this compression mode.
+	 * Configure the given {@link LzmEncoder} based on this compression mode.
 	 */
-	void configure(Encoder encoder) {
+	void configure(LzmEncoder encoder) {
 		if (!encoder.SetAlgorithm(this.algorithm))
 			throw new RuntimeException("unexpected failure");
 		//if (!encoder.SetDictionarySize(1 << this.dictionarySize))

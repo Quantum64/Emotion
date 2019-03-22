@@ -1,6 +1,6 @@
 // LZ.InWindow
 
-package co.q64.emotion.compression.lzma.impl.lz;
+package co.q64.emotion.compression.lzma;
 
 import java.io.IOException;
 

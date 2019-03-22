@@ -54,7 +54,11 @@ public class Opcodes {
 	}
 
 	public List<Integer> getFlags(OpcodeMarker marker) {
-		return cache.getMarkers().get(marker);
+		List<Integer> result = cache.getMarkers().get(marker);
+		if (result == null) {
+			result = new ArrayList<>();
+		}
+		return result;
 	}
 
 	public Chars getChars(OpcodeMarker marker) {

@@ -52,8 +52,6 @@ public class MathOpcodes extends OpcodeRegistry {
 		r("math.exp", stack -> stack.push(Math.exp(stack.pop().asDouble())), "Push Euler's number to the power of the first stack value.");
 		r("math.expm1", stack -> stack.push(Math.expm1(stack.pop().asDouble())), "Push Euler's number to the power of the first stack value, minus one.");
 		r("math.floor", stack -> stack.push(Math.floor(stack.pop().asDouble())), "Push the first stack value rounded down to the previous integer.");
-		//r("math.floorDiv", stack -> stack.push(Math.floorDiv(stack.peek(2).asInt(), stack.pull(2).asInt())), "Push the quotient of the second and first stack values rounded up to the next integer.");
-		//r("math.floorMod", stack -> stack.push(Math.floorMod(stack.peek(2).asInt(), stack.pull(2).asInt())), "Push the modulus of the second and first stack values rounded down to the previous integer.");
 		r("math.hypot", stack -> stack.push(Math.hypot(stack.peek(2).asDouble(), stack.pull(2).asDouble())), "Push the length of the hypotenuse of the right triangle formed by legs of the lengths of the first two stack values.");
 		r("math.log", stack -> stack.push(Math.log(stack.pop().asDouble())), "Push the natural logarithm of the first stack value.");
 		r("math.log10", stack -> stack.push(Math.log10(stack.pop().asDouble())), "Push the base 10 logarithm of the first stack value.");
@@ -66,7 +64,6 @@ public class MathOpcodes extends OpcodeRegistry {
 		r("math.random", stack -> stack.push(Math.random()), "Push a random floating point number between 0 and 1.");
 		r("math.rint", stack -> stack.push(Math.rint(stack.pop().asDouble())), "Push a floating point number equal to the nearest integer value of the first stack value.");
 		r("math.round", stack -> stack.push(Math.round(stack.pop().asDouble())), "Push the first stack value rounded to an integer.");
-		//r("math.scalb", stack -> stack.push(Math.scalb(stack.peek(2).asDouble(), stack.pull(2).asInt())), "Push the product of the second stack value and two to the power of the first stack value.");
 		r("math.signum", stack -> stack.push(Math.signum(stack.pop().asDouble())), "Push 1 if the first stack value is greater than 0, -1 if the first stack value is less than 0, and 0 if the first stack value is equal to 0. The signum function.");
 		r("math.sin", stack -> stack.push(Math.sin(stack.pop().asDouble())), "Push the sine of the first stack value.");
 		r("math.sinh", stack -> stack.push(Math.sinh(stack.pop().asDouble())), "Push the hyperbolic sine of the first stack value.");
@@ -90,8 +87,8 @@ public class MathOpcodes extends OpcodeRegistry {
 
 		r("math.triangular", stack -> stack.push((stack.peek().asInt() * (stack.pop().asInt() + 1)) / 2), "Push the triangular sum of the first stack value.");
 		r("math.digitalRoot", stack -> stack.push(stack.pop().asInt() - (9 * Math.round(Math.floor((stack.peek().asInt() - 1) / 9f)))), "Push the digital root of the first stack value.");
-		//r("math.digitSum", stack -> stack.push(stack.pop().toString().chars().mapToObj(c -> ((char) c)).map(Object::toString).mapToInt(Integer::parseInt).sum()), "Push the sum of the digits of the first stack value.");
-		//r("math.castNines", stack -> stack.push(stack.pop().toString().chars().mapToObj(c -> ((char) c)).map(Object::toString).mapToInt(Integer::parseInt).filter(i -> i != 9).sum()), "Push the sum of the digits of the first stack value, casting out nines.");
+		r("math.digitSum", stack -> stack.push(digitSum(stack.pop().toString())), "Push the sum of the digits of the first stack value.");
+		r("math.castNines", stack -> stack.push(castDigit(stack.pop().toString(), 9)), "Push the sum of the digits of the first stack value, casting out nines.");
 		r("math.fibonacci", stack -> stack.push(fibonacci(stack.pop().asInt())), "Push the fibonacci number indexed at the first stack value.");
 		r("math.fibonacciList", stack -> stack.push(IntStream.rangeClosed(1, stack.pop().asInt()).map(this::fibonacci).boxed().map(literal::create).collect(Collectors.toList())), "Push a list of fibonacci numbers of the length of the first stack value.");
 		r("math.isPrime", stack -> stack.push(prime(stack.pop().asInt())), "Push true if the first stack value is prime, else false.");
@@ -101,8 +98,8 @@ public class MathOpcodes extends OpcodeRegistry {
 		r("math.isFloat", stack -> stack.push(stack.pop().isFloat()), "Push true if the first stack value is a floating point number, else false.");
 		r("math.asInteger", stack -> stack.push(stack.pop().asInt()), "Push the first stack value converted to an integer.");
 		r("math.asFloat", stack -> stack.push(stack.pop().asDouble()), "Push the first stack value converted to a floating point number.");
-		//r("math.incrementDigits", stack -> stack.push(stack.pop().toString().chars().map(i -> Integer.parseInt(Character.valueOf((char) i).toString()) + 1).mapToObj(String::valueOf).collect(Collectors.joining())), "Push the first stack value with digits incremented by 1.");
-		//r("math.decrementDigits", stack -> stack.push(stack.pop().toString().chars().map(i -> Integer.parseInt(Character.valueOf((char) i).toString()) - 1).mapToObj(String::valueOf).collect(Collectors.joining())), "Push the first stack value with digits decremented by 1.");
+		r("math.incrementDigits", stack -> stack.push(incrementDigits(stack.pop().toString(), 1)), "Push the first stack value with digits incremented by 1.");
+		r("math.decrementDigits", stack -> stack.push(incrementDigits(stack.pop().toString(), -1)), "Push the first stack value with digits decremented by 1.");
 		r("math.negate", stack -> stack.push(-stack.pop().asLong()), "Push the first stack value with the sign flipped.");
 		r("math.negatef", stack -> stack.push(-stack.pop().asDouble()), "Push the first stack value as a floating point number with the sign flipped.");
 		r("math.square", stack -> stack.push(stack.peek().asLong() * stack.pop().asLong()), "Push the square of the second and first stack values.");
@@ -129,5 +126,38 @@ public class MathOpcodes extends OpcodeRegistry {
 			b = c;
 		}
 		return c;
+	}
+
+	private String incrementDigits(String str, int increment) {
+		StringBuilder result = new StringBuilder();
+		for (char c : str.toCharArray()) {
+			try {
+				result.append(Integer.parseInt(String.valueOf(c)) + increment);
+			} catch (Exception e) {}
+		}
+		return result.toString();
+	}
+
+	private int digitSum(String str) {
+		int result = 0;
+		for (char c : str.toCharArray()) {
+			try {
+				result += Integer.parseInt(String.valueOf(c));
+			} catch (Exception e) {}
+		}
+		return result;
+	}
+
+	private int castDigit(String str, int digit) {
+		int result = 0;
+		for (char c : str.toCharArray()) {
+			try {
+				int current = Integer.parseInt(String.valueOf(c));
+				if (current != digit) {
+					result += current;
+				}
+			} catch (Exception e) {}
+		}
+		return result;
 	}
 }

@@ -28,6 +28,9 @@ public class ASTBuilder {
 	protected @Inject ASTIteratorFactory astIteratorFactory;
 	protected @Inject ASTConditionalFactory astConditionalFactory;
 	protected @Inject ASTFunctionFactory astFunctionFactory;
+	protected @Inject ASTLoopFactory astLoopFactory;
+	protected @Inject ASTBreakToken astBreakToken;
+	protected @Inject ASTContinueToken astContinueToken;
 
 	protected @Inject ASTBuilder() {}
 
@@ -57,6 +60,8 @@ public class ASTBuilder {
 			investigateIterator(program, itr, result, false);
 		} else if (hasFlag(instruction, OpcodeMarker.ITERATE_STACK)) {
 			investigateIterator(program, itr, result, true);
+		} else if (hasFlag(instruction, OpcodeMarker.LOOP)) {
+			investigateLoop(program, itr, result);
 		} else if (hasFlag(instruction, OpcodeMarker.FUNCTION)) {
 			investigateFunction(program, itr, result);
 		} else if (hasFlag(instruction, OpcodeMarker.EQUAL)) {
@@ -79,6 +84,10 @@ public class ASTBuilder {
 			return Verdict.ELSE;
 		} else if (hasFlag(instruction, OpcodeMarker.END)) {
 			return Verdict.END;
+		} else if (hasFlag(instruction, OpcodeMarker.BREAK)) {
+			result.add(astBreakToken);
+		} else if (hasFlag(instruction, OpcodeMarker.CONTINUE)) {
+			result.add(astContinueToken);
 		} else {
 			result.add(astInstructionFactory.create(program, instruction));
 		}
@@ -127,6 +136,19 @@ public class ASTBuilder {
 			}
 		}
 		result.add(astIteratorFactory.create(program, nodes, stack));
+	}
+
+	private void investigateLoop(Program program, Iterator<Instruction> itr, AST result) {
+		AST nodes = astFactory.create();
+		while (true) {
+			if (!itr.hasNext()) {
+				break;
+			}
+			if (investigateNextInstruction(program, itr, nodes) == Verdict.END) {
+				break;
+			}
+		}
+		result.add(astLoopFactory.create(nodes));
 	}
 
 	private boolean hasFlag(Instruction instruction, OpcodeMarker flag) {

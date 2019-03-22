@@ -1,6 +1,6 @@
 // Base.java
 
-package co.q64.emotion.compression.lzma.impl.lzm;
+package co.q64.emotion.compression.lzma;
 
 public class Base {
 	public static final int kNumRepDistances = 4;
