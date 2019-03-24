@@ -1,4 +1,5 @@
-load aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaasfdkhsfdhkfskhdsffsdk
-println
-load b
-println
+load 0x00ffff
+graphics.imageWithColor
+load 0xff0000
+graphics.setColor
+graphics.fillRect

@@ -43,6 +43,7 @@ public class Compiler {
 		cache.resetPrioritization();
 		List<String> instructions = new ArrayList<>();
 		for (String current : input) {
+			current = current.replaceFirst("^\\s++", "");
 			if (current.startsWith("load")) {
 				instructions.add(current);
 				continue;

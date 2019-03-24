@@ -148,7 +148,7 @@ public class ASTBuilder {
 				break;
 			}
 		}
-		result.add(astLoopFactory.create(nodes));
+		result.add(astLoopFactory.create(program, nodes));
 	}
 
 	private boolean hasFlag(Instruction instruction, OpcodeMarker flag) {

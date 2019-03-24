@@ -72,4 +72,9 @@ public class Null implements Value {
 	public char asChar() {
 		return 0;
 	}
+
+	@Override
+	public boolean isList() {
+		return false;
+	}
 }

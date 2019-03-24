@@ -21,8 +21,10 @@ public interface Value {
 	public double asDouble();
 
 	public boolean asBoolean();
-
+	
 	public boolean isBoolean();
+	
+	public boolean isList();
 
 	public boolean isFloat();
 

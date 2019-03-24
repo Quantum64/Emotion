@@ -104,6 +104,7 @@ public class MathOpcodes extends OpcodeRegistry {
 		r("math.negatef", stack -> stack.push(-stack.pop().asDouble()), "Push the first stack value as a floating point number with the sign flipped.");
 		r("math.square", stack -> stack.push(stack.peek().asLong() * stack.pop().asLong()), "Push the square of the second and first stack values.");
 		r("math.insignificant", stack -> stack.push(Math.abs(stack.pop().asDouble()) <= 1), "Push true if the absolute value of the first stack value is less than or equal to 1, else false.");
+		r("math.isSquare", stack -> stack.push(Math.floor(Math.sqrt(stack.peek().asInt())) == Math.sqrt(stack.pop().asInt())), "Push true if the first stack value is a perfect square.");
 	}
 
 	private boolean prime(int n) {

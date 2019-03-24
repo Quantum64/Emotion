@@ -194,4 +194,9 @@ public class BigIntegerValue implements Value {
 	public String toString() {
 		return value.toString();
 	}
+
+	@Override
+	public boolean isList() {
+		return false;
+	}
 }

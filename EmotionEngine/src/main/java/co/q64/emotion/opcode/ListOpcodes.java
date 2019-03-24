@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -50,66 +51,19 @@ public class ListOpcodes extends OpcodeRegistry {
 		r("list.maxf", stack -> stack.push(stack.pop().iterate().stream().mapToDouble(Value::asDouble).max().orElse(nul.asInt())), "Push the greatest floating point number in the first stack value.");
 		r("list.min", stack -> stack.push(stack.pop().iterate().stream().mapToInt(Value::asInt).min().orElse(nul.asInt())), "Push the least integer in the first stack value.");
 		r("list.minf", stack -> stack.push(stack.pop().iterate().stream().mapToDouble(Value::asDouble).min().orElse(nul.asInt())), "Push the least floating point number in the first stack value.");
-		r("list.reverse", stack -> {
-			List<Value> vals = stack.pop().iterate();
-			Collections.reverse(vals);
-			stack.push(vals.stream().map(Object::toString).collect(Collectors.joining(",")));
-		}, "Reverses the list in the first stack value.");
-		r("list.range", stack -> stack.push(IntStream.rangeClosed(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(literal::create).collect(Collectors.toList())), "Push a list of integers in the range of the second stack value to the first stack value.");
-		r("list.reverseRange", stack -> {
-			int to = stack.pop().asInt(), from = stack.pop().asInt();
-			stack.push(IntStream.rangeClosed(from, to).map(i -> to - i + from - 1).boxed().map(literal::create).collect(Collectors.toList()));
-		}, "Push a list of integers in decending order in the range of the second stack value to the first stack value.");
-		r("list.set", stack -> {
-			int index = stack.pop().asInt();
-			Value target = stack.pop();
-			List<Value> list = stack.pop().iterate();
-			if (list.size() > index) {
-				list.set(index, target);
-			} else {
-				int size = list.size();
-				for (int i = size; i < index; i++) {
-					list.add(nul);
-				}
-				list.add(target);
-			}
-			stack.push(list);
-		}, "Set the value in the list in the third stack value to the second stack value at the index of the first stack value.");
-		r("list.get", stack -> {
-			int index = stack.pop().asInt();
-			List<Value> list = stack.pop().iterate();
-			if (index >= list.size()) {
-				stack.push(nul);
-				return;
-			}
-			stack.push(list.get(index));
-		}, "Push the value in the list of the second stack value at the index of the first stack value.");
-		r("list.add", stack -> {
-			List<Value> list = stack.peek(2).iterate();
-			list.add(stack.pull(2));
-			stack.push(list);
-		}, "Add the first stack value to the list in the second stack value. Does not remove the list from the stack.");
-		r("list.remove", stack -> {
-			List<Value> list = stack.peek(2).iterate();
-			list.remove(stack.pull(2));
-			stack.push(list);
-		}, "Remove the first stack value from the list in the second stack value. Does not remove the list from the stack.");
-		r("list.sort", stack -> {
-			List<Value> list = stack.pop().iterate();
-			Collections.sort(list, sorter);
-			stack.push(list);
-		}, "Push the first stack value sorted in ascending order.");
-		r("list.reverseSort", stack -> {
-			List<Value> list = stack.pop().iterate();
-			Collections.sort(list, Collections.reverseOrder(sorter));
-			stack.push(list);
-		}, "Push the first stack value sorted in decending order.");
-		r("list.shuffle", stack -> {
-			List<Value> list = stack.pop().iterate();
-			Collections.shuffle(list);
-			stack.push(list);
-		}, "Push the list on the first stack value with elements in random order.");
-		
+		r("list.reverse", stack -> stack.push(apply(stack.pop().iterate(), Collections::reverse)), "Reverses the list in the first stack value.");
+		r("list.range", stack -> stack.push(IntStream.range(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(literal::create).collect(Collectors.toList())), "Push a list of integers in the range of the second stack value to the first stack value minus one.");
+		r("list.reverseRange", stack -> stack.push(apply(IntStream.range(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(literal::create).collect(Collectors.toList()), Collections::reverse)), "Push a list of integers in decending order in the range of the second stack value to the first stack value minus one.");
+		r("list.rangeClosed", stack -> stack.push(IntStream.rangeClosed(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(literal::create).collect(Collectors.toList())), "Push a list of integers in the range of the second stack value to the first stack value.");
+		r("list.reverseRangeClosed", stack -> stack.push(apply(IntStream.rangeClosed(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(literal::create).collect(Collectors.toList()), Collections::reverse)), "Push a list of integers in decending order in the range of the second stack value to the first stack value.");
+		r("list.set", stack -> stack.push(set(stack.pop().asInt(), stack.pop(), stack.pop().iterate())), "Set the value in the list in the third stack value to the second stack value at the index of the first stack value.");
+		r("list.get", stack -> stack.push(get(stack.pop().asInt(), stack.pop().iterate())), "Push the value in the list of the second stack value at the index of the first stack value.");
+		r("list.add", stack -> stack.push(apply(stack.peek(2).iterate(), list -> list.add(stack.pull(2)))), "Add the first stack value to the list in the second stack value. Does not remove the list from the stack.");
+		r("list.remove", stack -> stack.push(apply(stack.peek(2).iterate(), list -> list.remove(stack.pull(2).asInt()))), "Remove the first stack value from the list in the second stack value. Does not remove the list from the stack.");
+		r("list.sort", stack -> stack.push(apply(stack.pop().iterate(), list -> Collections.sort(list, sorter))), "Push the first stack value sorted in ascending order.");
+		r("list.reverseSort", stack -> stack.push(apply(stack.pop().iterate(), list -> Collections.sort(list, Collections.reverseOrder(sorter)))), "Push the first stack value sorted in decending order.");
+		r("list.shuffle", stack -> stack.push(apply(stack.pop().iterate(), Collections::shuffle)), "Push the list on the first stack value with elements in random order.");
+
 		r("list.pair", stack -> stack.push(listFromStack(stack, 2)), "Push the second and first stack values as a list.");
 		r("list.triad", stack -> stack.push(listFromStack(stack, 3)), "Push the third, second, and first stack values as a list.");
 		r("list.quad", stack -> stack.push(listFromStack(stack, 4)), "Push the first four stack values in reverse order as a list.");
@@ -134,6 +88,31 @@ public class ListOpcodes extends OpcodeRegistry {
 		r("list.trevigintuple", stack -> stack.push(listFromStack(stack, 23)), "Push the first 23 stack values in reverse order as a list.");
 		r("list.quattuorvigintuple", stack -> stack.push(listFromStack(stack, 24)), "Push the first 24 stack values in reverse order as a list.");
 		r("list.quinvigintuple", stack -> stack.push(listFromStack(stack, 25)), "Push the first 25 stack values in reverse order as a list.");
+	}
+
+	private List<Value> apply(List<Value> list, Consumer<List<Value>> func) {
+		func.accept(list);
+		return list;
+	}
+
+	private Value get(int index, List<Value> list) {
+		if (index >= list.size()) {
+			return nul;
+		}
+		return list.get(index);
+	}
+
+	private List<Value> set(int index, Value value, List<Value> list) {
+		if (list.size() > index) {
+			list.set(index, value);
+		} else {
+			int size = list.size();
+			for (int i = size; i < index; i++) {
+				list.add(nul);
+			}
+			list.add(value);
+		}
+		return list;
 	}
 
 	private List<String> listFromStack(Stack stack, int elements) {

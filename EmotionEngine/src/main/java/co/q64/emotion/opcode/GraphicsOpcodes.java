@@ -29,9 +29,14 @@ public class GraphicsOpcodes extends OpcodeRegistry {
 		r("graphics.imageWithSize", stack -> stack.push(createImage(stack.peek(2).asInt(), stack.pull(2).asInt())), "Push an image filled with transparent pixels with a width of the second stack value and a height of the first stack value.");
 		r("graphics.imageWithSquareSize", stack -> stack.push(createImage(stack.peek().asInt(), stack.pop().asInt())), "Push an image filled with transparent pixels with a width and height of the first stack value.");
 		r("graphics.imageWithSizeAndColor", stack -> stack.push(createImageWithColor(stack.peek(3).asInt(), stack.peek(2).asInt(), colors.create(stack.pull(3).toString()))), "Push an image color filled with the first stack value with a width of the third stack value and a height of the second stack value.");
-		r("graphics.imageWithSquareSizeAndColor", stack -> stack.push(graphics.createImage(stack.peek(2).asInt(), stack.peek(2).asInt(), colors.create(stack.pull(2).toString()))), "Push an image color filled with the first stack value with a width and height of the second stack value.");
-		//r("gramhics.imageFromUrl", stack -> stack.push(graphics.createImage(stack.pop().toString())), "Push an image from the Base64 image URL on the first stack value.");
-		
+		r("graphics.imageWithSquareSizeAndColor", stack -> stack.push(createImageWithColor(stack.peek(2).asInt(), stack.peek(2).asInt(), colors.create(stack.pull(2).toString()))), "Push an image color filled with the first stack value with a width and height of the second stack value.");
+		r("graphics.imageFromPNG", stack -> stack.push(imageFactory.create(stack.pop().toString())), "Push an image from the PNG encoded Base64 image URL on the first stack value.");
+
+		r("graphics.setColor", stack -> stack.push(asImage(stack.peek(2)).setColor(colors.create(stack.pull(2).toString()))), "Set the drawing color of the image on the second stack value to the color on the first stack value.");
+		r("graphics.fillRect", stack -> stack.push(asImage(stack.pop()).fillRect(0, 0, 50, 50)), "Fill a rectangle on the image on the first stack value at (0, 0) with a width and height of 50 pixels.");
+
+		registerQuickColors();
+
 		/*//TODO
 		r("graphics.setColor", stack -> graphics.setColor(stack.peek(2), colors.create(stack.pop().toString())), "Set drawing color of the image on the second stack value to the color hex code on the first stack value.");
 		r("graphics.setStroke", stack -> graphics.setStroke(stack.peek(2), stack.pop().asInt()), "Set drawing stroke of the image on the second stack value to the width on the first stack value.");
@@ -47,7 +52,7 @@ public class GraphicsOpcodes extends OpcodeRegistry {
 		r("graphics.fillCircleWithRadius", stack -> graphics.drawEllipse(stack.peek(2), 0, 0, stack.peek().asInt(), stack.pop().asInt(), true), "Fill a circle on the image on the second stack value with a radius of the first stack value pixels at 0, 0.");
 		r("graphics.fillCircleAt", stack -> graphics.drawEllipse(stack.peek(3), stack.peek(2).asInt(), stack.pull(2).asInt(), 50, 50, true), "Fill a circle on the image on the third stack value with a radius of 50 pixels at the second stack value, the first stack value.");
 		r("graphics.fillCircleWithRadiusAt", stack -> graphics.drawEllipse(stack.peek(4), stack.peek(2).asInt(), stack.peek().asInt(), stack.peek(3).asInt(), stack.pull(3).asInt(), true), "Fill a circle on the image on the fourth stack value with a radius of the third stack value pixels at the second stack value, the first stack value.");
-
+		
 		r("graphics.drawEllipse", stack -> graphics.drawEllipse(stack.peek(3), 0, 0, stack.peek(2).asInt(), stack.pull(2).asInt(), false), "Draw an ellipse on the image on the third stack value with a width of the second stack value and a height of the first stack value pixels at 0, 0.");
 		r("graphics.drawEllipseAt", stack -> graphics.drawEllipse(stack.peek(5), stack.peek(2).asInt(), stack.peek().asInt(), stack.peek(4).asInt(), stack.peek(3).asInt(), stack.pop(4).asInt() == -1), "Draw an ellipse on the image on the fifth stack value with a width of the fourth stack value and a height of the third stack value at the second stack value, the first stack value.");
 		r("graphics.fillEllipse", stack -> graphics.drawEllipse(stack.peek(3), 0, 0, stack.peek(2).asInt(), stack.pull(2).asInt(), true), "Fill an ellipse on the image on the first stack value with a radius of 50 pixels at 0, 0.");
@@ -60,15 +65,23 @@ public class GraphicsOpcodes extends OpcodeRegistry {
 	}
 
 	private Image createImageWithColor(int width, int height, Color color) {
-		Image image = imageFactory.create(width, height);
-		image.fill(color);
-		return image;
+		return imageFactory.create(width, height).setColor(color).fill();
 	}
-	
+
 	private Image asImage(Value value) {
 		if (value instanceof Image) {
 			return (Image) value;
 		}
 		throw new IllegalArgumentException("The provided argument was not an Image!");
+	}
+
+	private static final String[] colorNames = { "Black", "White", "Red", "Green", "Blue", "Yellow", "Cyan", "Magenta" };
+	private static final String[] colorCodes = { "0x000000", "0xffffff", "0xff0000", "0x00ff00", "0x0000ff", "0xffff00", "0x00ffff", "0xff00ff" };
+
+	private void registerQuickColors() {
+		for (int index = 0; index < colorNames.length; index++) {
+			final int lock = index;
+			r("graphics.setColor" + colorNames[lock], stack -> stack.push(asImage(stack.pop()).setColor(colors.create(colorCodes[lock]))), "Set the drawing color of the image on the first stack value to " + colorNames[lock].toLowerCase() + " (" + colorCodes[lock] + ").");
+		}
 	}
 }

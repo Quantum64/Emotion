@@ -206,8 +206,8 @@ class App extends Component {
       if (!baseUrl.endsWith("/")) {
         baseUrl += "/";
       }
-      const codepageUrl = baseUrl + "/?state=" + this.encodeState({ mode: "codepage" });
-      const tryItUrl = baseUrl + "/?state=" + this.encodeState({ mode: "interpreter", interpreterCode: compiled.program, interpreterArguments: this.state.editorArguments });
+      const codepageUrl = baseUrl + "?state=" + this.encodeState({ mode: "codepage" });
+      const tryItUrl = baseUrl + "?state=" + this.encodeState({ mode: "interpreter", interpreterCode: compiled.program, interpreterArguments: this.state.editorArguments });
       result.push("# [Emotion][1], " + this.getCodeBytes(compiled.program) + " [bytes][2]");
       result.push("");
       result.push("    " + compiled.program);
