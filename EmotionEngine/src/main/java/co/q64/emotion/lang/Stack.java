@@ -100,7 +100,7 @@ public class Stack {
 		return this;
 	}
 
-	public Stack push(List<Object> values) {
+	public Stack push(List<?> values) {
 		stack.add(literal.create(values));
 		return this;
 	}

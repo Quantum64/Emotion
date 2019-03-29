@@ -5,11 +5,13 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
 import co.q64.emotion.runtime.Javascript;
 
+@Singleton
 public class JavascriptOpcodes extends OpcodeRegistry {
 	protected @Inject Javascript javascript;
 

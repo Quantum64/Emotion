@@ -28,7 +28,7 @@ public class Literal implements Value {
 		this(literal.toString());
 	}
 
-	protected Literal(List<Object> list) {
+	protected Literal(List<?> list) {
 		this("<<" + list.stream().map(Object::toString).map(element -> Base64.encode(element.getBytes(StandardCharsets.UTF_8))).collect(Collectors.joining(",")) + ">>");
 	}
 

@@ -11,6 +11,7 @@ import co.q64.emotion.opcode.DictionaryOpcodes;
 import co.q64.emotion.opcode.GraphicsOpcodes;
 import co.q64.emotion.opcode.IntegerOpcodes;
 import co.q64.emotion.opcode.JavascriptOpcodes;
+import co.q64.emotion.opcode.LinearOpocdes;
 import co.q64.emotion.opcode.ListOpcodes;
 import co.q64.emotion.opcode.LongRegisterOpcodes;
 import co.q64.emotion.opcode.MathOpcodes;
@@ -31,12 +32,13 @@ public class OpcodeLibrary {
 	protected @Inject IntegerOpcodes integer;
 	protected @Inject MetaOpcodes meta;
 	protected @Inject GraphicsOpcodes graphics;
+	protected @Inject LinearOpocdes linear;
 	protected @Inject BigNumberOpcodes bigNumber;
 	protected @Inject JavascriptOpcodes javascript;
 	protected @Inject LongRegisterOpcodes registry;
 	protected @Inject DictionaryOpcodes dictionary;
 
 	protected List<OpcodeRegistry> get() {
-		return Arrays.asList(standard, stack, string, math, integer, list, meta, graphics, bigNumber, javascript, registry, dictionary);
+		return Arrays.asList(standard, stack, string, math, integer, list, meta, graphics, linear, bigNumber, javascript, registry, dictionary);
 	}
 }

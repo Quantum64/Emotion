@@ -63,7 +63,8 @@ public class ListOpcodes extends OpcodeRegistry {
 		r("list.sort", stack -> stack.push(apply(stack.pop().iterate(), list -> Collections.sort(list, sorter))), "Push the first stack value sorted in ascending order.");
 		r("list.reverseSort", stack -> stack.push(apply(stack.pop().iterate(), list -> Collections.sort(list, Collections.reverseOrder(sorter)))), "Push the first stack value sorted in decending order.");
 		r("list.shuffle", stack -> stack.push(apply(stack.pop().iterate(), Collections::shuffle)), "Push the list on the first stack value with elements in random order.");
-
+		r("list.constant", stack -> stack.push(constantList(stack.pop().asInt(), stack.pop().asInt())), "Push a list of the first stack value with the length of the second stack value.");
+		
 		r("list.pair", stack -> stack.push(listFromStack(stack, 2)), "Push the second and first stack values as a list.");
 		r("list.triad", stack -> stack.push(listFromStack(stack, 3)), "Push the third, second, and first stack values as a list.");
 		r("list.quad", stack -> stack.push(listFromStack(stack, 4)), "Push the first four stack values in reverse order as a list.");
@@ -88,6 +89,8 @@ public class ListOpcodes extends OpcodeRegistry {
 		r("list.trevigintuple", stack -> stack.push(listFromStack(stack, 23)), "Push the first 23 stack values in reverse order as a list.");
 		r("list.quattuorvigintuple", stack -> stack.push(listFromStack(stack, 24)), "Push the first 24 stack values in reverse order as a list.");
 		r("list.quinvigintuple", stack -> stack.push(listFromStack(stack, 25)), "Push the first 25 stack values in reverse order as a list.");
+
+		r("list.zeros", stack -> stack.push(constantList(0, stack.pop().asInt())), "Push a list of zeros with length of the first stack value.");
 	}
 
 	private List<Value> apply(List<Value> list, Consumer<List<Value>> func) {
@@ -113,6 +116,10 @@ public class ListOpcodes extends OpcodeRegistry {
 			list.add(value);
 		}
 		return list;
+	}
+
+	private List<Object> constantList(int value, int length) {
+		return IntStream.range(0, length).mapToObj(i -> value).collect(Collectors.toList());
 	}
 
 	private List<String> listFromStack(Stack stack, int elements) {
