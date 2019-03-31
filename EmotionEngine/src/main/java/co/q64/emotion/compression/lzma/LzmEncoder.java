@@ -1115,11 +1115,11 @@ public class LzmEncoder {
 		return new Chunker(this);
 	}
 
-	public static final int kPropSize = 1;
+	public static final int kPropSize = 0;
 	byte[] properties = new byte[kPropSize];
 
 	public void WriteCoderProperties(java.io.OutputStream outStream) throws IOException {
-		properties[0] = (byte) ((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits);
+		//properties[0] = (byte) ((_posStateBits * 5 + _numLiteralPosStateBits) * 9 + _numLiteralContextBits);
 		//for (int i = 0; i < 4; i++)
 		//	properties[1 + i] = (byte) (_dictionarySize >> (8 * i));
 		outStream.write(properties, 0, kPropSize);
@@ -1203,7 +1203,7 @@ public class LzmEncoder {
 		return true;
 	}
 
-	
+	/*
 	public boolean SetLcLpPb(int lc, int lp, int pb) {
 		if (lp < 0 || lp > Base.kNumLitPosStatesBitsEncodingMax || lc < 0 || lc > Base.kNumLitContextBitsMax || pb < 0 || pb > Base.kNumPosStatesBitsEncodingMax)
 			return false;
@@ -1213,6 +1213,7 @@ public class LzmEncoder {
 		_posStateMask = ((1) << _posStateBits) - 1;
 		return true;
 	}
+	*/
 
 	public void SetEndMarkerMode(boolean endMarkerMode) {
 		_writeEndMark = endMarkerMode;

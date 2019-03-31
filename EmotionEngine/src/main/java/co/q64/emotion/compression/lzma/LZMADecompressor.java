@@ -40,7 +40,7 @@ public class LZMADecompressor {
 	LZMADecompressor() {}
 
 	void init(InputStream input, OutputStream output) throws IOException {
-		byte[] properties = new byte[1];
+		byte[] properties = new byte[0];
 		for (int i = 0; i < properties.length; i++) {
 			int r = input.read();
 			if (r == -1)

@@ -34,4 +34,10 @@ public class StandardTest {
 	public void testLoadLargeNumber() {
 		new SimpleEmotionTest("load 1234567890987654321").execute("1234567890987654321");
 	}
+	
+	@Test
+	public void testHighlyCompressable() {
+		String value = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+		new SimpleEmotionTest("load " + value).execute(value);
+	}
 }

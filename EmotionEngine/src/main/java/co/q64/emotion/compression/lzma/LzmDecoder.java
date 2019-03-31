@@ -143,7 +143,8 @@ public class LzmDecoder {
 		return true;
 	}
 
-	boolean SetLcLpPb(int lc, int lp, int pb) {
+	boolean SetLcLpPb() {
+		int lc = 3, lp = 0, pb = 2;
 		if (lc > Base.kNumLitContextBitsMax || lp > 4 || pb > Base.kNumPosStatesBitsMax)
 			return false;
 		m_LiteralDecoder.Create(lp, lc);
@@ -308,15 +309,15 @@ public class LzmDecoder {
 	public boolean SetDecoderProperties(byte[] properties) {
 		//if (properties.length < 5)
 		//	return false;
-		int val = properties[0] & 0xFF;
-		int lc = val % 9;
-		int remainder = val / 9;
-		int lp = remainder % 5;
-		int pb = remainder / 5;
+		//int val = properties[0] & 0xFF;
+		//int lc = val % 9;
+		//int remainder = val / 9;
+		//int lp = remainder % 5;
+		//int pb = remainder / 5;
 		//int dictionarySize = 0;
 		//for (int i = 0; i < 4; i++)
 		//	dictionarySize += ((int) (properties[1 + i]) & 0xFF) << (i * 8);
-		if (!SetLcLpPb(lc, lp, pb))
+		if (!SetLcLpPb())
 			return false;
 		return SetDictionarySize();
 	}
