@@ -1,4 +1,4 @@
-package co.q64.jstx.util;
+package co.q64.emotion.util;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,11 +10,11 @@ import co.q64.emotion.DaggerEmotionMain_EmotionMainComponent;
 import co.q64.emotion.EmotionEngine;
 import co.q64.emotion.compiler.CompilerOutput;
 
-public class SimpleJstxTest {
+public class SimpleEmotionTest {
 	private EmotionEngine jstx = DaggerEmotionMain_EmotionMainComponent.create().getJstx();
 	private String[] program;
 
-	public SimpleJstxTest(String... program) {
+	public SimpleEmotionTest(String... program) {
 		this.program = program;
 	}
 

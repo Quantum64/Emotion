@@ -1,18 +1,18 @@
-package co.q64.jstx;
+package co.q64.emotion;
 
 import org.junit.Test;
 
-import co.q64.jstx.util.SimpleJstxTest;
+import co.q64.emotion.util.SimpleEmotionTest;
 
 public class DefTest {
 	@Test
 	public void testDef() {
-		new SimpleJstxTest("load 2", "load 3", "jump add", "def add", "+", "end").execute("5");
+		new SimpleEmotionTest("load 2", "load 3", "jump add", "def add", "+", "end").execute("5");
 	}
 
 	@Test
 	public void testMultiFunctionWithReturn() {
-		new SimpleJstxTest(
+		new SimpleEmotionTest(
 		// @formatter:off
 				"# Test factorial function several times",
 				"load 2",

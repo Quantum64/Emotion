@@ -1203,6 +1203,7 @@ public class LzmEncoder {
 		return true;
 	}
 
+	
 	public boolean SetLcLpPb(int lc, int lp, int pb) {
 		if (lp < 0 || lp > Base.kNumLitPosStatesBitsEncodingMax || lc < 0 || lc > Base.kNumLitContextBitsMax || pb < 0 || pb > Base.kNumPosStatesBitsEncodingMax)
 			return false;

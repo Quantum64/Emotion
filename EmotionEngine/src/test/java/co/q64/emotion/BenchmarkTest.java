@@ -1,4 +1,4 @@
-package co.q64.jstx;
+package co.q64.emotion;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +22,7 @@ import co.q64.emotion.inject.StandardModule;
 import co.q64.emotion.inject.SystemModule;
 import co.q64.emotion.lang.opcode.Opcodes;
 import co.q64.emotion.runtime.Output;
+import co.q64.emotion.DaggerBenchmarkTest_OpcodesComponent;
 import dagger.Component;
 import lombok.AllArgsConstructor;
 

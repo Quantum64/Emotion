@@ -121,6 +121,8 @@ public class Compiler {
 						opcodes.getFlags(OpcodeMarker.LESS_EQUAL).contains(id) || //
 						opcodes.getFlags(OpcodeMarker.FUNCTION).contains(id) || //
 						opcodes.getFlags(OpcodeMarker.ITERATE).contains(id) || //
+						opcodes.getFlags(OpcodeMarker.TRUE).contains(id) || //
+						opcodes.getFlags(OpcodeMarker.FALSE).contains(id) || //
 						opcodes.getFlags(OpcodeMarker.ITERATE_STACK).contains(id)) {
 					debt++;
 				}

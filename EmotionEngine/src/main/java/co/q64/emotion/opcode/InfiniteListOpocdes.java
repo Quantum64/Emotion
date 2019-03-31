@@ -40,6 +40,7 @@ public class InfiniteListOpocdes extends OpcodeRegistry {
 		r("infinilist.odd", stack -> stack.push(infiniteList.create(n -> literal.create(n * 2 + 1))), "Push the infinite list of odd numbers.");
 		r("infinilist.pow2", stack -> stack.push(infiniteList.create(n -> literal.create(new BigInteger("2").pow(n + 1).toString()))), "Push the infinite list of powers of two.");
 		r("infinilist.sign", stack -> stack.push(infiniteList.create(n -> literal.create(n % 2 == 0 ? 1 : -1))), "Push an infinite list of alternating positive and negative one.");
+		r("infinilist.zero", stack -> stack.push(infiniteList.create(n -> literal.create(0))), "Push an infinite list of zeros.");
 
 		r("infinilist.toFixed", stack -> stack.push(convertToFixed(stack.pop().asInt(), 0, stack.pop())), "Push a list with the size of the first stack value of values in the infinite list on the second stack value.");
 		for (int size : SIZES) {

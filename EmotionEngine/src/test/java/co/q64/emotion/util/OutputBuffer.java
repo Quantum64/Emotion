@@ -1,4 +1,4 @@
-package co.q64.jstx.util;
+package co.q64.emotion.util;
 
 import co.q64.emotion.runtime.Output;
 

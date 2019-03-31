@@ -165,6 +165,9 @@ public class Literal implements Value {
 		if (literal.equalsIgnoreCase("true")) {
 			return true;
 		}
+		if (literal.equalsIgnoreCase("false")) {
+			return false;
+		}
 		return !literal.equals("0");
 	}
 
