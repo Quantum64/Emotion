@@ -1,5 +1,11 @@
-load 0x00ffff
-graphics.imageWithColor
-load 0xff0000
-graphics.setColor
-graphics.fillRect
+infinilist.primes
+println
+infinilist.primes
+iterate stack
+ldr i
+load 10000
+if >
+break
+end
+println
+end

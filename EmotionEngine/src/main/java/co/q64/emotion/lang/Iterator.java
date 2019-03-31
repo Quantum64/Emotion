@@ -1,7 +1,6 @@
 package co.q64.emotion.lang;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ListIterator;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -12,7 +11,7 @@ import co.q64.emotion.lang.value.Value;
 
 @AutoFactory
 public class Iterator {
-	private Queue<Value> values;
+	private ListIterator<Value> values;
 	private Registers registers;
 	private LiteralFactory literal;
 	private Program program;
@@ -26,19 +25,18 @@ public class Iterator {
 		this.onStack = onStack;
 		this.literal = literal.getFactory();
 		this.index = 0;
-		this.values = new LinkedList<>(program.getStack().pop().iterate());
+		this.values = program.getStack().pop().iterate().listIterator();
 	}
 
 	public boolean next() {
-		if (values.size() > 0) {
+		if (values.hasNext()) {
 			i = literal.create(index);
-			o = values.poll();
+			o = values.next();
 			register();
 			if (onStack) {
 				program.getStack().push(registers.getO());
 			}
 			index++;
-			//program.jumpToNode(line);
 			return false;
 		}
 		return true;

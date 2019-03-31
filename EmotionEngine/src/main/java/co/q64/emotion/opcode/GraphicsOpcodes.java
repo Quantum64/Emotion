@@ -8,13 +8,11 @@ import co.q64.emotion.lang.opcode.OpcodeRegistry;
 import co.q64.emotion.lang.value.Value;
 import co.q64.emotion.lang.value.graphics.Image;
 import co.q64.emotion.lang.value.graphics.ImageFactory;
-import co.q64.emotion.runtime.Graphics;
 import co.q64.emotion.util.Color;
 import co.q64.emotion.util.ColorFactory;
 
 @Singleton
 public class GraphicsOpcodes extends OpcodeRegistry {
-	protected @Inject Graphics graphics;
 	protected @Inject ImageFactory imageFactory;
 	protected @Inject ColorFactory colors;
 

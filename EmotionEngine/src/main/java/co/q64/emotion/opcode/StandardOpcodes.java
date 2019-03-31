@@ -37,6 +37,7 @@ import javax.inject.Singleton;
 import co.q64.emotion.lang.Stack;
 import co.q64.emotion.lang.opcode.OpcodeCache;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
+import co.q64.emotion.lang.value.LiteralFactory;
 import co.q64.emotion.lang.value.Null;
 import co.q64.emotion.lang.value.Value;
 import co.q64.emotion.types.Operation;
@@ -49,6 +50,7 @@ public class StandardOpcodes extends OpcodeRegistry {
 
 	protected @Inject Null nul;
 	protected @Inject OpcodeCache cache;
+	protected @Inject LiteralFactory literal;
 
 	@Override
 	public void register() {
@@ -108,7 +110,7 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("iterate stack", ITERATE_STACK, stack -> astFail(stack, "ITERATE STACK"), "Enter an iteration block over the first stack value and push the iteration element register at the begining of each loop.");
 		r("break", BREAK, stack -> astFail(stack, "BREAK"), "Immediately exits a loop or iteration structure.");
 		r("continue", CONTINUE, stack -> astFail(stack, "CONTINUE"), "Jumps to the next iteration of a loop or iteration structure.");
-		r("end", END, stack -> astFail(stack, "END"), "Ends a control flow structure.");
+		r("end", END, stack -> astFail(stack, "END"), "End a control flow structure.");
 		r("print", stack -> stack.getProgram().print(stack.pop().toString()), "Print the first stack value.");
 		r("print space", stack -> stack.getProgram().print(" "), "Print a space character.");
 		r("println", stack -> stack.getProgram().println(stack.pop().toString()), "Print the first stack value, then a newline.");
@@ -130,8 +132,10 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("/", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.DIVIDE)), "Push the quotient of the second and first stack values.");
 		r("%", stack -> stack.push(stack.peek(2).asInt() % stack.pull(2).asInt()), "Push the modulus of the second and first stack values.");
 		// 73
+		r("increment", stack -> stack.push(stack.pop().operate(literal.create(1), Operation.ADD)));
+		r("decrement", stack -> stack.push(stack.pop().operate(literal.create(1), Operation.SUBTRACT)));
 		r("time", stack -> stack.push(System.currentTimeMillis()), "Push the current time in milliseconds.");
-		
+
 		/*
 		r("remap.math", PRIORITIZATION, stack -> cache.prioritize(OpcodeMarker.MATH), "Prioritize math opcodes for one byte instructions.");
 		r("remap.list", PRIORITIZATION, stack -> cache.prioritize(OpcodeMarker.LIST), "Prioritize list opcodes for one byte instructions.");

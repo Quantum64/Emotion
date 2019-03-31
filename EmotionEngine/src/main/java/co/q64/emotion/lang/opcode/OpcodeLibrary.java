@@ -9,6 +9,7 @@ import javax.inject.Singleton;
 import co.q64.emotion.opcode.BigNumberOpcodes;
 import co.q64.emotion.opcode.DictionaryOpcodes;
 import co.q64.emotion.opcode.GraphicsOpcodes;
+import co.q64.emotion.opcode.InfiniteListOpocdes;
 import co.q64.emotion.opcode.IntegerOpcodes;
 import co.q64.emotion.opcode.JavascriptOpcodes;
 import co.q64.emotion.opcode.LinearOpocdes;
@@ -28,6 +29,7 @@ public class OpcodeLibrary {
 	protected @Inject StackOpcodes stack;
 	protected @Inject StringOpcodes string;
 	protected @Inject ListOpcodes list;
+	protected @Inject InfiniteListOpocdes infiniteList;
 	protected @Inject MathOpcodes math;
 	protected @Inject IntegerOpcodes integer;
 	protected @Inject MetaOpcodes meta;
@@ -39,6 +41,6 @@ public class OpcodeLibrary {
 	protected @Inject DictionaryOpcodes dictionary;
 
 	protected List<OpcodeRegistry> get() {
-		return Arrays.asList(standard, stack, string, math, integer, list, meta, graphics, linear, bigNumber, javascript, registry, dictionary);
+		return Arrays.asList(standard, stack, string, math, integer, list, infiniteList, meta, graphics, linear, bigNumber, javascript, registry, dictionary);
 	}
 }
