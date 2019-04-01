@@ -130,6 +130,7 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("-", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.SUBTRACT)), "Push the difference of the second and first stack values.");
 		r("*", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.MULTIPLY)), "Push the product of the second and first stack values.");
 		r("/", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.DIVIDE)), "Push the quotient of the second and first stack values.");
+		r("//", stack -> stack.push(stack.peek(2).asDouble() / stack.pull(2).asDouble()), "Push the quotient of the second and first stack values as floats.");
 		r("%", stack -> stack.push(stack.peek(2).asInt() % stack.pull(2).asInt()), "Push the modulus of the second and first stack values.");
 		// 73
 		r("increment", stack -> stack.push(stack.pop().operate(literal.create(1), Operation.ADD)));
