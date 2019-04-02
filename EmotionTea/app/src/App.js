@@ -42,6 +42,7 @@ class App extends Component {
       interpreterArguments: "",
       interpreterOutput: "",
       decompilerProgram: "",
+      toolsRemoveNewlines: "",
       loaded: false
     }
   }
@@ -577,6 +578,30 @@ class App extends Component {
     );
   }
 
+  getToolsContent() {
+    return (
+      <div>
+        <Typography variant="h5">
+          Remove Newlines
+        </Typography>
+        <TextField
+          id="outlined-textarea"
+          label="Paste Here"
+          value={this.state.toolsRemoveNewlines}
+          multiline
+          fullWidth
+          margin="normal"
+          variant="outlined"
+          onChange={(event) => {
+            this.setState({
+              toolsRemoveNewlines: event.target.value.replace(/\n/g, "\\n")
+            });
+          }}
+        />
+      </div>
+    )
+  }
+
   render() {
     this.injectStateUrl();
 
@@ -597,11 +622,14 @@ class App extends Component {
       case "codepage":
         content = this.getCodepageContent();
         break;
+      case "tools":
+        content = this.getToolsContent();
+        break;
       default:
         break;
     }
 
-    const modes = ["interpreter", "compiler", "lexer", "reference", "codepage"];
+    const modes = ["interpreter", "compiler", "lexer", "tools", "reference", "codepage"];
     const buttons = [];
     for (let mode of modes) {
       buttons.push(

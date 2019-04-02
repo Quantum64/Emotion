@@ -18,3 +18,4 @@ public class MetaTest {
 		new SimpleEmotionTest(program).execute(co.getProgram() + "Hello World");
 	}
 }
+
