@@ -12,18 +12,18 @@ public enum CompressionMode {
 	private final int algorithm;
 	private final int fb;
 	private final int matchFinder;
-	private final int lc;
-	private final int lp;
-	private final int pb;
+	//private final int lc;
+	//private final int lp;
+	//private final int pb;
 
 	private CompressionMode(int level, int algorithm, int dictionarySize, int fb, int matchFinder, int lc, int lp, int pb) {
 		this.level = level;
 		this.algorithm = algorithm;
 		this.fb = fb;
 		this.matchFinder = matchFinder;
-		this.lc = lc;
-		this.lp = lp;
-		this.pb = pb;
+		//this.lc = lc;
+		//this.lp = lp;
+		//this.pb = pb;
 	}
 
 	/**
@@ -38,8 +38,8 @@ public enum CompressionMode {
 			throw new RuntimeException("unexpected failure");
 		if (!encoder.SetMatchFinder(this.matchFinder))
 			throw new RuntimeException("unexpected failure");
-		if (!encoder.SetLcLpPb(this.lc, this.lp, this.pb))
-			throw new RuntimeException("unexpected failure");
+		//if (!encoder.SetLcLpPb(this.lc, this.lp, this.pb))
+		//	throw new RuntimeException("unexpected failure");
 	}
 
 	/**

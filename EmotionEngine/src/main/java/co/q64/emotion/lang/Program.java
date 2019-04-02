@@ -1,7 +1,5 @@
 package co.q64.emotion.lang;
 
-import java.util.concurrent.TimeUnit;
-
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 
@@ -15,6 +13,8 @@ import lombok.Getter;
 
 @AutoFactory
 public class Program {
+	private static final int TOO_LONG = 5000;
+	
 	private StackFactory stackFactory;
 	private RegistersFactory registersFactory;
 	private Opcodes opcodes;
@@ -80,8 +80,8 @@ public class Program {
 
 	public boolean shouldContinueExecution() {
 		if (!terminated) {
-			if (System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(2) > start) {
-				crash("Unusually long execution time! (2000ms)");
+			if (System.currentTimeMillis() - TOO_LONG > start) {
+				crash("Unusually long execution time! (" + TOO_LONG + " ms)");
 				terminated = true;
 			}
 		}

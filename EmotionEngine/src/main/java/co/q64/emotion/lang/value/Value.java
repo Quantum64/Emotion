@@ -15,18 +15,26 @@ public interface Value {
 	public int asInt();
 
 	public long asLong();
-	
+
 	public char asChar();
 
 	public double asDouble();
 
 	public boolean asBoolean();
-	
-	public boolean isBoolean();
-	
-	public boolean isList();
 
-	public boolean isFloat();
+	public default boolean isBoolean() {
+		return false;
+	}
 
-	public boolean isInteger();
+	public default boolean isList() {
+		return false;
+	}
+
+	public default boolean isFloat() {
+		return false;
+	}
+
+	public default boolean isInteger() {
+		return false;
+	}
 }

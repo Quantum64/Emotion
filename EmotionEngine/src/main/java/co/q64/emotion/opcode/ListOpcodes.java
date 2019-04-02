@@ -64,7 +64,8 @@ public class ListOpcodes extends OpcodeRegistry {
 		r("list.reverseSort", stack -> stack.push(apply(stack.pop().iterate(), list -> Collections.sort(list, Collections.reverseOrder(sorter)))), "Push the first stack value sorted in decending order.");
 		r("list.shuffle", stack -> stack.push(apply(stack.pop().iterate(), Collections::shuffle)), "Push the list on the first stack value with elements in random order.");
 		r("list.constant", stack -> stack.push(constantList(stack.pop().asInt(), stack.pop().asInt())), "Push a list of the first stack value with the length of the second stack value.");
-		
+		r("list.duplicate", stack -> stack.push(Collections.nCopies(stack.pop().asInt(), stack.pop())), "Push a list of the second stack value duplicated n times where n is the first stack value.");
+
 		r("list.pair", stack -> stack.push(listFromStack(stack, 2)), "Push the second and first stack values as a list.");
 		r("list.triad", stack -> stack.push(listFromStack(stack, 3)), "Push the third, second, and first stack values as a list.");
 		r("list.quad", stack -> stack.push(listFromStack(stack, 4)), "Push the first four stack values in reverse order as a list.");
@@ -90,7 +91,33 @@ public class ListOpcodes extends OpcodeRegistry {
 		r("list.quattuorvigintuple", stack -> stack.push(listFromStack(stack, 24)), "Push the first 24 stack values in reverse order as a list.");
 		r("list.quinvigintuple", stack -> stack.push(listFromStack(stack, 25)), "Push the first 25 stack values in reverse order as a list.");
 
+		r("list.duplicatePair", stack -> stack.push(Collections.nCopies(2, stack.pop())), "Push two copies of the first stack value as a list.");
+		r("list.duplicateTriad", stack -> stack.push(Collections.nCopies(3, stack.pop())), "Push three copies of the first stack value as a list.");
+		r("list.duplicateQuad", stack -> stack.push(Collections.nCopies(4, stack.pop())), "Push four copies of the first stack value as a list.");
+		r("list.duplicateQuint", stack -> stack.push(Collections.nCopies(5, stack.pop())), "Push five copies of the first stack value as a list.");
+		r("list.duplicateHextuple", stack -> stack.push(Collections.nCopies(6, stack.pop())), "Push six copies of the first stack value as a list.");
+		r("list.duplicateHeptuple", stack -> stack.push(Collections.nCopies(7, stack.pop())), "Push seven copies of the first stack value as a list.");
+		r("list.duplicateOctuple", stack -> stack.push(Collections.nCopies(8, stack.pop())), "Push eight copies of the first stack value as a list.");
+		r("list.duplicateHonuple", stack -> stack.push(Collections.nCopies(9, stack.pop())), "Push nine copies of the first stack value as a list.");
+		r("list.duplicateDecuple", stack -> stack.push(Collections.nCopies(10, stack.pop())), "Push 10 copies of the first stack value as a list.");
+		r("list.duplicateUndecuple", stack -> stack.push(Collections.nCopies(11, stack.pop())), "Push 11 copies of the first stack value as a list.");
+		r("list.duplicateDuodecuple", stack -> stack.push(Collections.nCopies(12, stack.pop())), "Push 12 copies of the first stack value as a list.");
+		r("list.duplicateTredecuple", stack -> stack.push(Collections.nCopies(13, stack.pop())), "Push 13 copies of the first stack value as a list.");
+		r("list.duplicateQuattuordecuple", stack -> stack.push(Collections.nCopies(14, stack.pop())), "Push 14 copies of the first stack value as a list.");
+		r("list.duplicateQuindecuple", stack -> stack.push(Collections.nCopies(15, stack.pop())), "Push 15 copies of the first stack value as a list.");
+		r("list.duplicateSexdecuple", stack -> stack.push(Collections.nCopies(16, stack.pop())), "Push 16 copies of the first stack value as a list.");
+		r("list.duplicateSeptendecuple", stack -> stack.push(Collections.nCopies(17, stack.pop())), "Push 17 copies of the first stack value as a list.");
+		r("list.duplicateOctodecuple", stack -> stack.push(Collections.nCopies(18, stack.pop())), "Push 18 copies of the first stack value as a list.");
+		r("list.duplicateNovemdecuple", stack -> stack.push(Collections.nCopies(19, stack.pop())), "Push 19 copies of the first stack value as a list.");
+		r("list.duplicateVigintuple", stack -> stack.push(Collections.nCopies(20, stack.pop())), "Push 20 copies of the first stack value as a list.");
+		r("list.duplicateUnvigintuple", stack -> stack.push(Collections.nCopies(21, stack.pop())), "Push 21 copies of the first stack value as a list.");
+		r("list.duplicateDuovigintuple", stack -> stack.push(Collections.nCopies(22, stack.pop())), "Push 22 copies of the first stack value as a list.");
+		r("list.duplicateTrevigintuple", stack -> stack.push(Collections.nCopies(23, stack.pop())), "Push 23 copies of the first stack value as a list.");
+		r("list.duplicateQuattuorvigintuple", stack -> stack.push(Collections.nCopies(24, stack.pop())), "Push 24 copies of the first stack value as a list.");
+		r("list.duplicateQuinvigintuple", stack -> stack.push(Collections.nCopies(25, stack.pop())), "Push 25 copies of the first stack value as a list.");
+
 		r("list.zeros", stack -> stack.push(constantList(0, stack.pop().asInt())), "Push a list of zeros with length of the first stack value.");
+
 	}
 
 	private List<Value> apply(List<Value> list, Consumer<List<Value>> func) {
@@ -118,8 +145,12 @@ public class ListOpcodes extends OpcodeRegistry {
 		return list;
 	}
 
-	private List<Object> constantList(int value, int length) {
-		return IntStream.range(0, length).mapToObj(i -> value).collect(Collectors.toList());
+	private List<Integer> constantList(int value, int length) {
+		List<Integer> result = new ArrayList<>(length);
+		for (int i = 0; i < length; i++) {
+			result.add(value);
+		}
+		return result;
 	}
 
 	private List<String> listFromStack(Stack stack, int elements) {
