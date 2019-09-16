@@ -27,7 +27,7 @@
 						<path>
 							<groupId>com.google.dagger</groupId>
 							<artifactId>dagger-compiler</artifactId>
-							<version>2.21</version>
+							<version>2.24</version>
 						</path>
 						<path>
 							<groupId>com.google.auto.factory</groupId>
@@ -57,14 +57,12 @@
 			<plugin>
 				<groupId>org.teavm</groupId>
 				<artifactId>teavm-maven-plugin</artifactId>
-				<version>0.6.0-dev-701</version>
+				<version>${teavm.version}</version>
 				<dependencies>
-					<!-- This dependency is required by TeaVM to emulate subset of Java 
-						class library -->
 					<dependency>
 						<groupId>org.teavm</groupId>
 						<artifactId>teavm-classlib</artifactId>
-						<version>0.6.0-dev-701</version>
+						<version>${teavm.version}</version>
 					</dependency>
 				</dependencies>
 				<executions>
@@ -152,7 +150,7 @@
 											teavm-maven-plugin
 										</artifactId>
 										<versionRange>
-											[0.6.0-dev-701,)
+											[${teavm.version},)
 										</versionRange>
 										<goals>
 											<goal>compile</goal>

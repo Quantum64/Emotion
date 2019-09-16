@@ -330,6 +330,12 @@ public class Literal implements Value {
 		if (!isList() && value.isList()) {
 			return new Literal(value.iterate().stream().map(v -> operate(v, type)).collect(Collectors.toList()));
 		}
+		if (isInteger()) {
+			return new Literal(Collections.nCopies(asInt(), value.toString()).stream().collect(Collectors.joining()));
+		}
+		if (value.isInteger()) {
+			return new Literal(Collections.nCopies(value.asInt(), toString()).stream().collect(Collectors.joining()));
+		}
 		switch (type) {
 		case DIVIDE:
 			return new Literal(toString() + value.toString());
