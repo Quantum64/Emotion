@@ -186,6 +186,8 @@ public class Literal implements Value {
 		case GREATER:
 		case LESS:
 			return simpleCompare(value, type);
+		case NOT_EQUAL:
+			return !simpleCompare(value, type);
 		case EQUAL_LESS:
 		case EQUAL_GREATER:
 			return simpleCompare(value, type) || simpleCompare(value, Comparison.EQUAL);
