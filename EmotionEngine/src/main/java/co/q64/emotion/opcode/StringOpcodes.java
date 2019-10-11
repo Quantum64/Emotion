@@ -67,6 +67,8 @@ public class StringOpcodes extends OpcodeRegistry {
 		r("string.delete", stack -> stack.push(stack.peek(2).toString().replace(stack.pull(2).toString(), "")), "Push the second stack value with occurences of the first stack value removed.");
 		r("string.blank", stack -> stack.push(stack.peek(2).toString().replace(stack.peek(1).toString(), Collections.nCopies(stack.pull(2).toString().length(), " ").stream().collect(Collectors.joining()))), "Push the second stack value with occurences of the first stack value replaced with whitespace.");
 		r("string.swapCase", stack -> swapCase(stack.pop().toString()), "Push the first stack value with inverted case.");
+		r("string.copy", stack -> stack.push(String.join("", Collections.nCopies(stack.pop().asInt(), stack.pop().toString()))), "Push the second stack value n times where n is the first stack value.");
+		r("string.repeat", stack -> stack.push(stack.peek().toString() + new StringBuilder(stack.pop().toString()).reverse().toString()), "Push the first stack value repeated twice, with the second copy reversed.");
 
 		r("string.deleteEnd", stack -> stack.push(deleteEnd(stack.pop().toString(), stack.pop().toString())), "Push the second stack value with instances of the first stack value removed if they occur at the end of the second stack value.");
 		r("string.titleCase", stack -> stack.push(titleCase(stack.pop().toString())), "Push the first stack value transformed to Title Case.");
