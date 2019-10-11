@@ -1,4 +1,4 @@
-package co.q64.emotion.util;
+package co.q64.emotion.binary;
 
 import co.q64.emotion.runtime.Output;
 

@@ -82,3 +82,4 @@ public class BenchmarkTest {
 		public Opcodes getOpcodes();
 	}
 }
+

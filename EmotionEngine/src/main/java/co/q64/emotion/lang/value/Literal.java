@@ -186,6 +186,8 @@ public class Literal implements Value {
 		case GREATER:
 		case LESS:
 			return simpleCompare(value, type);
+		case NOT_EQUAL:
+			return !simpleCompare(value, type);
 		case EQUAL_LESS:
 		case EQUAL_GREATER:
 			return simpleCompare(value, type) || simpleCompare(value, Comparison.EQUAL);
@@ -329,6 +331,12 @@ public class Literal implements Value {
 		}
 		if (!isList() && value.isList()) {
 			return new Literal(value.iterate().stream().map(v -> operate(v, type)).collect(Collectors.toList()));
+		}
+		if (isInteger()) {
+			return new Literal(Collections.nCopies(asInt(), value.toString()).stream().collect(Collectors.joining()));
+		}
+		if (value.isInteger()) {
+			return new Literal(Collections.nCopies(value.asInt(), toString()).stream().collect(Collectors.joining()));
 		}
 		switch (type) {
 		case DIVIDE:
