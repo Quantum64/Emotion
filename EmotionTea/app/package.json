@@ -5,10 +5,12 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.4.3",
-    "react": "^16.10.1",
-    "react-dom": "^16.10.1",
+    "monaco-editor": "^0.18.1",
+    "react": "^16.10.2",
+    "react-dom": "^16.10.2",
     "react-monaco-editor": "^0.31.0",
-    "react-scripts": "3.1.2"
+    "react-scripts": "3.2.0",
+    "typeface-roboto": "0.0.75"
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -27,7 +29,7 @@
   ],
   "devDependencies": {
     "exports-loader": "^0.7.0",
-    "monaco-editor-webpack-plugin": "1.6.0",
+    "monaco-editor-webpack-plugin": "^1.7.0",
     "react-app-rewired": "^2.1.3"
   }
 }

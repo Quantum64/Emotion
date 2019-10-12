@@ -285,7 +285,7 @@ class App extends Component {
               <Grid item xs>
                 <Grid container direction="column" spacing={0} style={{ height: "100%" }}>
                   <Grid item>
-                    <Grid container direction="row" alignItems="center" spacing={16} style={{ padding: 5 }}>
+                    <Grid container direction="row" alignItems="center" spacing={2} style={{ padding: 5 }}>
                       <Grid item>
                         <Typography variant="h6">
                           Program Output
@@ -318,7 +318,7 @@ class App extends Component {
               <Grid item xs>
                 <Grid container direction="column" spacing={0} style={{ height: "100%" }}>
                   <Grid item>
-                    <Grid container direction="row" alignItems="center" spacing={16} style={{ padding: 5 }}>
+                    <Grid container direction="row" alignItems="center" spacing={2} style={{ padding: 5 }}>
                       <Grid item>
                         <Typography variant="h6">
                           Arguments
@@ -405,7 +405,7 @@ class App extends Component {
           </Grid>
           <br />
           <Grid item>
-            <Grid container direction="row" alignItems="center" spacing={16} style={{ padding: 5 }}>
+            <Grid container direction="row" alignItems="center" spacing={2} style={{ padding: 5 }}>
               <Grid item>
                 <Typography variant="h6">
                   Output
@@ -646,7 +646,7 @@ class App extends Component {
         <CssBaseline />
         <AppBar position="static">
           <Toolbar>
-            <Grid container spacing={16} alignItems="center">
+            <Grid container spacing={2} alignItems="center">
               <Grid item>
                 <Typography variant="h6" color="inherit" noWrap>
                   Emotion
