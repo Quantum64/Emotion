@@ -14,7 +14,7 @@ public class Registers {
     private Value a, b, c, d, i, o;
 
     @Inject
-    protected Registers(@Provided Null nul) {
+    protected Registers(Null nul) {
         this.a = nul;
         this.b = nul;
         this.c = nul;

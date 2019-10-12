@@ -15,20 +15,17 @@ import co.q64.emotion.lang.value.MatrixFactory;
 import co.q64.emotion.lang.value.Null;
 import co.q64.emotion.lang.value.Value;
 import lombok.Getter;
+import lombok.Setter;
 
-@AutoFactory
 public class Stack {
-	private Null nul;
-	private @Getter Program program;
+	protected @Inject Null nul;
 	private @Getter List<Value> stack = new ArrayList<>();
-	private LiteralFactory literal;
-	private MatrixFactory matrix;
+	protected @Inject LiteralFactory literal;
+	protected @Inject MatrixFactory matrix;
 
-	protected @Inject Stack(@Provided Null nul, @Provided LiteralFactoryFactory literal, @Provided MatrixFactoryFactory matrix, Program program) {
-		this.nul = nul;
-		this.program = program;
-		this.literal = literal.getFactory();
-		this.matrix = matrix.getFactory();
+	private @Getter @Setter Program program;
+
+	protected @Inject Stack() {
 	}
 
 	public void dup(int depth) {

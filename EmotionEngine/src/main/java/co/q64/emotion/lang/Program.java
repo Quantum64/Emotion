@@ -11,17 +11,17 @@ import co.q64.emotion.lang.opcode.Opcodes;
 import co.q64.emotion.runtime.Output;
 import lombok.Getter;
 
+import javax.inject.Inject;
 import javax.inject.Provider;
 
-@AutoFactory
 public class Program {
     private static final int TOO_LONG = 5000;
 
-    private StackFactory stackFactory;
-    private RegistersFactory registersFactory;
-    private Provider<LocalRegisters> localRegistersProvider;
-    private Opcodes opcodes;
-    private ASTBuilder astBuilder;
+    protected @Inject Provider<Stack> stackProvider;
+    protected @Inject Provider<Registers> registersProvider;
+    protected @Inject Provider<LocalRegisters> localRegistersProvider;
+    protected @Inject Opcodes opcodes;
+    protected @Inject ASTBuilder astBuilder;
 
     private @Getter Output output;
     private @Getter AST ast;
@@ -34,30 +34,25 @@ public class Program {
     private @Getter boolean printOnTerminate, terminated;
     private long start;
 
-    protected Program(@Provided StackFactory stackFactory, @Provided RegistersFactory registersFactory, @Provided Opcodes opcodes, @Provided ASTBuilder astBuilder, @Provided Provider<LocalRegisters> localRegistersProvider, String source, String args, Output output) {
-        this.stackFactory = stackFactory;
-        this.registersFactory = registersFactory;
-        this.localRegistersProvider = localRegistersProvider;
+    protected @Inject Program() {}
+
+    public void execute(String source, String args, Output output) {
+        execute(source, args, output, true);
+    }
+
+    public void execute(String source, String args, Output output, boolean full) {
         this.source = source;
-        this.opcodes = opcodes;
         this.args = args;
         this.output = output;
-        this.astBuilder = astBuilder;
-    }
-
-    public void execute() {
-        execute(true);
-    }
-
-    public void execute(boolean full) {
         this.opcodes.reset();
-        this.stack = stackFactory.create(this);
-        this.registers = registersFactory.create();
+        this.stack = stackProvider.get();
+        this.registers = registersProvider.get();
         this.localRegisters = localRegistersProvider.get();
         this.printOnTerminate = true;
         this.terminated = false;
         this.start = System.currentTimeMillis();
         this.ast = astBuilder.build(this, source);
+        stack.setProgram(this);
         if (!args.isEmpty()) {
             stack.push(args);
         }

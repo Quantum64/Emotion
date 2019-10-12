@@ -1,15 +1,5 @@
 package co.q64.emotion;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import com.google.common.annotations.GwtIncompatible;
-
 import co.q64.emotion.annotation.Constants.Author;
 import co.q64.emotion.annotation.Constants.Name;
 import co.q64.emotion.annotation.Constants.Version;
@@ -17,13 +7,20 @@ import co.q64.emotion.annotation.GWT;
 import co.q64.emotion.compiler.CompilerOutput;
 import co.q64.emotion.inject.StandardModule;
 import co.q64.emotion.inject.SystemModule;
-import co.q64.emotion.lang.ProgramFactory;
 import co.q64.emotion.lang.opcode.Opcodes;
 import co.q64.emotion.lexer.Lexer;
 import co.q64.emotion.runtime.Output;
 import co.q64.emotion.runtime.mock.MockOutput;
 import co.q64.emotion.util.ArgumentIterator;
+import com.google.common.annotations.GwtIncompatible;
 import dagger.Component;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 
 @Singleton
 @GwtIncompatible(GWT.MESSAGE)
@@ -33,7 +30,6 @@ public class EmotionMain {
 	protected @Inject Lexer lexer;
 	protected @Inject Opcodes opcodes;
 	protected @Inject MockOutput mockOutput;
-	protected @Inject ProgramFactory programFactory;
 	protected @Inject co.q64.emotion.util.ArgumentIteratorFactory arguments;
 	protected @Inject @Version String version;
 	protected @Inject @Name String name;
