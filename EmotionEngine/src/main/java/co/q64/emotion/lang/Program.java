@@ -11,123 +11,132 @@ import co.q64.emotion.lang.opcode.Opcodes;
 import co.q64.emotion.runtime.Output;
 import lombok.Getter;
 
+import javax.inject.Provider;
+
 @AutoFactory
 public class Program {
-	private static final int TOO_LONG = 5000;
-	
-	private StackFactory stackFactory;
-	private RegistersFactory registersFactory;
-	private Opcodes opcodes;
-	private ASTBuilder astBuilder;
+    private static final int TOO_LONG = 5000;
 
-	private @Getter Output output;
-	private @Getter AST ast;
-	private @Getter Stack stack;
-	private @Getter Registers registers;
-	private @Getter String source;
-	private @Getter String args;
+    private StackFactory stackFactory;
+    private RegistersFactory registersFactory;
+    private Provider<LocalRegisters> localRegistersProvider;
+    private Opcodes opcodes;
+    private ASTBuilder astBuilder;
 
-	private @Getter boolean printOnTerminate, terminated;
-	private long start;
+    private @Getter Output output;
+    private @Getter AST ast;
+    private @Getter Stack stack;
+    private @Getter Registers registers;
+    private @Getter LocalRegisters localRegisters;
+    private @Getter String source;
+    private @Getter String args;
 
-	protected Program(@Provided StackFactory stackFactory, @Provided RegistersFactory registersFactory, @Provided Opcodes opcodes, @Provided ASTBuilder astBuilder, String source, String args, Output output) {
-		this.stackFactory = stackFactory;
-		this.registersFactory = registersFactory;
-		this.source = source;
-		this.opcodes = opcodes;
-		this.args = args;
-		this.output = output;
-		this.astBuilder = astBuilder;
-	}
+    private @Getter boolean printOnTerminate, terminated;
+    private long start;
 
-	public void execute() {
-		execute(true);
-	}
+    protected Program(@Provided StackFactory stackFactory, @Provided RegistersFactory registersFactory, @Provided Opcodes opcodes, @Provided ASTBuilder astBuilder, @Provided Provider<LocalRegisters> localRegistersProvider, String source, String args, Output output) {
+        this.stackFactory = stackFactory;
+        this.registersFactory = registersFactory;
+        this.localRegistersProvider = localRegistersProvider;
+        this.source = source;
+        this.opcodes = opcodes;
+        this.args = args;
+        this.output = output;
+        this.astBuilder = astBuilder;
+    }
 
-	public void execute(boolean full) {
-		this.opcodes.reset();
-		this.stack = stackFactory.create(this);
-		this.registers = registersFactory.create();
-		this.printOnTerminate = true;
-		this.terminated = false;
-		this.start = System.currentTimeMillis();
-		this.ast = astBuilder.build(this, source);
-		if (!args.isEmpty()) {
-			stack.push(args);
-		}
-		executeAst();
-		if (printOnTerminate) {
-			println(stack.pop().toString());
-		}
-	}
+    public void execute() {
+        execute(true);
+    }
 
-	public void executeAst() {
-		ast.enter();
-	}
+    public void execute(boolean full) {
+        this.opcodes.reset();
+        this.stack = stackFactory.create(this);
+        this.registers = registersFactory.create();
+        this.localRegisters = localRegistersProvider.get();
+        this.printOnTerminate = true;
+        this.terminated = false;
+        this.start = System.currentTimeMillis();
+        this.ast = astBuilder.build(this, source);
+        if (!args.isEmpty()) {
+            stack.push(args);
+        }
+        executeAst();
+        if (printOnTerminate) {
+            println(stack.pop().toString());
+        }
+    }
 
-	public void jumpToFunction(int funcDecal) {
-		int functor = 0;
-		for (ASTNode node : ast.getNodes()) {
-			if (node instanceof ASTFunction) {
-				if (functor == funcDecal) {
-					((ASTFunction) node).enterFunction();
-					return;
-				}
-				functor++;
-			}
-		}
-	}
+    public void executeAst() {
+        ast.enter();
+    }
 
-	public boolean shouldContinueExecution() {
-		if (!terminated) {
-			if (System.currentTimeMillis() - TOO_LONG > start) {
-				crash("Unusually long execution time! (" + TOO_LONG + " ms)");
-				terminated = true;
-			}
-		}
-		return !terminated;
-	}
+    public void jumpToFunction(int funcDecal) {
+        int functor = 0;
+        for (ASTNode node : ast.getNodes()) {
+            if (node instanceof ASTFunction) {
+                if (functor == funcDecal) {
+                    LocalRegisters parent = localRegisters;
+                    localRegisters = localRegistersProvider.get();
+                    ((ASTFunction) node).enterFunction();
+                    localRegisters = parent;
+                    return;
+                }
+                functor++;
+            }
+        }
+    }
 
-	// Probably unsupported with AST
-	public void step() {
-		//if (instructions.size() < instruction) {
-		//	return;
-		//}
-		//Instruction current = instructions.get(instruction);
-		//instruction++;
-		//try {
-		//	current.execute(stack);
-		//} catch (Exception e) {
-		//	crash(e.getClass().getSimpleName() + ": " + e.getMessage() + " [Instruction: " + current.getInstruction() + ", Line: " + (instruction - 1) + "]");
-		//}
-	}
+    public boolean shouldContinueExecution() {
+        if (!terminated) {
+            if (System.currentTimeMillis() - TOO_LONG > start) {
+                crash("Unusually long execution time! (" + TOO_LONG + " ms)");
+                terminated = true;
+            }
+        }
+        return !terminated;
+    }
 
-	public void terminate() {
-		this.terminated = true;
-	}
+    // Probably unsupported with AST
+    public void step() {
+        //if (instructions.size() < instruction) {
+        //	return;
+        //}
+        //Instruction current = instructions.get(instruction);
+        //instruction++;
+        //try {
+        //	current.execute(stack);
+        //} catch (Exception e) {
+        //	crash(e.getClass().getSimpleName() + ": " + e.getMessage() + " [Instruction: " + current.getInstruction() + ", Line: " + (instruction - 1) + "]");
+        //}
+    }
 
-	public void terminateNoPrint() {
-		this.terminated = true;
-		this.printOnTerminate = false;
-	}
+    public void terminate() {
+        this.terminated = true;
+    }
 
-	public void warn(String message) {
-		output.println("");
-		output.println("Warning: " + message);
-	}
+    public void terminateNoPrint() {
+        this.terminated = true;
+        this.printOnTerminate = false;
+    }
 
-	public void crash(String message) {
-		output.println("");
-		output.println("Fatal: " + message);
-		output.println("The program cannot continue and will now terminate.");
-		terminateNoPrint();
-	}
+    public void warn(String message) {
+        output.println("");
+        output.println("Warning: " + message);
+    }
 
-	public void print(String str) {
-		output.print(str.replace("\\n", "\n"));
-	}
+    public void crash(String message) {
+        output.println("");
+        output.println("Fatal: " + message);
+        output.println("The program cannot continue and will now terminate.");
+        terminateNoPrint();
+    }
 
-	public void println(String str) {
-		output.println(str.replace("\\n", "\n"));
-	}
+    public void print(String str) {
+        output.print(str.replace("\\n", "\n"));
+    }
+
+    public void println(String str) {
+        output.println(str.replace("\\n", "\n"));
+    }
 }

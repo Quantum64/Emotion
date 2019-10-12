@@ -6,6 +6,6 @@ import org.junit.Test;
 public class NameTest {
     @Test
     public void testName() {
-        new SimpleEmotionTest("test1 = load 15", "test2 = load 10", "result = + (test1, test2)", "print (result), terminate").execute("25");
+        new SimpleEmotionTest("test1 = load 15", "test2 = load 10", "result = +(test1, test2)", "print(result)", "terminate").execute("25");
     }
 }

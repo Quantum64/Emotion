@@ -56,7 +56,8 @@ public class Compiler {
             instructions.add(current);
         }
         int line = 0;
-        List<String> compiledInsns = new ArrayList<>();
+        List<String> compiledLines = new ArrayList<>();
+        List<String> compiledInstructions = new ArrayList<>();
         List<String> functions = new ArrayList<>();
         for (ListIterator<String> itr = instructions.listIterator(); itr.hasNext(); ) {
             List<String> instructionsToCompile = new ArrayList<>(Arrays.asList(itr.next()));
@@ -103,10 +104,10 @@ public class Compiler {
                     return output.get();
                 }
             }
-            compiledInsns.add(compiled.toString());
+            compiledLines.add(compiled.toString());
         }
         int debt = 0;
-        for (ListIterator<String> itr = compiledInsns.listIterator(); itr.hasNext(); ) {
+        for (ListIterator<String> itr = compiledLines.listIterator(); itr.hasNext(); ) {
             Optional<Integer> opt = opcodes.lookupSymbol(itr.next());
             if (opt.isPresent()) {
                 int id = opt.get();
@@ -133,7 +134,7 @@ public class Compiler {
         } else if (debt < 0) {
             return output.create("AST control flow violation: " + Math.abs(debt) + " extra end instruction" + (debt == 1 ? "" : "s"));
         }
-        return output.create(compiledInsns, instructions);
+        return output.create(compiledLines, instructions);
     }
 
 

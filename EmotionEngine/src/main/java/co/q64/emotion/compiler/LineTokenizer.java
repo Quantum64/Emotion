@@ -1,21 +1,15 @@
 package co.q64.emotion.compiler;
 
 import co.q64.emotion.compiler.NameTable.NameTableResult;
-import co.q64.emotion.runtime.Output;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 @Singleton
 public class LineTokenizer {
-    private static final boolean DEBUG_TOKENIZER = false;
-
     protected @Inject InstructionTokenizer instructionTokenizer;
-    protected @Inject Output logger;
 
     protected @Inject LineTokenizer() {}
 
@@ -47,9 +41,6 @@ public class LineTokenizer {
                     }
                 }
             }
-        }
-        if (DEBUG_TOKENIZER) {
-            logger.println("Processing instruction: '" + line + "'");
         }
         output = instructionTokenizer.processInstruction(line, result, index);
         if (output.isPresent()) {

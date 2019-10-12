@@ -92,8 +92,8 @@ public class StandardOpcodes extends OpcodeRegistry {
 		r("dup 3", stack -> stack.dup(3), "Push three copies of the first stack value.");
 		r("dup x", stack -> stack.dup(Math.abs(stack.pop().asInt())), "Push the second stack value the absolute value of the first stack value times.");
 		r("swp", stack -> stack.swap(), "Swap the top two stack values.");
-		r("ldv", stack -> stack.push(stack.getProgram().getRegisters().getGlobal().get(stack.pop())), "Push the value from the global variable table with the name of the first stack value.");
-		r("sdv", stack -> stack.getProgram().getRegisters().getGlobal().put(stack.pop(), stack.pop()), "Saves the second stack value to the the global variable table with the name of the first stack value.");
+		r("ldv", stack -> stack.push(stack.getProgram().getLocalRegisters().getData().get(stack.pop())), "Push the value from the stack frame variable table with the name of the first stack value.");
+		r("sdv", stack -> stack.getProgram().getLocalRegisters().getData().put(stack.pop(), stack.pop()), "Saves the second stack value to the the stack frame variable table with the name of the first stack value.");
 		r("ldr a", stack -> stack.push(stack.getProgram().getRegisters().getA()), "Push the value contained in the a register.");
 		r("ldr b", stack -> stack.push(stack.getProgram().getRegisters().getB()), "Push the value contained in the b register.");
 		r("ldr c", stack -> stack.push(stack.getProgram().getRegisters().getC()), "Push the value contained in the c register.");
