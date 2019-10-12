@@ -56,7 +56,7 @@ public class BenchmarkTest {
 	@Benchmark
 	public void benchmarkHelloWorld(Blackhole blackhole) {
 		EmotionEngine jstx = DaggerEmotionMain_EmotionMainComponent.create().getJstx();
-		CompilerOutput compiled = jstx.compileProgram(Arrays.asList("load Hello,", "load World!", "flatten soft"));
+		CompilerOutput compiled = jstx.compileProgram(Arrays.asList("load Hello,", "load World!", "join space"));
 		Assert.assertEquals(true, compiled.isSuccess());
 		jstx.runProgram(compiled.getProgram(), "", new BlackholeOutput(blackhole));
 	}

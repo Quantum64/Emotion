@@ -15,76 +15,76 @@ import lombok.Getter;
 
 @AutoFactory
 public class CompilerOutput {
-	private String author;
-	private String version;
-	private Opcodes opcodes;
-	private ASTBuilder ast;
-	private @Getter boolean success;
-	private @Getter String error;
-	private List<String> compiledLines, instructionLines;
+    private String author;
+    private String version;
+    private Opcodes opcodes;
+    private ASTBuilder ast;
+    private @Getter boolean success;
+    private @Getter String error;
+    private List<String> compiledLines, instructionLines;
 
-	protected CompilerOutput(@Provided ASTBuilder ast, String author, String version, Opcodes opcodes) {
-		this.ast = ast;
-		this.author = author;
-		this.version = version;
-		this.opcodes = opcodes;
-	}
+    protected CompilerOutput(@Provided ASTBuilder ast, String author, String version, Opcodes opcodes) {
+        this.ast = ast;
+        this.author = author;
+        this.version = version;
+        this.opcodes = opcodes;
+    }
 
-	protected CompilerOutput(@Provided ASTBuilder ast, @Provided @Author String author, @Provided @Version String version, @Provided Opcodes opcodes, String error) {
-		this(ast, author, version, opcodes);
-		this.error = error;
-		this.success = false;
-	}
+    protected CompilerOutput(@Provided ASTBuilder ast, @Provided @Author String author, @Provided @Version String version, @Provided Opcodes opcodes, String error) {
+        this(ast, author, version, opcodes);
+        this.error = error;
+        this.success = false;
+    }
 
-	protected CompilerOutput(@Provided ASTBuilder ast, @Provided @Author String author, @Provided @Version String version, @Provided Opcodes opcodes, List<String> compiledLines, List<String> instructionLines) {
-		this(ast, author, version, opcodes);
-		this.compiledLines = compiledLines;
-		this.instructionLines = instructionLines;
-		this.success = true;
-	}
+    protected CompilerOutput(@Provided ASTBuilder ast, @Provided @Author String author, @Provided @Version String version, @Provided Opcodes opcodes, List<String> compiledLines, List<String> instructionLines) {
+        this(ast, author, version, opcodes);
+        this.compiledLines = compiledLines;
+        this.instructionLines = instructionLines;
+        this.success = true;
+    }
 
-	public List<String> getDisplayOutput() {
-		List<String> result = new ArrayList<>();
-		if (success) {
-			int offsetLength = 0;
-			for (String s : instructionLines) {
-				if (s.length() > offsetLength) {
-					offsetLength = s.length();
-				}
-			}
-			result.add(getProgram());
-			result.add(new String());
-			result.add("Size: " + getProgram().codePointCount(0, getProgram().length()) + " bytes");
-			result.add("Instructions: " + instructionLines.size());
-			result.add(new String());
-			for (int i = 0; i < compiledLines.size(); i++) {
-				if (instructionLines.size() <= i) {
-					continue;
-				}
-				String instruction = instructionLines.get(i);
-				String offset = new String();
-				for (int u = 0; u < offsetLength - instruction.length(); u++) {
-					offset += " ";
-				}
-				String compiled = compiledLines.get(i);
-				if (compiled.equals(" ")) {
-					compiled = "<whitespace character>";
-				}
-				result.add((i + 1) + ": " + instruction + offset + " => " + compiled);
-			}
-			result.add(new String());
-			offsetLength = 0;
-			for (String s : compiledLines) {
-				int points = s.codePointCount(0, s.length());
-				if (points > offsetLength) {
-					offsetLength = points;
-				}
-			}
-			result.addAll(getExplanation());
-			//String program = getProgram();
-			//if (program.length() % 2 == 1) {
-			//	  program += opcodes.getChars(OpcodeMarker.EXIT).getCharacter();
-			//}
+    public List<String> getDisplayOutput() {
+        List<String> result = new ArrayList<>();
+        if (success) {
+            int offsetLength = 0;
+            for (String s : instructionLines) {
+                if (s.length() > offsetLength) {
+                    offsetLength = s.length();
+                }
+            }
+            result.add(getProgram());
+            result.add(new String());
+            result.add("Size: " + getProgram().codePointCount(0, getProgram().length()) + " bytes");
+            result.add("Instructions: " + instructionLines.size());
+            result.add(new String());
+            for (int i = 0; i < compiledLines.size(); i++) {
+                if (instructionLines.size() <= i) {
+                    continue;
+                }
+                String instruction = instructionLines.get(i);
+                String offset = new String();
+                for (int u = 0; u < offsetLength - instruction.length(); u++) {
+                    offset += " ";
+                }
+                String compiled = compiledLines.get(i);
+                if (compiled.equals(" ")) {
+                    compiled = "<whitespace character>";
+                }
+                result.add((i + 1) + ": " + instruction + offset + " => " + compiled);
+            }
+            result.add(new String());
+            offsetLength = 0;
+            for (String s : compiledLines) {
+                int points = s.codePointCount(0, s.length());
+                if (points > offsetLength) {
+                    offsetLength = points;
+                }
+            }
+            result.addAll(getExplanation());
+            //String program = getProgram();
+            //if (program.length() % 2 == 1) {
+            //	  program += opcodes.getChars(OpcodeMarker.EXIT).getCharacter();
+            //}
 			/*
 			char[] chars = program.toCharArray();
 			StringBuilder compressed = new StringBuilder();
@@ -98,36 +98,40 @@ public class CompilerOutput {
 				result.add(compressed.toString());
 			}
 			*/
-		} else {
-			result.add(error);
-		}
-		result.add(new String());
-		if (isSuccess() && getProgram().length() > 0) {
-			result.add("Debug AST: " + ast.build(null, getProgram()).toString());
-			result.add(new String());
-		}
-		result.add("Generated by the Emotion compiler version " + version + " by " + author + ".");
-		return result;
-	}
+        } else {
+            result.add(error);
+        }
+        result.add(new String());
+        if (isSuccess() && getProgram().length() > 0) {
+            result.add("Debug AST: " + ast.build(null, getProgram()).toString());
+            result.add(new String());
+        }
+        result.add("Generated by the Emotion compiler version " + version + " by " + author + ".");
+        return result;
+    }
 
-	public List<String> getExplanation() {
-		List<String> result = new ArrayList<>();
-		for (int i = 0; i < compiledLines.size(); i++) {
-			if (instructionLines.size() <= i) {
-				continue;
-			}
-			String instruction = instructionLines.get(i);
-			String compiled = compiledLines.get(i);
-			String description = opcodes.getDescription(instruction);
-			if (instruction.startsWith("load")) {
-				description = "Push literal " + instruction.substring(5);
-			}
-			result.add(compiled + " " + description);
-		}
-		return result;
-	}
+    public List<String> getExplanation() {
+        List<String> result = new ArrayList<>();
+        for (int i = 0; i < compiledLines.size(); i++) {
+            if (instructionLines.size() <= i) {
+                continue;
+            }
+            String instruction = instructionLines.get(i);
+            String compiled = compiledLines.get(i);
+            String description = opcodes.getDescription(instruction);
+            if (instruction.startsWith("load")) {
+                if (instruction.length() < 6) {
+                    description = "Push empty";
+                } else {
+                    description = "Push literal " + instruction.substring(5);
+                }
+            }
+            result.add(compiled + " " + description);
+        }
+        return result;
+    }
 
-	public String getProgram() {
-		return compiledLines.stream().collect(Collectors.joining());
-	}
+    public String getProgram() {
+        return compiledLines.stream().collect(Collectors.joining());
+    }
 }

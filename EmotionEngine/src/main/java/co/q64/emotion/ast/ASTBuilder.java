@@ -20,142 +20,142 @@ import co.q64.emotion.types.Comparison;
 
 @Singleton
 public class ASTBuilder {
-	protected @Inject Lexer lexer;
-	protected @Inject Opcodes opcodes;
-	protected @Inject LiteralFactory literalFactory;
-	protected @Inject ASTFactory astFactory;
-	protected @Inject ASTInstructionFactory astInstructionFactory;
-	protected @Inject ASTIteratorFactory astIteratorFactory;
-	protected @Inject ASTConditionalFactory astConditionalFactory;
-	protected @Inject ASTFunctionFactory astFunctionFactory;
-	protected @Inject ASTLoopFactory astLoopFactory;
-	protected @Inject ASTBreakToken astBreakToken;
-	protected @Inject ASTContinueToken astContinueToken;
+    protected @Inject Lexer lexer;
+    protected @Inject Opcodes opcodes;
+    protected @Inject LiteralFactory literalFactory;
+    protected @Inject ASTFactory astFactory;
+    protected @Inject ASTInstructionFactory astInstructionFactory;
+    protected @Inject ASTIteratorFactory astIteratorFactory;
+    protected @Inject ASTConditionalFactory astConditionalFactory;
+    protected @Inject ASTFunctionFactory astFunctionFactory;
+    protected @Inject ASTLoopFactory astLoopFactory;
+    protected @Inject ASTBreakToken astBreakToken;
+    protected @Inject ASTContinueToken astContinueToken;
 
-	protected @Inject ASTBuilder() {}
+    protected @Inject ASTBuilder() {}
 
-	public AST build(@Nullable Program program, String source) {
-		Output output = new Output() {
-			public void println(String message) {}
+    public AST build(@Nullable Program program, String source) {
+        Output output = new Output() {
+            public void println(String message) {}
 
-			public void print(String message) {}
-		};
-		if (program != null) {
-			output = program.getOutput();
-		}
-		List<Instruction> instructions = lexer.parse(source, output);
-		AST result = astFactory.create();
-		for (Iterator<Instruction> itr = instructions.iterator(); itr.hasNext();) {
-			investigateNextInstruction(program, itr, result);
-		}
-		return result;
-	}
+            public void print(String message) {}
+        };
+        if (program != null) {
+            output = program.getOutput();
+        }
+        List<Instruction> instructions = lexer.parse(source, output);
+        AST result = astFactory.create();
+        for (Iterator<Instruction> itr = instructions.iterator(); itr.hasNext(); ) {
+            visitNextInstruction(program, itr, result);
+        }
+        return result;
+    }
 
-	private Verdict investigateNextInstruction(Program program, Iterator<Instruction> itr, AST result) {
-		if (!itr.hasNext()) {
-			return Verdict.NOTHING;
-		}
-		Instruction instruction = itr.next();
-		if (hasFlag(instruction, OpcodeMarker.ITERATE)) {
-			investigateIterator(program, itr, result, false);
-		} else if (hasFlag(instruction, OpcodeMarker.ITERATE_STACK)) {
-			investigateIterator(program, itr, result, true);
-		} else if (hasFlag(instruction, OpcodeMarker.LOOP)) {
-			investigateLoop(program, itr, result);
-		} else if (hasFlag(instruction, OpcodeMarker.FUNCTION)) {
-			investigateFunction(program, itr, result);
-		} else if (hasFlag(instruction, OpcodeMarker.EQUAL)) {
-			invertigateConditional(program, itr, result, Comparison.EQUAL, Optional.empty());
-		} else if (hasFlag(instruction, OpcodeMarker.GREATER)) {
-			invertigateConditional(program, itr, result, Comparison.GREATER, Optional.empty());
-		} else if (hasFlag(instruction, OpcodeMarker.LESS)) {
-			invertigateConditional(program, itr, result, Comparison.LESS, Optional.empty());
-		} else if (hasFlag(instruction, OpcodeMarker.NOT_EQUAL)) {
-			invertigateConditional(program, itr, result, Comparison.NOT_EQUAL, Optional.empty());
-		} else if (hasFlag(instruction, OpcodeMarker.LESS_EQUAL)) {
-			invertigateConditional(program, itr, result, Comparison.EQUAL_LESS, Optional.empty());
-		} else if (hasFlag(instruction, OpcodeMarker.GREATER_EQUAL)) {
-			invertigateConditional(program, itr, result, Comparison.EQUAL_GREATER, Optional.empty());
-		} else if (hasFlag(instruction, OpcodeMarker.TRUE)) {
-			invertigateConditional(program, itr, result, Comparison.EQUAL, Optional.of(literalFactory.create(true)));
-		} else if (hasFlag(instruction, OpcodeMarker.FALSE)) {
-			invertigateConditional(program, itr, result, Comparison.EQUAL, Optional.of(literalFactory.create(false)));
-		} else if (hasFlag(instruction, OpcodeMarker.ELSE)) {
-			return Verdict.ELSE;
-		} else if (hasFlag(instruction, OpcodeMarker.END)) {
-			return Verdict.END;
-		} else if (hasFlag(instruction, OpcodeMarker.BREAK)) {
-			result.add(astBreakToken);
-		} else if (hasFlag(instruction, OpcodeMarker.CONTINUE)) {
-			result.add(astContinueToken);
-		} else {
-			result.add(astInstructionFactory.create(program, instruction));
-		}
-		return Verdict.NOTHING;
-	}
+    private Directive visitNextInstruction(Program program, Iterator<Instruction> itr, AST result) {
+        if (!itr.hasNext()) {
+            return Directive.NOTHING;
+        }
+        Instruction instruction = itr.next();
+        if (hasFlag(instruction, OpcodeMarker.ITERATE)) {
+            visitIterator(program, itr, result, false);
+        } else if (hasFlag(instruction, OpcodeMarker.ITERATE_STACK)) {
+            visitIterator(program, itr, result, true);
+        } else if (hasFlag(instruction, OpcodeMarker.LOOP)) {
+            visitLoop(program, itr, result);
+        } else if (hasFlag(instruction, OpcodeMarker.FUNCTION)) {
+            visitFunction(program, itr, result);
+        } else if (hasFlag(instruction, OpcodeMarker.EQUAL)) {
+            visitConditional(program, itr, result, Comparison.EQUAL, Optional.empty());
+        } else if (hasFlag(instruction, OpcodeMarker.GREATER)) {
+            visitConditional(program, itr, result, Comparison.GREATER, Optional.empty());
+        } else if (hasFlag(instruction, OpcodeMarker.LESS)) {
+            visitConditional(program, itr, result, Comparison.LESS, Optional.empty());
+        } else if (hasFlag(instruction, OpcodeMarker.NOT_EQUAL)) {
+            visitConditional(program, itr, result, Comparison.NOT_EQUAL, Optional.empty());
+        } else if (hasFlag(instruction, OpcodeMarker.LESS_EQUAL)) {
+            visitConditional(program, itr, result, Comparison.EQUAL_LESS, Optional.empty());
+        } else if (hasFlag(instruction, OpcodeMarker.GREATER_EQUAL)) {
+            visitConditional(program, itr, result, Comparison.EQUAL_GREATER, Optional.empty());
+        } else if (hasFlag(instruction, OpcodeMarker.TRUE)) {
+            visitConditional(program, itr, result, Comparison.EQUAL, Optional.of(literalFactory.create(true)));
+        } else if (hasFlag(instruction, OpcodeMarker.FALSE)) {
+            visitConditional(program, itr, result, Comparison.EQUAL, Optional.of(literalFactory.create(false)));
+        } else if (hasFlag(instruction, OpcodeMarker.ELSE)) {
+            return Directive.ELSE;
+        } else if (hasFlag(instruction, OpcodeMarker.END)) {
+            return Directive.END;
+        } else if (hasFlag(instruction, OpcodeMarker.BREAK)) {
+            result.add(astBreakToken);
+        } else if (hasFlag(instruction, OpcodeMarker.CONTINUE)) {
+            result.add(astContinueToken);
+        } else {
+            result.add(astInstructionFactory.create(program, instruction));
+        }
+        return Directive.NOTHING;
+    }
 
-	private void investigateFunction(Program program, Iterator<Instruction> itr, AST result) {
-		AST nodes = astFactory.create();
-		while (true) {
-			if (!itr.hasNext()) {
-				break;
-			}
-			if (investigateNextInstruction(program, itr, nodes) == Verdict.END) {
-				break;
-			}
-		}
-		result.add(astFunctionFactory.create(nodes));
-	}
+    private void visitFunction(Program program, Iterator<Instruction> itr, AST result) {
+        AST nodes = astFactory.create();
+        while (true) {
+            if (!itr.hasNext()) {
+                break;
+            }
+            if (visitNextInstruction(program, itr, nodes) == Directive.END) {
+                break;
+            }
+        }
+        result.add(astFunctionFactory.create(nodes));
+    }
 
-	private void invertigateConditional(Program program, Iterator<Instruction> itr, AST result, Comparison type, Optional<Value> push) {
-		AST pass = astFactory.create();
-		AST fail = astFactory.create();
-		boolean inElse = false;
-		while (true) {
-			if (!itr.hasNext()) {
-				break;
-			}
-			Verdict verdict = investigateNextInstruction(program, itr, inElse ? fail : pass);
-			if (verdict == Verdict.ELSE) {
-				inElse = true;
-			} else if (verdict == Verdict.END) {
-				break;
-			}
-		}
-		result.add(astConditionalFactory.create(program, pass, fail, type, push));
-	}
+    private void visitConditional(Program program, Iterator<Instruction> itr, AST result, Comparison type, Optional<Value> push) {
+        AST pass = astFactory.create();
+        AST fail = astFactory.create();
+        boolean inElse = false;
+        while (true) {
+            if (!itr.hasNext()) {
+                break;
+            }
+            Directive directive = visitNextInstruction(program, itr, inElse ? fail : pass);
+            if (directive == Directive.ELSE) {
+                inElse = true;
+            } else if (directive == Directive.END) {
+                break;
+            }
+        }
+        result.add(astConditionalFactory.create(program, pass, fail, type, push));
+    }
 
-	private void investigateIterator(Program program, Iterator<Instruction> itr, AST result, boolean stack) {
-		AST nodes = astFactory.create();
-		while (true) {
-			if (!itr.hasNext()) {
-				break;
-			}
-			if (investigateNextInstruction(program, itr, nodes) == Verdict.END) {
-				break;
-			}
-		}
-		result.add(astIteratorFactory.create(program, nodes, stack));
-	}
+    private void visitIterator(Program program, Iterator<Instruction> itr, AST result, boolean stack) {
+        AST nodes = astFactory.create();
+        while (true) {
+            if (!itr.hasNext()) {
+                break;
+            }
+            if (visitNextInstruction(program, itr, nodes) == Directive.END) {
+                break;
+            }
+        }
+        result.add(astIteratorFactory.create(program, nodes, stack));
+    }
 
-	private void investigateLoop(Program program, Iterator<Instruction> itr, AST result) {
-		AST nodes = astFactory.create();
-		while (true) {
-			if (!itr.hasNext()) {
-				break;
-			}
-			if (investigateNextInstruction(program, itr, nodes) == Verdict.END) {
-				break;
-			}
-		}
-		result.add(astLoopFactory.create(program, nodes));
-	}
+    private void visitLoop(Program program, Iterator<Instruction> itr, AST result) {
+        AST nodes = astFactory.create();
+        while (true) {
+            if (!itr.hasNext()) {
+                break;
+            }
+            if (visitNextInstruction(program, itr, nodes) == Directive.END) {
+                break;
+            }
+        }
+        result.add(astLoopFactory.create(program, nodes));
+    }
 
-	private boolean hasFlag(Instruction instruction, OpcodeMarker flag) {
-		return opcodes.getFlags(flag).contains(instruction.getOpcode());
-	}
+    private boolean hasFlag(Instruction instruction, OpcodeMarker flag) {
+        return opcodes.getFlags(flag).contains(instruction.getOpcode());
+    }
 
-	private static enum Verdict {
-		END, ELSE, NOTHING
-	}
+    private static enum Directive {
+        END, ELSE, NOTHING
+    }
 }

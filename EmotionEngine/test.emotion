@@ -1,11 +1,5 @@
-infinilist.primes
-println
-infinilist.primes
-iterate stack
-ldr i
-load 10000
-if >
-break
-end
-println
-end
+test1 = load 15
+test2 = load 10
+result = + (test1, test2)
+print (result)
+terminate
