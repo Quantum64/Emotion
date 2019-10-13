@@ -1,28 +1,26 @@
 package co.q64.emotion.ast;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-
-import javax.annotation.Nullable;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import co.q64.emotion.lang.Instruction;
 import co.q64.emotion.lang.Program;
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.Opcodes;
-import co.q64.emotion.lang.value.LiteralFactory;
 import co.q64.emotion.lang.value.Value;
+import co.q64.emotion.lang.value.Values;
 import co.q64.emotion.lexer.Lexer;
 import co.q64.emotion.runtime.Output;
 import co.q64.emotion.types.Comparison;
+
+import javax.annotation.Nullable;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public class ASTBuilder {
     protected @Inject Lexer lexer;
     protected @Inject Opcodes opcodes;
-    protected @Inject LiteralFactory literalFactory;
     protected @Inject ASTFactory astFactory;
     protected @Inject ASTInstructionFactory astInstructionFactory;
     protected @Inject ASTIteratorFactory astIteratorFactory;
@@ -77,9 +75,9 @@ public class ASTBuilder {
         } else if (hasFlag(instruction, OpcodeMarker.GREATER_EQUAL)) {
             visitConditional(program, itr, result, Comparison.EQUAL_GREATER, Optional.empty());
         } else if (hasFlag(instruction, OpcodeMarker.TRUE)) {
-            visitConditional(program, itr, result, Comparison.EQUAL, Optional.of(literalFactory.create(true)));
+            visitConditional(program, itr, result, Comparison.EQUAL, Optional.of(Values.create(true)));
         } else if (hasFlag(instruction, OpcodeMarker.FALSE)) {
-            visitConditional(program, itr, result, Comparison.EQUAL, Optional.of(literalFactory.create(false)));
+            visitConditional(program, itr, result, Comparison.EQUAL, Optional.of(Values.create(false)));
         } else if (hasFlag(instruction, OpcodeMarker.ELSE)) {
             return Directive.ELSE;
         } else if (hasFlag(instruction, OpcodeMarker.END)) {
@@ -152,7 +150,7 @@ public class ASTBuilder {
     }
 
     private boolean hasFlag(Instruction instruction, OpcodeMarker flag) {
-        return opcodes.getFlags(flag).contains(instruction.getOpcode());
+        return opcodes.getFlags(flag).contains(instruction.opcode());
     }
 
     private static enum Directive {

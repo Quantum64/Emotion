@@ -15,7 +15,7 @@ import java.util.Optional;
 
 public class NameTable {
     protected @Inject Provider<NameTableResult> nameTableResultProvider;
-    protected @Inject CompilerOutputFactory compilerOutputFactory;
+    protected @Inject Provider<CompilerOutput> compilerOutputFactory;
 
     private int count;
     private Map<String, Integer> names = new HashMap<>();
@@ -53,7 +53,7 @@ public class NameTable {
                 break;
             default:
                 if (!save && !hasName(name)) {
-                    result.setError(Optional.of(compilerOutputFactory.create("Name not found: '" + name + "'")));
+                    result.setError(Optional.of(compilerOutputFactory.get().error("Name not found: '" + name + "'")));
                     break;
                 }
                 result.setResult(Optional.of(Arrays.asList("load " + createName(name), save ? "sdv" : "ldv")));

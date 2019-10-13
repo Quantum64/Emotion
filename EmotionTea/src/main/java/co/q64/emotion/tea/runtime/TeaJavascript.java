@@ -1,17 +1,14 @@
 package co.q64.emotion.tea.runtime;
 
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
+import co.q64.emotion.lang.value.Value;
 import co.q64.emotion.lang.value.Values;
+import co.q64.emotion.runtime.Javascript;
 import org.teavm.jso.JSBody;
 import org.teavm.jso.JSObject;
 
-import co.q64.emotion.lang.value.LiteralFactory;
-import co.q64.emotion.lang.value.Value;
-import co.q64.emotion.runtime.Javascript;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.List;
 
 @Singleton
 public class TeaJavascript implements Javascript {

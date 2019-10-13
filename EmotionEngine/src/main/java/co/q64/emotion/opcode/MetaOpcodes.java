@@ -1,9 +1,5 @@
 package co.q64.emotion.opcode;
 
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
 import co.q64.emotion.EmotionEngine;
 import co.q64.emotion.annotation.Constants.Name;
 import co.q64.emotion.compiler.Compiler;
@@ -13,6 +9,9 @@ import co.q64.emotion.lang.opcode.OpcodeRegistry;
 import co.q64.emotion.lexer.Lexer;
 import co.q64.emotion.runtime.mock.MockOutput;
 import dagger.Lazy;
+
+import javax.inject.Inject;
+import java.util.stream.Collectors;
 
 public class MetaOpcodes extends OpcodeRegistry {
 	protected @Inject Lazy<Compiler> compiler;

@@ -1,142 +1,102 @@
 package co.q64.emotion.lang.value.math;
 
+import co.q64.emotion.lang.value.Value;
+import co.q64.emotion.lang.value.Values;
+import co.q64.emotion.types.Operation;
+import co.q64.emotion.util.Rational;
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
-
-import co.q64.emotion.factory.LiteralFactoryFactory;
-import co.q64.emotion.lang.value.Value;
-import co.q64.emotion.types.Comparison;
-import co.q64.emotion.types.Operation;
-import lombok.Getter;
-
-@AutoFactory
 public class BigDecimalValue implements Value {
-	private @Getter BigDecimal value;
-	private LiteralFactoryFactory literal;
+    private @Getter BigDecimal value;
 
-	protected BigDecimalValue(@Provided LiteralFactoryFactory literal, BigDecimal value) {
-		this.literal = literal;
-		this.value = value;
-	}
+    private BigDecimalValue(BigDecimal value) {
+        this.value = value;
+    }
 
-	protected BigDecimalValue(@Provided LiteralFactoryFactory literal) {
-		this.literal = literal;
-		this.value = BigDecimal.valueOf(0);
-	}
+    public static BigDecimalValue of(BigDecimal value) {
+        return new BigDecimalValue(value);
+    }
 
-	protected BigDecimalValue(@Provided LiteralFactoryFactory literal, String value) {
-		this.literal = literal;
-		this.value = new BigDecimal(value);
-	}
+    public static BigDecimalValue of(String value) {
+        return new BigDecimalValue(new BigDecimal(value));
+    }
 
-	@Override
-	public boolean compare(Value to, Comparison type) {
-		int result = 0;
-		if (to instanceof BigDecimalValue) {
-			result = value.compareTo(((BigDecimalValue) to).getValue());
-		} else if (to.isInteger()) {
-			result = value.compareTo(BigDecimal.valueOf(to.asLong()));
-		}
-		if (to instanceof BigDecimalValue || to.isInteger()) {
-			switch (type) {
-			case EQUAL:
-				return result == 0;
-			case GREATER:
-				return result > 0;
-			case LESS:
-				return result < 0;
-			default:
-				break;
-			}
-		}
-		return false;
-	}
+    @Override
+    public int compareTo(Value to) {
+        int result = -1;
+        if (to instanceof BigDecimalValue) {
+            result = value.compareTo(((BigDecimalValue) to).getValue());
+        } else if (to.isInteger()) {
+            result = value.compareTo(BigDecimal.valueOf(to.asLong()));
+        }
+        return result;
+    }
 
-	@Override
-	public Value operate(Value on, Operation type) {
-		BigDecimal target = null;
-		if (on instanceof BigDecimalValue) {
-			target = ((BigDecimalValue) on).getValue();
-		} else if (on.isFloat()) {
-			target = BigDecimal.valueOf(on.asDouble());
-		}
-		if (target == null) {
-			return this;
-		}
-		switch (type) {
-		case DIVIDE:
-			return new BigDecimalValue(literal, value.divide(target));
-		case SUBTRACT:
-			return new BigDecimalValue(literal, value.subtract(target));
-		case MULTIPLY:
-			return new BigDecimalValue(literal, value.multiply(target));
-		case ADD:
-			return new BigDecimalValue(literal, value.add(target));
-		}
-		return this;
-	}
+    @Override
+    public Value operate(Value on, Operation type) {
+        BigDecimal target = null;
+        if (on instanceof BigDecimalValue) {
+            target = ((BigDecimalValue) on).getValue();
+        } else if (on.isNumber()) {
+            target = BigDecimal.valueOf(on.asDouble());
+        }
+        if (target == null) {
+            return this;
+        }
+        switch (type) {
+            case DIVIDE:
+                return new BigDecimalValue(value.divide(target));
+            case SUBTRACT:
+                return new BigDecimalValue(value.subtract(target));
+            case MULTIPLY:
+                return new BigDecimalValue(value.multiply(target));
+            case ADD:
+                return new BigDecimalValue(value.add(target));
+        }
+        return this;
+    }
 
-	// Should this operation even be allowed?...
-	@Override
-	public List<Value> iterate() {
-		List<Value> result = new ArrayList<>();
-		for (long l = 0; l < getValue().longValue(); l++) {
-			result.add(literal.getFactory().create(l));
-		}
-		return result;
-	}
+    // Should this operation even be allowed?...
+    @Override
+    public List<Value> iterate() {
+        List<Value> result = new ArrayList<>();
+        for (long l = 0; l < getValue().longValue(); l++) {
+            result.add(Values.create(l));
+        }
+        return result;
+    }
 
-	@Override
-	public int asInt() {
-		return value.intValue();
-	}
+    @Override
+    public Rational asNumber() {
+        return Rational.of(value.doubleValue());
+    }
 
-	@Override
-	public long asLong() {
-		return value.longValue();
-	}
+    @Override
+    public boolean asBoolean() {
+        return value.intValue() != 0;
+    }
 
-	@Override
-	public char asChar() {
-		return (char) value.intValue();
-	}
+    @Override
+    public boolean isBoolean() {
+        return false;
+    }
 
-	@Override
-	public double asDouble() {
-		return value.longValue();
-	}
+    @Override
+    public boolean isInteger() {
+        return true;
+    }
 
-	@Override
-	public boolean asBoolean() {
-		return value.intValue() != 0;
-	}
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 
-	@Override
-	public boolean isBoolean() {
-		return false;
-	}
-
-	@Override
-	public boolean isFloat() {
-		return true;
-	}
-
-	@Override
-	public boolean isInteger() {
-		return true;
-	}
-
-	@Override
-	public String toString() {
-		return value.toString();
-	}
-
-	@Override
-	public boolean isList() {
-		return false;
-	}
+    @Override
+    public boolean isList() {
+        return false;
+    }
 }

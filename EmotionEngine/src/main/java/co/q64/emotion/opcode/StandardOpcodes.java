@@ -1,9 +1,26 @@
 package co.q64.emotion.opcode;
 
+import co.q64.emotion.lang.Stack;
+import co.q64.emotion.lang.opcode.OpcodeCache;
+import co.q64.emotion.lang.opcode.OpcodeRegistry;
+import co.q64.emotion.lang.value.Value;
+import co.q64.emotion.lang.value.Values;
+import co.q64.emotion.lang.value.special.Null;
+import co.q64.emotion.types.Operation;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static co.q64.emotion.lang.opcode.OpcodeMarker.BREAK;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_BASE256;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_SMAZ;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_DEFLATE;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_LZMA;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_SHOCO;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_SMAZ;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.CONTINUE;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.ELSE;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.END;
@@ -17,31 +34,12 @@ import static co.q64.emotion.lang.opcode.OpcodeMarker.ITERATE;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.ITERATE_STACK;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.LESS;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.LESS_EQUAL;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL_SINGLE;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL_PAIR;
+import static co.q64.emotion.lang.opcode.OpcodeMarker.LITERAL_SINGLE;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.LOOP;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_LZMA;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.NOT_EQUAL;
-import static co.q64.emotion.lang.opcode.OpcodeMarker.COMPRESSION_SHOCO;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.STANDARD;
 import static co.q64.emotion.lang.opcode.OpcodeMarker.TRUE;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import co.q64.emotion.lang.Stack;
-import co.q64.emotion.lang.opcode.OpcodeCache;
-import co.q64.emotion.lang.opcode.OpcodeRegistry;
-import co.q64.emotion.lang.value.LiteralFactory;
-import co.q64.emotion.lang.value.Values;
-import co.q64.emotion.lang.value.special.Null;
-import co.q64.emotion.lang.value.Value;
-import co.q64.emotion.types.Operation;
 
 @Singleton
 public class StandardOpcodes extends OpcodeRegistry {
@@ -51,7 +49,6 @@ public class StandardOpcodes extends OpcodeRegistry {
 
     protected @Inject Null nul;
     protected @Inject OpcodeCache cache;
-    protected @Inject LiteralFactory literal;
 
     @Override
     public void register() {

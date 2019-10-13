@@ -1,20 +1,18 @@
 package co.q64.emotion.opcode;
 
+import co.q64.emotion.lang.opcode.OpcodeMarker;
+import co.q64.emotion.lang.opcode.OpcodeRegistry;
+import co.q64.emotion.lang.value.Values;
+import co.q64.emotion.util.MathUtil;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import co.q64.emotion.lang.opcode.OpcodeMarker;
-import co.q64.emotion.lang.opcode.OpcodeRegistry;
-import co.q64.emotion.lang.value.LiteralFactory;
-import co.q64.emotion.util.MathUtil;
-
 @Singleton
 public class MathOpcodes extends OpcodeRegistry {
-	protected @Inject LiteralFactory literal;
 	protected @Inject MathUtil math;
 	
 	private Random random = new Random();
@@ -93,13 +91,13 @@ public class MathOpcodes extends OpcodeRegistry {
 		r("math.digitSum", stack -> stack.push(digitSum(stack.pop().toString())), "Push the sum of the digits of the first stack value.");
 		r("math.castNines", stack -> stack.push(castDigit(stack.pop().toString(), 9)), "Push the sum of the digits of the first stack value, casting out nines.");
 		r("math.fibonacci", stack -> stack.push(fibonacci(stack.pop().asInt())), "Push the fibonacci number indexed at the first stack value.");
-		r("math.fibonacciList", stack -> stack.push(IntStream.rangeClosed(1, stack.pop().asInt()).map(this::fibonacci).boxed().map(literal::create).collect(Collectors.toList())), "Push a list of fibonacci numbers of the length of the first stack value.");
+		r("math.fibonacciList", stack -> stack.push(IntStream.rangeClosed(1, stack.pop().asInt()).map(this::fibonacci).boxed().map(Values::create).collect(Collectors.toList())), "Push a list of fibonacci numbers of the length of the first stack value.");
 		r("math.isPrime", stack -> stack.push(prime(stack.pop().asInt())), "Push true if the first stack value is prime, else false.");
-		r("math.primeList", stack -> stack.push(IntStream.rangeClosed(2, stack.pop().asInt()).filter(this::prime).boxed().map(literal::create).collect(Collectors.toList())), "Push a list of primes that are less than or equal to the first stack value.");
+		r("math.primeList", stack -> stack.push(IntStream.rangeClosed(2, stack.pop().asInt()).filter(this::prime).boxed().map(Values::create).collect(Collectors.toList())), "Push a list of primes that are less than or equal to the first stack value.");
 		r("math.nthPrime", stack -> stack.push(math.nthPrime(stack.pop().asInt())), "Push the n-th prime where n is the first stack value.");
 		r("math.isEvil", stack -> stack.push(stack.peek().isInteger() && stack.peek().asInt() > 1 && (Integer.toBinaryString(stack.pop().asInt()).split("1", -1).length - 1) % 2 == 0), "Push true if the top stack value is evil, else false.");
 		r("math.isInteger", stack -> stack.push(stack.pop().isInteger()), "Push true if the first stack value is an integer, else false.");
-		r("math.isFloat", stack -> stack.push(stack.pop().isFloat()), "Push true if the first stack value is a floating point number, else false.");
+		r("math.isFloat", stack -> stack.push(stack.pop().isNumber()), "Push true if the first stack value is a floating point number, else false.");
 		r("math.asInteger", stack -> stack.push(stack.pop().asInt()), "Push the first stack value converted to an integer.");
 		r("math.asFloat", stack -> stack.push(stack.pop().asDouble()), "Push the first stack value converted to a floating point number.");
 		r("math.incrementDigits", stack -> stack.push(incrementDigits(stack.pop().toString(), 1)), "Push the first stack value with digits incremented by 1.");

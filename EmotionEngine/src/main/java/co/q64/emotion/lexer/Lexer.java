@@ -1,32 +1,30 @@
 package co.q64.emotion.lexer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import co.q64.emotion.compression.Base;
 import co.q64.emotion.compression.Deflate;
 import co.q64.emotion.compression.Lzma;
 import co.q64.emotion.compression.Shoco;
 import co.q64.emotion.compression.Smaz;
 import co.q64.emotion.lang.Instruction;
-import co.q64.emotion.lang.InstructionFactory;
 import co.q64.emotion.lang.opcode.Chars;
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.Opcodes;
-import co.q64.emotion.lang.value.LiteralFactory;
+import co.q64.emotion.lang.value.Values;
 import co.q64.emotion.runtime.Output;
 import co.q64.emotion.runtime.common.ByteBuffer;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Singleton
 public class Lexer {
     protected @Inject Lexer() {}
 
-    protected @Inject InstructionFactory instructionFactory;
-    protected @Inject LiteralFactory literalFactory;
+    protected @Inject Provider<Instruction> instructionProvider;
     protected @Inject Opcodes opcodes;
     protected @Inject Smaz smaz;
     protected @Inject Shoco shoco;
@@ -54,7 +52,7 @@ public class Lexer {
                     currentLiteral.append(String.valueOf((char) (Chars.fromCode(c).getId())));
                     shortToRead--;
                     if (shortToRead == 0) {
-                        instructions.add(instructionFactory.create(literalFactory.create(currentLiteral.toString())));
+                        instructions.add(instructionProvider.get().value(Values.create(currentLiteral.toString())));
                     }
                     continue;
                 }
@@ -63,7 +61,7 @@ public class Lexer {
                     smazToRead--;
                     if (smazToRead == 0) {
                         String decomp = smaz.decompress(currentBuffer.array());
-                        instructions.add(instructionFactory.create(literalFactory.create(decomp)));
+                        instructions.add(instructionProvider.get().value(Values.create(decomp)));
                     }
                     continue;
                 }
@@ -72,7 +70,7 @@ public class Lexer {
                     shocoToRead--;
                     if (shocoToRead == 0) {
                         String decomp = shoco.decompress(currentBuffer.array());
-                        instructions.add(instructionFactory.create(literalFactory.create(decomp)));
+                        instructions.add(instructionProvider.get().value(Values.create(decomp)));
                     }
                     continue;
                 }
@@ -80,7 +78,7 @@ public class Lexer {
                     currentBuffer.put(Chars.fromCode(c).getByte());
                     baseToRead--;
                     if (baseToRead == 0) {
-                        instructions.add(instructionFactory.create(literalFactory.create(base.decompress(currentBuffer.array()))));
+                        instructions.add(instructionProvider.get().value(Values.create(base.decompress(currentBuffer.array()))));
                     }
                     continue;
                 }
@@ -88,7 +86,7 @@ public class Lexer {
                     currentBuffer.put(Chars.fromCode(c).getByte());
                     lzmaToRead--;
                     if (lzmaToRead == 0) {
-                        instructions.add(instructionFactory.create(literalFactory.create(lzma.decompress(currentBuffer.array()))));
+                        instructions.add(instructionProvider.get().value(Values.create(lzma.decompress(currentBuffer.array()))));
                     }
                     continue;
                 }
@@ -96,7 +94,7 @@ public class Lexer {
                     currentBuffer.put(Chars.fromCode(c).getByte());
                     deflateToRead--;
                     if (deflateToRead == 0) {
-                        instructions.add(instructionFactory.create(literalFactory.create(deflate.decompress(currentBuffer.array()))));
+                        instructions.add(instructionProvider.get().value(Values.create(deflate.decompress(currentBuffer.array()))));
                     }
                     continue;
                 }
@@ -158,7 +156,7 @@ public class Lexer {
                 continue;
             }
             opcodeQueue = "";
-            Instruction instruction = instructionFactory.create(oc.get());
+            Instruction instruction = instructionProvider.get().opcode(oc.get());
             instructions.add(instruction);
         }
         return instructions;

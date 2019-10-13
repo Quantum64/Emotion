@@ -17,14 +17,17 @@ import com.google.auto.factory.AutoFactory;
 import co.q64.emotion.types.Comparison;
 import co.q64.emotion.types.Operation;
 
-@AutoFactory
 public class InfiniteList implements Value {
-    private Function<Integer, Value> func;
-    private InfinitListImpl list;
+    private final Function<Integer, Value> func;
+    private final InfinitListImpl list;
 
-    protected InfiniteList(Function<Integer, Value> func) {
+    private InfiniteList(Function<Integer, Value> func) {
         this.func = func;
         this.list = new InfinitListImpl();
+    }
+
+    public static InfiniteList of(Function<Integer, Value> func) {
+        return new InfiniteList(func);
     }
 
     @Override

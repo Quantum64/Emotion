@@ -65,6 +65,10 @@ public class Values {
         return NumberValue.of(input);
     }
 
+    public static Value create(boolean input) {
+        return BooleanValue.of(input);
+    }
+
     public static Value create(List<?> input) {
         return ListValue.of(input);
     }

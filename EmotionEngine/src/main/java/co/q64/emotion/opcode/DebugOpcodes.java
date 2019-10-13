@@ -4,7 +4,6 @@ import co.q64.emotion.lang.Program;
 import co.q64.emotion.lang.Registers;
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
-import co.q64.emotion.lang.value.MatrixFactory;
 import co.q64.emotion.lang.value.Value;
 
 import javax.inject.Inject;
@@ -12,7 +11,6 @@ import javax.inject.Singleton;
 
 @Singleton
 public class DebugOpcodes extends OpcodeRegistry {
-    protected @Inject MatrixFactory matrix;
 
     protected @Inject DebugOpcodes() {
         super(OpcodeMarker.DEBUG);

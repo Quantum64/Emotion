@@ -28,6 +28,10 @@ public interface Value extends Comparable<Value> {
         return false;
     }
 
+    public default boolean isInteger() {
+        return isNumber() && asNumber().getDenominator().longValue() == 1;
+    }
+
     public default int asInt() {
         return asNumber().intValue();
     }

@@ -1,10 +1,10 @@
 package co.q64.emotion.opcode;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class LongRegisterOpcodes extends OpcodeRegistry {

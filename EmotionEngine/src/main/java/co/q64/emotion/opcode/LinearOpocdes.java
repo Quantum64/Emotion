@@ -1,23 +1,19 @@
 package co.q64.emotion.opcode;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.ejml.simple.SimpleMatrix;
-
 import co.q64.emotion.lang.Stack;
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
-import co.q64.emotion.lang.value.math.Matrix;
-import co.q64.emotion.lang.value.MatrixFactory;
 import co.q64.emotion.lang.value.Value;
+import co.q64.emotion.lang.value.math.Matrix;
+import org.ejml.simple.SimpleMatrix;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
 
 @Singleton
 public class LinearOpocdes extends OpcodeRegistry {
-	protected @Inject MatrixFactory matrix;
 
 	protected @Inject LinearOpocdes() {
 		super(OpcodeMarker.LINEAR);
@@ -25,7 +21,7 @@ public class LinearOpocdes extends OpcodeRegistry {
 
 	@Override
 	public void register() {
-		r("vector.dot", stack -> stack.push(matrix.create(stack.peek(2)).dot(matrix.create(stack.pull(2)))), "Push the dot product of the second and first stack vectors.");
+		r("vector.dot", stack -> stack.push(Matrix.of(stack.peek(2)).dot(Matrix.of(stack.pull(2)))), "Push the dot product of the second and first stack vectors.");
 
 		r("matrix.det", stack -> stack.push(matrix(stack.pop()).determinant()));
 
@@ -35,10 +31,10 @@ public class LinearOpocdes extends OpcodeRegistry {
 			r("matrix.zeros" + i + "x" + i, stack -> stack.push(genZeroMatrix(lock)), "Push the " + i + "x" + i + " zero matrix.");
 		}
 
-		r("matrix.identity", stack -> stack.push(matrix.create(Matrix.identity(stack.pop().asInt()))), "Push the identity matrix with the width of the first stack value.");
+		r("matrix.identity", stack -> stack.push(Matrix.of(Matrix.identity(stack.pop().asInt()))), "Push the identity matrix with the width of the first stack value.");
 		for (int i = 2; i < 10; i++) {
 			final int lock = i;
-			r("matrix.identity" + i + "x" + i, stack -> stack.push(matrix.create(Matrix.identity(lock))), "Push the " + i + "x" + i + " identity matrix.");
+			r("matrix.identity" + i + "x" + i, stack -> stack.push(Matrix.of(Matrix.identity(lock))), "Push the " + i + "x" + i + " identity matrix.");
 		}
 
 		for (int i = 2; i < 10; i++) {
@@ -48,11 +44,11 @@ public class LinearOpocdes extends OpcodeRegistry {
 	}
 
 	private Matrix matrix(SimpleMatrix m) {
-		return matrix.create(m);
+		return Matrix.of(m);
 	}
 
 	private Matrix matrix(Value v) {
-		return matrix.create(v);
+		return Matrix.of(v);
 	}
 
 	private Matrix genZeroMatrix(int size) {
@@ -61,7 +57,7 @@ public class LinearOpocdes extends OpcodeRegistry {
 
 	private Matrix genZeroMatrix(int width, int height) {
 		double[][] data = new double[height][width];
-		return matrix.create(data);
+		return Matrix.of(data);
 	}
 
 	private List<List<Double>> popSquareMatrix(Stack stack, int size) {

@@ -1,5 +1,14 @@
 package co.q64.emotion.opcode;
 
+import co.q64.emotion.lang.Stack;
+import co.q64.emotion.lang.opcode.OpcodeMarker;
+import co.q64.emotion.lang.opcode.OpcodeRegistry;
+import co.q64.emotion.lang.value.Value;
+import co.q64.emotion.lang.value.Values;
+import co.q64.emotion.lang.value.special.Null;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,17 +16,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import co.q64.emotion.lang.Stack;
-import co.q64.emotion.lang.opcode.OpcodeMarker;
-import co.q64.emotion.lang.opcode.OpcodeRegistry;
-import co.q64.emotion.lang.value.LiteralFactory;
-import co.q64.emotion.lang.value.Values;
-import co.q64.emotion.lang.value.special.Null;
-import co.q64.emotion.lang.value.Value;
 
 @Singleton
 public class ListOpcodes extends OpcodeRegistry {

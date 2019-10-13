@@ -13,91 +13,60 @@ import co.q64.emotion.ast.ASTBuilder;
 import co.q64.emotion.lang.opcode.Opcodes;
 import lombok.Getter;
 
-@AutoFactory
+import javax.inject.Inject;
+
 public class CompilerOutput {
-    private String author;
-    private String version;
-    private Opcodes opcodes;
-    private ASTBuilder ast;
+    protected @Inject @Author String author;
+    protected @Inject @Version String version;
+    protected @Inject Opcodes opcodes;
+    protected @Inject ASTBuilder ast;
+
     private @Getter boolean success;
     private @Getter String error;
-    private List<String> compiledLines, instructionLines;
+    private List<InstructionInfo> instructions;
 
-    protected CompilerOutput(@Provided ASTBuilder ast, String author, String version, Opcodes opcodes) {
-        this.ast = ast;
-        this.author = author;
-        this.version = version;
-        this.opcodes = opcodes;
-    }
+    protected @Inject CompilerOutput() {}
 
-    protected CompilerOutput(@Provided ASTBuilder ast, @Provided @Author String author, @Provided @Version String version, @Provided Opcodes opcodes, String error) {
-        this(ast, author, version, opcodes);
+    public CompilerOutput error(String error) {
         this.error = error;
         this.success = false;
+        return this;
     }
 
-    protected CompilerOutput(@Provided ASTBuilder ast, @Provided @Author String author, @Provided @Version String version, @Provided Opcodes opcodes, List<String> compiledLines, List<String> instructionLines) {
-        this(ast, author, version, opcodes);
-        this.compiledLines = compiledLines;
-        this.instructionLines = instructionLines;
+    public CompilerOutput success(List<InstructionInfo> instructions) {
+        this.instructions = instructions;
         this.success = true;
+        return this;
     }
 
     public List<String> getDisplayOutput() {
         List<String> result = new ArrayList<>();
         if (success) {
             int offsetLength = 0;
-            for (String s : instructionLines) {
-                if (s.length() > offsetLength) {
-                    offsetLength = s.length();
+            for (InstructionInfo info : instructions) {
+                if (info.instruction().length() > offsetLength) {
+                    offsetLength = info.instruction().length();
                 }
             }
             result.add(getProgram());
             result.add(new String());
             result.add("Size: " + getProgram().codePointCount(0, getProgram().length()) + " bytes");
-            result.add("Instructions: " + instructionLines.size());
+            result.add("Instructions: " + instructions.size());
             result.add(new String());
-            for (int i = 0; i < compiledLines.size(); i++) {
-                if (instructionLines.size() <= i) {
-                    continue;
-                }
-                String instruction = instructionLines.get(i);
+            for (InstructionInfo info : instructions) {
                 String offset = new String();
-                for (int u = 0; u < offsetLength - instruction.length(); u++) {
+                for (int u = 0; u < offsetLength - info.instruction().length(); u++) {
                     offset += " ";
                 }
-                String compiled = compiledLines.get(i);
+                String compiled = info.compiled();
                 if (compiled.equals(" ")) {
                     compiled = "<whitespace character>";
                 }
-                result.add((i + 1) + ": " + instruction + offset + " => " + compiled);
+                result.add(info.line() + ": " + info.instruction() + offset + " => " + compiled);
             }
             result.add(new String());
-            offsetLength = 0;
-            for (String s : compiledLines) {
-                int points = s.codePointCount(0, s.length());
-                if (points > offsetLength) {
-                    offsetLength = points;
-                }
-            }
+
             result.addAll(getExplanation());
-            //String program = getProgram();
-            //if (program.length() % 2 == 1) {
-            //	  program += opcodes.getChars(OpcodeMarker.EXIT).getCharacter();
-            //}
-			/*
-			char[] chars = program.toCharArray();
-			StringBuilder compressed = new StringBuilder();
-			for (int i = 0; i < chars.length; i += 2) {
-				int point = ((Chars.fromCode(String.valueOf(chars[i])).getByte() & 0xff) << 8) | (Chars.fromCode(String.valueOf(chars[i + 1])).getByte() & 0xff);
-				compressed.append(insanity.getCharacter(point));
-			}
-			if (compressed.length() > 0) {
-				result.add(new String());
-				result.add("With insanity compression (" + chars.length / 2 + " bytes)");
-				result.add(compressed.toString());
-			}
-			*/
         } else {
             result.add(error);
         }
@@ -112,26 +81,21 @@ public class CompilerOutput {
 
     public List<String> getExplanation() {
         List<String> result = new ArrayList<>();
-        for (int i = 0; i < compiledLines.size(); i++) {
-            if (instructionLines.size() <= i) {
-                continue;
-            }
-            String instruction = instructionLines.get(i);
-            String compiled = compiledLines.get(i);
-            String description = opcodes.getDescription(instruction);
-            if (instruction.startsWith("load")) {
-                if (instruction.length() < 6) {
+        for (InstructionInfo info : instructions) {
+            String description = opcodes.getDescription(info.instruction());
+            if (info.instruction().startsWith("load")) {
+                if (info.instruction().length() < 6) {
                     description = "Push empty";
                 } else {
-                    description = "Push literal " + instruction.substring(5);
+                    description = "Push literal " + info.instruction().substring(5);
                 }
             }
-            result.add(compiled + " " + description);
+            result.add(info.compiled() + " " + description);
         }
         return result;
     }
 
     public String getProgram() {
-        return compiledLines.stream().collect(Collectors.joining());
+        return instructions.stream().map(InstructionInfo::compiled).collect(Collectors.joining());
     }
 }

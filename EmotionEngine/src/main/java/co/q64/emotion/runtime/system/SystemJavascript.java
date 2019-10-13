@@ -1,24 +1,21 @@
 package co.q64.emotion.runtime.system;
 
-import java.util.List;
+import co.q64.emotion.annotation.GWT;
+import co.q64.emotion.lang.value.Value;
+import co.q64.emotion.lang.value.Values;
+import co.q64.emotion.runtime.Javascript;
+import com.google.common.annotations.GwtIncompatible;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-
-import com.google.common.annotations.GwtIncompatible;
-
-import co.q64.emotion.annotation.GWT;
-import co.q64.emotion.lang.value.LiteralFactory;
-import co.q64.emotion.lang.value.Value;
-import co.q64.emotion.runtime.Javascript;
+import java.util.List;
 
 @Singleton
 @GwtIncompatible(GWT.MESSAGE)
 public class SystemJavascript implements Javascript {
-	protected @Inject LiteralFactory literal;
 	private ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
 
 	protected @Inject SystemJavascript() {}
@@ -34,7 +31,7 @@ public class SystemJavascript implements Javascript {
 			payload.append("");
 		}
 		try {
-			return literal.create(engine.eval(payload.toString()));
+			return Values.create(engine.eval(payload.toString()).toString());
 		} catch (ScriptException e) {
 			throw new RuntimeException(e);
 		}

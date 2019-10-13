@@ -1,21 +1,15 @@
 package co.q64.emotion.lang;
 
-import java.util.ListIterator;
-
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
-
-import co.q64.emotion.factory.LiteralFactoryFactory;
-import co.q64.emotion.lang.value.LiteralFactory;
 import co.q64.emotion.lang.value.Value;
+import co.q64.emotion.lang.value.Values;
 import lombok.Setter;
 
 import javax.inject.Inject;
+import java.util.ListIterator;
 
 public class Iterator {
     private ListIterator<Value> values;
     private Registers registers;
-    protected @Inject LiteralFactory literal;
     private int index;
     private Value o, i;
 
@@ -35,7 +29,7 @@ public class Iterator {
 
     public boolean next() {
         if (values.hasNext()) {
-            i = literal.create(index);
+            i = Values.create(index);
             o = values.next();
             register();
             if (onStack) {

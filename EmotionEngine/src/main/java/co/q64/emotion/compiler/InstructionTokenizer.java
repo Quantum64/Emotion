@@ -14,8 +14,10 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +31,8 @@ import java.util.stream.Collectors;
 public class InstructionTokenizer {
     private static final boolean isDeflateTooSlow = true;
 
-    protected @Inject CompilerOutputFactory output;
+    protected @Inject Provider<CompilerOutput> compilerOutputProvider;
+    protected @Inject Provider<InstructionResult> instructionResultProvider;
     protected @Inject Opcodes opcodes;
     protected @Inject Deflate deflate;
     protected @Inject Smaz smaz;
@@ -39,7 +42,8 @@ public class InstructionTokenizer {
 
     protected @Inject InstructionTokenizer() {}
 
-    public Optional<CompilerOutput> processInstruction(String ins, StringBuilder result, int line) {
+    public InstructionResult processInstruction(String ins, int line) {
+        StringBuilder result = new StringBuilder();
         Optional<List<Chars>> opt = opcodes.lookupName(ins);
         if (opt.isPresent()) {
             StringBuilder current = new StringBuilder();
@@ -60,18 +64,18 @@ public class InstructionTokenizer {
             if (executor.isPresent()) {
                 executor.get().accept(null);
             }
-            return Optional.empty();
+            return instructionResultProvider.get().compiled(result.toString());
         }
         if (ins.startsWith("load ")) {
             String load = ins.substring(5);
             if (load.length() == 0) {
-                return Optional.of(output.create("Attempted to load a 0 length literal (probably an empty load instruction). Line: " + line));
+                return instructionResultProvider.get().error(Optional.of(compilerOutputProvider.get().error("Attempted to load a 0 length literal (probably an empty load instruction). Line: " + line)));
             }
             if (load.length() == 1) {
                 if (load.matches("\\A\\p{ASCII}*\\z")) {
                     result.append(opcodes.getChars(OpcodeMarker.LITERAL_SINGLE).getCharacter());
                     result.append(Chars.fromInt(load.toCharArray()[0]).getCharacter());
-                    return Optional.empty();
+                    return instructionResultProvider.get().compiled(result.toString());
                 }
             }
             if (load.length() == 2) {
@@ -87,7 +91,7 @@ public class InstructionTokenizer {
                     for (char c : load.toCharArray()) {
                         result.append(Chars.fromInt(c).getCharacter());
                     }
-                    return Optional.empty();
+                    return instructionResultProvider.get().compiled(result.toString());
                 }
             }
             List<String> attempts = new ArrayList<>();
@@ -167,7 +171,7 @@ public class InstructionTokenizer {
                         return s1.length() - s2.length();
                     }
                 }));
-                return Optional.empty();
+                return instructionResultProvider.get().compiled(result.toString());
             }
             if (attempts.size() > 0) {
                 result.append(Collections.min(attempts, new Comparator<String>() {
@@ -176,16 +180,20 @@ public class InstructionTokenizer {
                         return s1.length() - s2.length();
                     }
                 }));
-                return Optional.empty();
+                return instructionResultProvider.get().compiled(result.toString());
             }
-            return Optional.of(output.create("Failed to process literal. Line: " + line));
+            return instructionResultProvider.get().error(Optional.of(compilerOutputProvider.get().error("Failed to process literal. Line: " + line)));
         }
-        return Optional.of(output.create("Invalid instruction '" + ins + "' in source. Line: " + line));
+        return instructionResultProvider.get().error(Optional.of(compilerOutputProvider.get().error("Invalid instruction '" + ins + "' in source. Line: " + line)));
     }
 
     @Getter
     @Setter(AccessLevel.PRIVATE)
+    @Accessors(fluent = true)
     public static class InstructionResult {
+        private Optional<CompilerOutput> error = Optional.empty();
+        private String compiled = "";
+
         protected @Inject InstructionResult() {}
     }
 }

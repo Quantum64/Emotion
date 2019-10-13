@@ -1,19 +1,16 @@
 package co.q64.emotion.opcode;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
-import co.q64.emotion.lang.value.LiteralFactory;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 @Singleton
 public class StackOpcodes extends OpcodeRegistry {
 	protected @Inject StackOpcodes() {
 		super(OpcodeMarker.STACK);
 	}
-
-	protected @Inject LiteralFactory literal;
 
 	@Override
 	public void register() {

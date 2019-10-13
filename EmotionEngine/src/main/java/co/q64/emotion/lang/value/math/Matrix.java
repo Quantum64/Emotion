@@ -15,12 +15,12 @@ import com.google.auto.factory.AutoFactory;
 
 import co.q64.emotion.types.Comparison;
 import co.q64.emotion.types.Operation;
+import sun.java2d.pipe.SpanShapeRenderer.Simple;
 
-@AutoFactory
 public class Matrix extends SimpleMatrix implements Value {
     private static final long serialVersionUID = 1L;
 
-    protected Matrix(Value value) {
+    private Matrix(Value value) {
         if (value instanceof Matrix) {
             setMatrix(((Matrix) value).getMatrix());
             return;
@@ -47,12 +47,24 @@ public class Matrix extends SimpleMatrix implements Value {
         setMatrix(new DMatrixRMaj(data));
     }
 
-    protected Matrix(double[][] data) {
+    private Matrix(double[][] data) {
         super(data);
     }
 
-    protected Matrix(SimpleMatrix matrix) {
+    private Matrix(SimpleMatrix matrix) {
         setMatrix(matrix.getMatrix());
+    }
+
+    public static Matrix of(double[][] data) {
+        return new Matrix(data);
+    }
+
+    public static Matrix of(SimpleMatrix matrix) {
+        return new Matrix(matrix);
+    }
+
+    public static Matrix of(Value value) {
+        return new Matrix(value);
     }
 
     @Override

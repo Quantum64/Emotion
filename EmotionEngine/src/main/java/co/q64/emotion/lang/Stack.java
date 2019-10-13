@@ -1,24 +1,20 @@
 package co.q64.emotion.lang;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import co.q64.emotion.lang.value.LiteralFactory;
-import co.q64.emotion.lang.value.MatrixFactory;
-import co.q64.emotion.lang.value.Values;
-import co.q64.emotion.lang.value.special.Null;
 import co.q64.emotion.lang.value.Value;
+import co.q64.emotion.lang.value.Values;
+import co.q64.emotion.lang.value.math.Matrix;
+import co.q64.emotion.lang.value.special.Null;
 import co.q64.emotion.lang.value.standard.ListValue;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Stack {
     protected @Inject Null nul;
     private @Getter List<Value> stack = new ArrayList<>();
-    protected @Inject LiteralFactory literal;
-    protected @Inject MatrixFactory matrix;
 
     private @Getter @Setter Program program;
 
@@ -99,10 +95,10 @@ public class Stack {
 
     public Stack push(Object value) {
         if (value instanceof Value) {
-			add(Values.create((Value) value));
+            add(Values.create((Value) value));
         } else {
-        	add(Values.create(value.toString()));
-		}
+            add(Values.create(value.toString()));
+        }
         return this;
     }
 
@@ -142,7 +138,7 @@ public class Stack {
                 }
             }
             if (isMatrix) {
-                stack.add(matrix.create(value));
+                stack.add(Matrix.of(value));
                 return;
             }
         }
