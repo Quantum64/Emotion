@@ -7,7 +7,7 @@ import co.q64.emotion.util.SimpleEmotionTest;
 public class DefTest {
 	@Test
 	public void testDef() {
-		new SimpleEmotionTest("load 2", "load 3", "jump add", "def add", "+", "end").execute("5");
+		new SimpleEmotionTest("load 2", "load 3", "jump add", "def add", "add", "end").execute("5");
 	}
 
 	@Test
@@ -34,14 +34,14 @@ public class DefTest {
 				"iterate",
 				"ldr o",
 				"jump addOne",
-				"*",
+				"multiply",
 				"end",
 				"end",
 				"",
 				"# Adds one to the current value on the stack",
 				"def addOne",
 				"load 1",
-				"+",
+				"add",
 				"end"
 		// @formatter:on
 		).execute("21203628800");

@@ -27,7 +27,7 @@
 						<path>
 							<groupId>com.google.dagger</groupId>
 							<artifactId>dagger-compiler</artifactId>
-							<version>${teavm.version}</version>
+							<version>${dagger.version}</version>
 						</path>
 						<path>
 							<groupId>com.google.auto.factory</groupId>
@@ -165,8 +165,6 @@
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-		<lombok.lib>${org.projectlombok:lombok:jar}</lombok.lib>
 	</properties>
 
 	<dependencies>

@@ -43,7 +43,7 @@ public class Instruction {
         if (value != null) {
             return "load " + value.toString();
         }
-        if (executor != null) {
+        if (opcode != null) {
             return opcodes.getName(opcode).orElse("undefined");
         }
         return "nop";
