@@ -120,12 +120,12 @@ public class StandardOpcodes extends OpcodeRegistry {
         r("flatten", stack -> pushStackAsList(stack), "Collapse all stack values into a list, then push that list.");
         r("join", stack -> pushStackSplit(stack, ""), "Collapse all stack values into a string, then push that string.");
         r("join space", stack -> pushStackSplit(stack, " "), "Collapse all stack values into a string seperated by spaces, then push that string.");
-        r("+", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.ADD)), "Push the sum of the second and first stack values.");
-        r("-", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.SUBTRACT)), "Push the difference of the second and first stack values.");
-        r("*", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.MULTIPLY)), "Push the product of the second and first stack values.");
-        r("/", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.DIVIDE)), "Push the quotient of the second and first stack values.");
-        r("//", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.DIVIDE).asNumber().longValue()), "Push the quotient of the second and first stack values rounded to an integer.");
-        r("%", stack -> stack.push(stack.peek(2).asNumber().longValue() % stack.pull(2).asNumber().longValue()), "Push the modulus of the second and first stack values.");
+        r("add", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.ADD)), "Push the sum of the second and first stack values.");
+        r("subtract", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.SUBTRACT)), "Push the difference of the second and first stack values.");
+        r("multiply", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.MULTIPLY)), "Push the product of the second and first stack values.");
+        r("divide", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.DIVIDE)), "Push the quotient of the second and first stack values.");
+        r("floorDiv", stack -> stack.push(stack.peek(2).operate(stack.pull(2), Operation.DIVIDE).asNumber().longValue()), "Push the quotient of the second and first stack values rounded to an integer.");
+        r("mod", stack -> stack.push(stack.peek(2).asNumber().longValue() % stack.pull(2).asNumber().longValue()), "Push the modulus of the second and first stack values.");
         // 73
         r("increment", stack -> stack.push(stack.pop().operate(Values.create(1), Operation.ADD)));
         r("decrement", stack -> stack.push(stack.pop().operate(Values.create(1), Operation.SUBTRACT)));

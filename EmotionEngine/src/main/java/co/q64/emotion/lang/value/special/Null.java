@@ -14,25 +14,30 @@ import co.q64.emotion.util.Rational;
 
 @Singleton
 public class Null implements Value {
-	protected @Inject Null() {}
+    protected @Inject Null() {}
 
-	public Value operate(Value value, Operation type) {
-		return this;
-	}
+    public Value operate(Value value, Operation type) {
+        return this;
+    }
 
-	public int compareTo(Value value) {
-		return -1;
-	}
+    public int compareTo(Value value) {
+        return -1;
+    }
 
-	public List<Value> iterate() {
-		return Collections.emptyList();
-	}
+    public List<Value> iterate() {
+        return Collections.emptyList();
+    }
 
-	public Rational asNumber() {
-		return Rational.of(0);
-	}
+    public Rational asNumber() {
+        return Rational.of(0);
+    }
 
-	public boolean asBoolean() {
-		return false;
-	}
+    public boolean asBoolean() {
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "";
+    }
 }

@@ -18,7 +18,7 @@ public class NumberValue implements Value {
         this.value = Rational.of(in);
     }
 
-    private NumberValue(double in) {
+    private NumberValue(String in) {
         this.value = Rational.of(in);
     }
 
@@ -34,7 +34,7 @@ public class NumberValue implements Value {
         return new NumberValue(in);
     }
 
-    public static NumberValue of(double in) {
+    public static NumberValue of(String in) {
         return new NumberValue(in);
     }
 

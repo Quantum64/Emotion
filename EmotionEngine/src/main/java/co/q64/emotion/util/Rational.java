@@ -76,26 +76,21 @@ public final class Rational implements Comparable<Rational> {
         return of(num, 1);
     }
 
-    public static Rational of(double input) {
-        String s = String.valueOf(input);
+    public static Rational of(String s) {
         int digitsDec = s.length() - 1 - s.indexOf('.');
-        int d = 1;
+        String d = "1";
         for (int i = 0; i < digitsDec; i++) {
-            input *= 10;
-            d *= 10;
+            d += "0";
         }
+        return of(s.replace(".", ""), d);
+    }
 
-        int n = (int) Math.round(input);
-        int gcd = gcd(n, d);
-        return of(n / gcd, d / gcd);
+    public static Rational of(double d) {
+        return of(String.valueOf(d));
     }
 
     public static Rational of(String n, String d) {
         return new Rational(new BigInteger(n), new BigInteger(d));
-    }
-
-    private static int gcd(int p, int q) {
-        return q == 0 ? p : gcd(q, p % q);
     }
 
     public BigInteger getNumerator() {
