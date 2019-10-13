@@ -77,12 +77,15 @@ public final class Rational implements Comparable<Rational> {
     }
 
     public static Rational of(String s) {
-        int digitsDec = s.length() - 1 - s.indexOf('.');
-        String d = "1";
-        for (int i = 0; i < digitsDec; i++) {
-            d += "0";
+        if (s.contains(".")) {
+            int digitsDec = s.length() - 1 - s.indexOf('.');
+            String d = "1";
+            for (int i = 0; i < digitsDec; i++) {
+                d += "0";
+            }
+            return of(s.replace(".", ""), d);
         }
-        return of(s.replace(".", ""), d);
+        return of(s, "1");
     }
 
     public static Rational of(double d) {

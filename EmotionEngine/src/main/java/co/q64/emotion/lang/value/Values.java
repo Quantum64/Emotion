@@ -20,9 +20,6 @@ public class Values {
             } catch (NumberFormatException e) {}
         }
         try {
-            return NumberValue.of(Long.parseLong(input));
-        } catch (NumberFormatException e) {}
-        try {
             return NumberValue.of(input);
         } catch (NumberFormatException e) {}
         if (input.equalsIgnoreCase("true")) {
