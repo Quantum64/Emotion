@@ -1,40 +1,49 @@
 package co.q64.emotion.lang.value;
 
+import co.q64.emotion.types.Operation;
+import co.q64.emotion.util.Rational;
+
 import java.util.List;
 
-import co.q64.emotion.types.Comparison;
-import co.q64.emotion.types.Operation;
+public interface Value extends Comparable<Value> {
+    public Value operate(Value value, Operation type);
 
-public interface Value {
-	public boolean compare(Value value, Comparison type);
+    public int compareTo(Value value);
 
-	public Value operate(Value value, Operation type);
+    public List<Value> iterate();
 
-	public List<Value> iterate();
+    public Rational asNumber();
 
-	public int asInt();
+    public boolean asBoolean();
 
-	public long asLong();
+    public default boolean isBoolean() {
+        return false;
+    }
 
-	public char asChar();
+    public default boolean isList() {
+        return false;
+    }
 
-	public double asDouble();
+    public default boolean isNumber() {
+        return false;
+    }
 
-	public boolean asBoolean();
+    public default int asInt() {
+        return asNumber().intValue();
+    }
 
-	public default boolean isBoolean() {
-		return false;
-	}
+    public default long asLong() {
+        return asNumber().longValue();
+    }
 
-	public default boolean isList() {
-		return false;
-	}
+    public default double asDouble() {
+        return asNumber().doubleValue();
+    }
 
-	public default boolean isFloat() {
-		return false;
-	}
-
-	public default boolean isInteger() {
-		return false;
-	}
+    public default char asChar() {
+        if (toString().length() > 0) {
+            return toString().toCharArray()[0];
+        }
+        return 0;
+    }
 }

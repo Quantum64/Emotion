@@ -15,6 +15,7 @@ import co.q64.emotion.lang.opcode.OpcodeRegistry;
 import co.q64.emotion.lang.value.InfiniteListFactory;
 import co.q64.emotion.lang.value.LiteralFactory;
 import co.q64.emotion.lang.value.Value;
+import co.q64.emotion.lang.value.Values;
 import co.q64.emotion.util.MathUtil;
 
 @Singleton
@@ -33,14 +34,14 @@ public class InfiniteListOpocdes extends OpcodeRegistry {
 
 	@Override
 	public void register() {
-		r("infinilist.primes", stack -> stack.push(infiniteList.create(n -> literal.create(mathUtil.nthPrime(n + 1)))), "Push the infinite list of primes.");
-		r("infinilist.fib", stack -> stack.push(infiniteList.create(n -> literal.create(fibonacci(n).toString()))), "Push the infinite list of fibonacci numbers.");
-		r("infinilist.squares", stack -> stack.push(infiniteList.create(n -> literal.create((n + 1) * (n + 1)))), "Push the infinite list of perfect squares.");
-		r("infinilist.even", stack -> stack.push(infiniteList.create(n -> literal.create(n * 2))), "Push the infinite list of even numbers.");
-		r("infinilist.odd", stack -> stack.push(infiniteList.create(n -> literal.create(n * 2 + 1))), "Push the infinite list of odd numbers.");
-		r("infinilist.pow2", stack -> stack.push(infiniteList.create(n -> literal.create(new BigInteger("2").pow(n + 1).toString()))), "Push the infinite list of powers of two.");
-		r("infinilist.sign", stack -> stack.push(infiniteList.create(n -> literal.create(n % 2 == 0 ? 1 : -1))), "Push an infinite list of alternating positive and negative one.");
-		r("infinilist.zero", stack -> stack.push(infiniteList.create(n -> literal.create(0))), "Push an infinite list of zeros.");
+		r("infinilist.primes", stack -> stack.push(infiniteList.create(n -> Values.create(mathUtil.nthPrime(n + 1)))), "Push the infinite list of primes.");
+		r("infinilist.fib", stack -> stack.push(infiniteList.create(n -> Values.create(fibonacci(n).toString()))), "Push the infinite list of fibonacci numbers.");
+		r("infinilist.squares", stack -> stack.push(infiniteList.create(n -> Values.create((n + 1) * (n + 1)))), "Push the infinite list of perfect squares.");
+		r("infinilist.even", stack -> stack.push(infiniteList.create(n -> Values.create(n * 2))), "Push the infinite list of even numbers.");
+		r("infinilist.odd", stack -> stack.push(infiniteList.create(n -> Values.create(n * 2 + 1))), "Push the infinite list of odd numbers.");
+		r("infinilist.pow2", stack -> stack.push(infiniteList.create(n -> Values.create(new BigInteger("2").pow(n + 1).toString()))), "Push the infinite list of powers of two.");
+		r("infinilist.sign", stack -> stack.push(infiniteList.create(n -> Values.create(n % 2 == 0 ? 1 : -1))), "Push an infinite list of alternating positive and negative one.");
+		r("infinilist.zero", stack -> stack.push(infiniteList.create(n -> Values.create(0))), "Push an infinite list of zeros.");
 
 		r("infinilist.toFixed", stack -> stack.push(convertToFixed(stack.pop().asInt(), 0, stack.pop())), "Push a list with the size of the first stack value of values in the infinite list on the second stack value.");
 		for (int size : SIZES) {

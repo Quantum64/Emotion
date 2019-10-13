@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Getter
 public class LocalRegisters {
-    private Map<Value, Value> data = new HashMap<Value, Value>();
+    private Map<Value, Value> data = new HashMap<>();
 
     protected @Inject LocalRegisters() {}
 }

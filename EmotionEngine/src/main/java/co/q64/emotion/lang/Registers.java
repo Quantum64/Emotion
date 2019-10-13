@@ -1,8 +1,7 @@
 package co.q64.emotion.lang;
 
-import co.q64.emotion.lang.value.Null;
+import co.q64.emotion.lang.value.special.Null;
 import co.q64.emotion.lang.value.Value;
-import com.google.auto.factory.Provided;
 import lombok.Data;
 
 import javax.inject.Inject;

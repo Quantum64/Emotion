@@ -15,13 +15,13 @@ import co.q64.emotion.lang.Stack;
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
 import co.q64.emotion.lang.value.LiteralFactory;
-import co.q64.emotion.lang.value.Null;
+import co.q64.emotion.lang.value.Values;
+import co.q64.emotion.lang.value.special.Null;
 import co.q64.emotion.lang.value.Value;
 
 @Singleton
 public class ListOpcodes extends OpcodeRegistry {
 	protected @Inject Null nul;
-	protected @Inject LiteralFactory literal;
 	protected @Inject ValueSorter sorter;
 
 	protected @Inject ListOpcodes() {
@@ -52,10 +52,10 @@ public class ListOpcodes extends OpcodeRegistry {
 		r("list.min", stack -> stack.push(stack.pop().iterate().stream().mapToInt(Value::asInt).min().orElse(nul.asInt())), "Push the least integer in the first stack value.");
 		r("list.minf", stack -> stack.push(stack.pop().iterate().stream().mapToDouble(Value::asDouble).min().orElse(nul.asInt())), "Push the least floating point number in the first stack value.");
 		r("list.reverse", stack -> stack.push(apply(stack.pop().iterate(), Collections::reverse)), "Reverses the list in the first stack value.");
-		r("list.range", stack -> stack.push(IntStream.range(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(literal::create).collect(Collectors.toList())), "Push a list of integers in the range of the second stack value to the first stack value minus one.");
-		r("list.reverseRange", stack -> stack.push(apply(IntStream.range(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(literal::create).collect(Collectors.toList()), Collections::reverse)), "Push a list of integers in decending order in the range of the second stack value to the first stack value minus one.");
-		r("list.rangeClosed", stack -> stack.push(IntStream.rangeClosed(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(literal::create).collect(Collectors.toList())), "Push a list of integers in the range of the second stack value to the first stack value.");
-		r("list.reverseRangeClosed", stack -> stack.push(apply(IntStream.rangeClosed(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(literal::create).collect(Collectors.toList()), Collections::reverse)), "Push a list of integers in decending order in the range of the second stack value to the first stack value.");
+		r("list.range", stack -> stack.push(IntStream.range(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(Values::create).collect(Collectors.toList())), "Push a list of integers in the range of the second stack value to the first stack value minus one.");
+		r("list.reverseRange", stack -> stack.push(apply(IntStream.range(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(Values::create).collect(Collectors.toList()), Collections::reverse)), "Push a list of integers in decending order in the range of the second stack value to the first stack value minus one.");
+		r("list.rangeClosed", stack -> stack.push(IntStream.rangeClosed(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(Values::create).collect(Collectors.toList())), "Push a list of integers in the range of the second stack value to the first stack value.");
+		r("list.reverseRangeClosed", stack -> stack.push(apply(IntStream.rangeClosed(stack.peek(2).asInt(), stack.pull(2).asInt()).boxed().map(Values::create).collect(Collectors.toList()), Collections::reverse)), "Push a list of integers in decending order in the range of the second stack value to the first stack value.");
 		r("list.set", stack -> stack.push(set(stack.pop().asInt(), stack.pop(), stack.pop().iterate())), "Set the value in the list in the third stack value to the second stack value at the index of the first stack value.");
 		r("list.get", stack -> stack.push(get(stack.pop().asInt(), stack.pop().iterate())), "Push the value in the list of the second stack value at the index of the first stack value.");
 		r("list.add", stack -> stack.push(apply(stack.peek(2).iterate(), list -> list.add(stack.pull(2)))), "Add the first stack value to the list in the second stack value. Does not remove the list from the stack.");
@@ -168,16 +168,7 @@ public class ListOpcodes extends OpcodeRegistry {
 
 		@Override
 		public int compare(Value o1, Value o2) {
-			if (o1.isInteger() && o2.isInteger()) {
-				return Long.compare(o1.asLong(), o2.asLong());
-			}
-			if (o1.isFloat() && o2.isFloat()) {
-				return Double.compare(o1.asDouble(), o2.asDouble());
-			}
-			if (o1.isBoolean() && o2.isBoolean()) {
-				return Boolean.compare(o1.asBoolean(), o2.asBoolean());
-			}
-			return o1.toString().compareTo(o2.toString());
+			return o1.compareTo(o2);
 		}
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import co.q64.emotion.lang.value.Values;
 import org.teavm.jso.JSBody;
 import org.teavm.jso.JSObject;
 
@@ -14,8 +15,6 @@ import co.q64.emotion.runtime.Javascript;
 
 @Singleton
 public class TeaJavascript implements Javascript {
-	protected @Inject LiteralFactory literal;
-
 	protected @Inject TeaJavascript() {}
 
 	@Override
@@ -31,7 +30,7 @@ public class TeaJavascript implements Javascript {
 		if (args.size() == 0) {
 			payload.append("()");
 		}
-		return literal.create(eval(payload.toString()) + "");
+		return Values.create(eval(payload.toString()) + "");
 	}
 
 	@JSBody(params = { "emotionFunc" }, script = "return eval(emotionFunc);")

@@ -11,7 +11,7 @@ import org.ejml.simple.SimpleMatrix;
 import co.q64.emotion.lang.Stack;
 import co.q64.emotion.lang.opcode.OpcodeMarker;
 import co.q64.emotion.lang.opcode.OpcodeRegistry;
-import co.q64.emotion.lang.value.Matrix;
+import co.q64.emotion.lang.value.math.Matrix;
 import co.q64.emotion.lang.value.MatrixFactory;
 import co.q64.emotion.lang.value.Value;
 
