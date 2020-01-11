@@ -5,7 +5,7 @@ import co.q64.emotion.math.Rational
 import co.q64.emotion.math.rational
 
 interface Value : Comparable<Value> {
-    fun operate(other: Value, type: Operation): Value
+    val type: ValueType
     val list: List<Value>
     val number: Rational
     val int: Int get() = number.intValue()
@@ -13,6 +13,7 @@ interface Value : Comparable<Value> {
     val double: Double get() = number.doubleValue()
     val boolean: Boolean get() = number != Rational.ZERO
     val text: String get() = toString()
+    fun operate(other: Value, type: Operation): Value
 }
 
 fun Rational.value(): Value = NumberValue(this)
@@ -33,4 +34,15 @@ fun String.value(): Value {
     if (startsWith("[") && endsWith("]"))
         return substring(1, length - 2).split(",").map(String::value).value()
     return TextValue(this)
+}
+
+fun Any.value(): Value = when (this) {
+    is Value -> this
+    is Rational -> value()
+    is Int -> value()
+    is Long -> value()
+    is Double -> value()
+    is Boolean -> value()
+    is List<*> -> this.map { it?.value() ?: NullValue }.value()
+    else -> toString().value()
 }
