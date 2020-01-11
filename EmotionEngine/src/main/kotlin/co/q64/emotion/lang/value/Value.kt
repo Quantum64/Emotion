@@ -15,11 +15,22 @@ interface Value : Comparable<Value> {
     val text: String get() = toString()
 }
 
-fun value(value: String): Value {
-    TODO()
-}
 fun Rational.value(): Value = NumberValue(this)
-fun Int.value(value: Int): Value = rational().value()
-fun Long.value(value: Long): Value = rational().value()
+fun Int.value(): Value = rational().value()
+fun Long.value(): Value = rational().value()
 fun Double.value(): Value = rational().value()
-fun Value.value() = if (this is TextValue) value(this.text) else this
+fun Boolean.value(): Value = BooleanValue(this)
+fun List<Value>.value(): Value = ListValue(this)
+fun Value.value() = if (this is TextValue) text.value() else this
+
+fun String.value(): Value {
+    if (contains("/") && length > indexOf("/")) runCatching {
+        return Rational(substring(0, indexOf("/")), substring(indexOf("/") + 1)).value()
+    }
+    runCatching { return Rational(this).value() }
+    if (equals("true", ignoreCase = true)) return true.value()
+    if (equals("false", ignoreCase = true)) return false.value()
+    if (startsWith("[") && endsWith("]"))
+        return substring(1, length - 2).split(",").map(String::value).value()
+    return TextValue(this)
+}

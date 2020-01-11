@@ -128,3 +128,4 @@ fun Int.rational() = Rational(this)
 fun Long.rational() = Rational(this)
 fun String.rational() = Rational(this)
 fun Double.rational() = Rational(this)
+fun Boolean.rational() = if (this) Rational.ONE else Rational.ZERO
