@@ -1,9 +1,15 @@
 package co.q64.emotion.lang.value
 
-data class ValueType(val name: String)
+open class ValueType
+object NumberType : ValueType()
+object BooleanType : ValueType()
+object ListType : ValueType()
+object StringType : ValueType()
+object NullType : ValueType()
 
-val number = ValueType("number")
-val boolean = ValueType("boolean")
-val list = ValueType("list")
-val string = ValueType("string")
-val nul = ValueType("null")
+val any = ValueType()
+val number = NumberType
+val boolean = BooleanType
+val list = ListType
+val string = StringType
+val nul = NullType

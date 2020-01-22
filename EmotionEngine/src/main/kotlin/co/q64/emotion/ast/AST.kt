@@ -47,7 +47,7 @@ class ASTIterator(private val program: Program, private val body: ASTNode, priva
             registers.i = index.value()
             registers.o = value
             if (push) stack.push(value)
-            body.visit()?.let { return it }
+            body.visit()?.let { if (it == ASTResult.BREAK) return null }
         }
         return null
     }
@@ -63,7 +63,7 @@ class ASTFunction(private val body: ASTNode) : ASTNode {
 
 class ASTLoop(private val program: Program, private val body: ASTNode) : ASTNode {
     override fun visit(): ASTResult? {
-        while (true) body.visit()?.let { return it }
+        while (true) body.visit()?.let { if (it == ASTResult.BREAK) return null }
     }
 
     override fun toString() = "(loop $body)"
