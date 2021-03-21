@@ -1,6 +1,12 @@
 rootProject.name = "emotion"
 
-includeBuild("emotion-core")
+includeBuild("emotion-core") {
+    dependencySubstitution {
+        substitute(module("co.q64.emotion:emotion-core")).with(project(":"))
+    }
+}
+
+
 includeBuild("emotion-meta")
 
 include(

@@ -13,6 +13,7 @@ interface OpcodeRegistry {
         closure: Stack.() -> Unit
     ) = OpcodeLibrary.opcodes.add(
         Opcode(
+            id = this,
             values = values.toList(),
             marker = marker,
             description = description,
