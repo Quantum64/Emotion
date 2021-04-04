@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.4.31"
+    kotlin("jvm") version "1.5.0-M2"
     `kotlin-dsl`
     `java-library`
 }
@@ -11,7 +11,9 @@ dependencies {
 
     implementation(gradleApi())
     implementation(gradleKotlinDsl())
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.0-M2")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.0-M2")
+    implementation("com.squareup:kotlinpoet:1.7.2")
 }
 
 gradlePlugin {

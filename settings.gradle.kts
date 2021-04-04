@@ -10,5 +10,6 @@ includeBuild("emotion-core") {
 includeBuild("emotion-meta")
 
 include(
-    "emotion-engine"
+    "emotion-engine",
+    "emotion-jvm"
 )

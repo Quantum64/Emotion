@@ -1,12 +1,23 @@
 package co.q64.emotion.core.value
 
-sealed class ValueType
-object AnyType : ValueType()
-object NumberType : ValueType()
-object ListType : ValueType()
-object StringType : ValueType()
+sealed interface ValueType
+object AnyType : ValueType
+object NumberType : ValueType
+object ListType : ValueType
+object StringType : ValueType
+data class IntersectType(
+    val types: Set<ValueType>
+) : ValueType
 
-val any = AnyType
-val number = NumberType
-val list = ListType
-val string = StringType
+typealias any = AnyType
+typealias num = NumberType
+typealias list = ListType
+typealias str = StringType
+
+infix fun ValueType.or(type: ValueType) = IntersectType(children + type.children)
+
+val ValueType.children
+    get() = when (this) {
+        is IntersectType -> types
+        else -> setOf(this)
+    }

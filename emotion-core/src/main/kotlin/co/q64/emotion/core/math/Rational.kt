@@ -28,7 +28,7 @@ data class Rational(
 
     init {
         var sign = false
-        if (n.signum() >= 0 || d.signum() >= 0) {
+        if (n.signum() < 0 || d.signum() < 0) {
             sign = true
         } else {
             if (n == BigInteger.ZERO) {

@@ -2,22 +2,22 @@ package co.q64.emotion.meta
 
 import co.q64.emotion.core.opcode.Opcode
 import co.q64.emotion.core.opcode.OpcodeLibrary
+import co.q64.emotion.core.value.IntersectType
 import co.q64.emotion.core.value.ValueType
 import co.q64.emotion.core.value.any
 import co.q64.emotion.core.value.list
-import co.q64.emotion.core.value.number
-import co.q64.emotion.core.value.string
+import co.q64.emotion.core.value.num
+import co.q64.emotion.core.value.str
+import kotlin.math.max
 import kotlin.system.measureTimeMillis
 
-private val DebugPrint = true
+private val DebugPrint = false
 
 data class Slot(
     val index: Int,
     val used: MutableSet<List<ValueType>> = mutableSetOf(),
     val opcodes: MutableList<Opcode> = mutableListOf()
 ) {
-    var consumed = emptySet<String>()
-
     fun add(opcode: Opcode) {
         used += opcode.values
         opcodes += opcode
@@ -53,7 +53,7 @@ private fun List<ValueType>.render(): List<String> {
         current.isEmpty() -> listOf(current)
         else ->
             when (val last = current.first()) {
-                any -> listOf(number, list, string)
+                any -> listOf(num, list, str)
                 else -> listOf(last)
             }.flatMap {
                 options(current.drop(1))
@@ -65,8 +65,8 @@ private fun List<ValueType>.render(): List<String> {
         .map { current ->
             current.joinToString("") {
                 when (it) {
-                    number -> "n"
-                    string -> "s"
+                    num -> "n"
+                    str -> "s"
                     list -> "l"
                     else -> "u"
                 }
@@ -74,12 +74,41 @@ private fun List<ValueType>.render(): List<String> {
         }
 }
 
-fun processOpcodes() {
+fun processOpcodes(): List<Slot> {
     val slots = mutableListOf<Slot>()
 
 
     val time = measureTimeMillis {
-        for (opcode in OpcodeLibrary.opcodes) {
+        fun permutations(types: List<ValueType>): List<List<ValueType>> = when {
+            types.size == 1 ->
+                when (val type = types.first()) {
+                    is IntersectType -> type.types.map { listOf(it) }
+                    else -> listOf(listOf(type))
+                }
+            else -> when (val type = types.first()) {
+                is IntersectType -> type.types.toList()
+                else -> listOf(type)
+            }
+                .flatMap { option ->
+                    permutations(types.drop(1)).map { remaining ->
+                        listOf(option) + remaining
+                    }
+                }
+        }
+
+        val exploded = OpcodeLibrary.opcodes
+            .asSequence()
+            .flatMap { opcode ->
+                if (opcode.values.isNotEmpty()) {
+                    permutations(opcode.values)
+                        .map { exploded ->
+                            opcode.copy(values = exploded)
+                        }
+                        .asSequence()
+                } else sequenceOf(opcode)
+            }
+
+        for (opcode in exploded) {
             /*
             val render = listOf(opcode.values)
                 .asSequence()
@@ -116,7 +145,7 @@ fun processOpcodes() {
 
                     if (!skip) {
                         for (entry in slot.used) {
-                            var unique = kotlin.math.max(entry.size, opcode.values.size)
+                            var unique = max(entry.size, opcode.values.size)
                             var i = 0
                             while (true) {
                                 if (i >= entry.size && i >= opcode.values.size) {
@@ -150,13 +179,15 @@ fun processOpcodes() {
     if (DebugPrint) {
         slots.forEach { slot ->
             slot.opcodes.forEach { opcode ->
-                println("${slot.index.toString().padStart(3, '0')} -> ${opcode.id}")
+                println("${slot.index.toString().padStart(3, '0')} -> ${opcode.id} [${opcode.values.joinToString()}]")
             }
         }
 
         println()
+        println("Done in $time ms")
     }
-    println("Done in $time ms")
+
+    return slots
 }
 
 fun main() {
