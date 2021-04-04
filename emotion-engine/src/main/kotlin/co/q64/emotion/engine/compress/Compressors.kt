@@ -1,6 +1,7 @@
 package co.q64.emotion.engine.compress
 
 import co.q64.emotion.core.extension.nextOrNull
+import co.q64.emotion.core.lang.compress.BaseCompressor
 import co.q64.emotion.core.lang.compress.PairCompressor
 import co.q64.emotion.core.lang.compress.ShocoCompressor
 import co.q64.emotion.core.lang.compress.SingleCompressor
@@ -12,7 +13,8 @@ object Compressors {
     private val compressors = listOf(
         SingleCompressor,
         PairCompressor,
-        ShocoCompressor
+        ShocoCompressor,
+        BaseCompressor
     )
 
     fun compress(value: String): String = compressors

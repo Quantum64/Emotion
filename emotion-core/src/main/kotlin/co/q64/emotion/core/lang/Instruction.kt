@@ -1,5 +1,6 @@
 package co.q64.emotion.core.lang
 
+import co.q64.emotion.core.opcode.Opcode
 import co.q64.emotion.core.opcode.OpcodeMarker
 import co.q64.emotion.core.value.Value
 
@@ -32,5 +33,9 @@ sealed interface Instruction {
     object NoOp : Instruction {
         override fun execute(program: Program) = Unit
         override fun toString(): String = "no-op"
+    }
+
+    companion object {
+        fun fixed(opcode: Opcode) = Execute(PendingInstruction(listOf(opcode)))
     }
 }

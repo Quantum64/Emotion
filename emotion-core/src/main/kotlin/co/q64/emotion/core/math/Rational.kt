@@ -1,54 +1,44 @@
 package co.q64.emotion.core.math
 
+import java.math.BigDecimal
 import java.math.BigInteger
+import kotlin.math.absoluteValue
+import kotlin.math.sign
 
 
-data class Rational(
-    private var n: BigInteger = BigInteger.ZERO,
-    private var d: BigInteger = BigInteger.ONE
-) : Comparable<Rational> {
-    private val numerator: BigInteger
-    private val denominator: BigInteger
-
-    constructor(n: Long, d: Long = 1) : this(BigInteger.valueOf(n), BigInteger.valueOf(d))
-    constructor(n: Int, d: Int = 1) : this(n.toLong(), d.toLong())
-    constructor(n: String, d: String) : this(BigInteger(n), BigInteger(d))
-    constructor(d: Double) : this(d.toString())
-    constructor(s: String) : this(
-        s.replace(".", ""),
-        if (s.contains(".")) {
-            val digitsDec = s.length - 1 - s.indexOf('.')
-            var d = "1"
-            for (i in 0 until digitsDec) {
-                d += "0"
-            }
-            d
-        } else "1"
-    )
+class Rational(n: Component, d: Component = Component.One) : Comparable<Rational> {
+    private val numerator: Component
+    private val denominator: Component
 
     init {
+        var mn = n
+        var md = d
         var sign = false
         if (n.signum() < 0 || d.signum() < 0) {
             sign = true
         } else {
-            if (n == BigInteger.ZERO) {
-                d = BigInteger.ONE
+            if (n == Component.Zero) {
+                md = Component.One
             }
         }
-        n = n.abs()
-        d = d.abs()
+        mn = n.abs()
+        md = md.abs()
         if (sign) {
-            n = n.multiply(BigInteger.valueOf(-1))
+            mn = mn.multiply(Component.MinusOne)
         }
-        val divisor = pgcd(n.abs(), d)
+        val divisor = Component.gcd(mn.abs(), md)
         if (divisor != BigInteger.ONE) {
-            numerator = n.divide(divisor)
-            denominator = d.divide(divisor)
+            numerator = mn.divide(divisor)
+            denominator = md.divide(divisor)
         } else {
-            numerator = n
-            denominator = d
+            numerator = mn
+            denominator = md
         }
     }
+
+    constructor(n: Long, d: Long = 1) : this(Component.create(n), Component.create(d))
+    constructor(n: Int, d: Int = 1) : this(n.toLong(), d.toLong())
+    constructor(n: String, d: String) : this(Component.create(BigInteger(n)), Component.create(BigInteger(d)))
 
     fun intValue(): Int = numerator.toInt() / denominator.toInt()
     fun longValue(): Long = numerator.toLong() / denominator.toLong()
@@ -67,7 +57,7 @@ data class Rational(
     }
 
     fun subtract(n: Rational): Rational {
-        return add(Rational(n.numerator.multiply(BigInteger.valueOf(-1)), n.denominator))
+        return add(Rational(n.numerator.multiply(Component.MinusOne), n.denominator))
     }
 
     fun multiply(n: Rational): Rational {
@@ -86,7 +76,6 @@ data class Rational(
     val isOne: Boolean get() = numerator == denominator
     fun abs(): Rational = Rational(numerator.abs(), denominator)
 
-
     fun pow(n: Int): Rational {
         var b = ONE
         for (i in 0 until n) {
@@ -95,16 +84,13 @@ data class Rational(
         return b
     }
 
-    private fun pgcd(a: BigInteger, b: BigInteger): BigInteger {
-        var a1 = a
-        var b1 = b
-        var r: BigInteger
-        while (b1 != BigInteger.ZERO) {
-            r = a1.mod(b1)
-            a1 = b1
-            b1 = r
-        }
-        return a1
+    override fun equals(other: Any?): Boolean {
+        if (other !is Rational) return false
+        return numerator == other.numerator && denominator == other.denominator
+    }
+
+    override fun hashCode(): Int {
+        return numerator.hashCode() + denominator.hashCode()
     }
 
     override fun toString(): String {
@@ -123,11 +109,142 @@ data class Rational(
         val ZERO = Rational(0)
         val ONE = Rational(1)
         val MINUS_ONE = Rational(-1)
+
+        fun parse(value: String) = when {
+            'e' in value -> Rational(Component.create(BigDecimal(value).toBigIntegerExact()))
+            '/' in value -> {
+                value.split("/").let { parts ->
+                    Rational(parts[0], parts.getOrElse(1) { "0" })
+                }
+            }
+            else -> {
+                Rational(
+                    value.replace(".", ""),
+                    if (value.contains(".")) {
+                        val digitsDec = value.length - 1 - value.indexOf('.')
+                        var d = "1"
+                        for (i in 0 until digitsDec) {
+                            d += "0"
+                        }
+                        d
+                    } else "1"
+                )
+            }
+        }
+
+        fun parse(value: Double) = parse(value.toString())
+    }
+
+    sealed interface Component : Comparable<Component> {
+        companion object {
+            fun create(value: Long) = Short(value)
+            fun create(value: BigInteger) = Big(value).optimize()
+
+            val One = create(1)
+            val Zero = create(0)
+            val MinusOne = create(-1)
+
+            tailrec fun gcd(a: Component, b: Component): Component = when (b) {
+                Zero -> a
+                else -> gcd(b, a.mod(b))
+            }
+        }
+
+        val Long.component get() = Short(this)
+        val BigInteger.component get() = Big(this).optimize()
+
+        val big: BigInteger
+        fun optimize(): Component
+        fun abs(): Component
+        fun signum(): Int
+        fun add(component: Component): Component
+        fun multiply(component: Component): Component
+        fun divide(component: Component): Component
+        fun mod(component: Component): Component
+
+        fun toInt(): Int
+        fun toLong(): Long
+        fun toFloat(): Float
+        fun toDouble(): Double
+
+        class Short(
+            val value: Long
+        ) : Component {
+            override val big: BigInteger get() = BigInteger.valueOf(value)
+            override fun abs(): Component = value.absoluteValue.component
+            override fun signum(): Int = value.sign
+            override fun optimize(): Component = this
+            override fun hashCode(): Int = value.hashCode()
+            override fun toString(): String = value.toString()
+            override fun compareTo(other: Component): Int = when (other) {
+                is Short -> value.compareTo(other.value)
+                else -> big.compareTo(other.big)
+            }
+
+            override fun add(component: Component) = when (component) {
+                is Short -> runCatching { Math.addExact(value, component.value).component }
+                    .getOrElse { big.add(component.big).component }
+                else -> big.add(component.big).component
+            }
+
+            override fun multiply(component: Component) = when (component) {
+                is Short -> runCatching { Math.multiplyExact(value, component.value).component }
+                    .getOrElse { big.multiply(component.big).component }
+                else -> big.multiply(component.big).component
+            }
+
+            override fun divide(component: Component) = when (component) {
+                is Short -> (value / component.value).component
+                else -> big.divide(component.big).component
+            }
+
+            override fun mod(component: Component): Component = when (component) {
+                is Short -> (value % component.value).component
+                else -> big.mod(component.big).component
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (other !is Component) return false
+                if (other is Short) return value == other.value
+                return big == other.big
+            }
+
+            override fun toInt() = value.toInt()
+            override fun toLong() = value
+            override fun toFloat() = value.toFloat()
+            override fun toDouble() = value.toDouble()
+        }
+
+        class Big(
+            val value: BigInteger
+        ) : Component {
+            override val big: BigInteger get() = value
+            override fun abs(): Component = value.abs().component
+            override fun signum(): Int = value.signum()
+            override fun optimize(): Component = runCatching { value.longValueExact().component }.getOrElse { this }
+            override fun add(component: Component) = value.add(component.big).component
+            override fun multiply(component: Component) = value.multiply(component.big).component
+            override fun divide(component: Component) = value.divide(component.big).component
+            override fun mod(component: Component): Component = value.mod(component.big).component
+            override fun compareTo(other: Component): Int = big.compareTo(other.big)
+            override fun hashCode(): Int = value.hashCode()
+            override fun toString(): String = value.toString()
+
+            override fun equals(other: Any?): Boolean {
+                if (other !is Component) return false
+                return big == other.big
+            }
+
+            override fun toInt() = value.toInt()
+            override fun toLong() = value.toLong()
+            override fun toFloat() = value.toFloat()
+            override fun toDouble() = value.toDouble()
+        }
     }
 }
 
 fun Int.rational() = Rational(this)
 fun Long.rational() = Rational(this)
-fun String.rational() = Rational(this)
-fun Double.rational() = Rational(this)
+fun String.rational() = Rational.parse(this)
+fun Double.rational() = Rational.parse(this)
 fun Boolean.rational() = if (this) Rational.ONE else Rational.ZERO

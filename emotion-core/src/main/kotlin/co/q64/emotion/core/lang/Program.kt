@@ -12,14 +12,16 @@ import co.q64.emotion.core.opcode.Compare
 import co.q64.emotion.core.opcode.Control
 import co.q64.emotion.core.opcode.Iterate
 import co.q64.emotion.core.runtime.Environment
+import co.q64.emotion.core.value.parseArguments
 
 class Program(
     val environment: Environment,
     instructions: List<Instruction>,
+    arguments: String = "",
     val memory: Memory = Memory(),
     private var time: Long = 0,
     private var stopped: Boolean = false
-) : Stack by Stack.Simple() {
+) : Stack by Stack.Simple(parseArguments(arguments).toMutableList()) {
     private val ast: ASTNode
 
     init {
@@ -29,6 +31,7 @@ class Program(
     fun start() {
         time = System.currentTimeMillis()
         ast.enter()
+        stop()
     }
 
     fun terminated(): Boolean {

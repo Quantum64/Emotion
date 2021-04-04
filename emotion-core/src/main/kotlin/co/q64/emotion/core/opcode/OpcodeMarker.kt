@@ -50,10 +50,16 @@ sealed interface Control : OpcodeMarker {
     object Break : Control
     object Continue : Control
     object Function : Control
+
+    sealed interface Internal : Control {
+        object End2 : Internal
+        object End3 : Internal
+    }
 }
 
 sealed interface Compress : OpcodeMarker {
     object Single : Compress
     object Pair : Compress
     object Shoco : Compress
+    object Base : Compress
 }

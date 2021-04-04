@@ -8,5 +8,6 @@ data class Opcode(
     val values: List<ValueType>,
     val marker: OpcodeMarker? = null,
     val description: String,
+    val push: List<ValueType> = emptyList(),
     val closure: Program.() -> Unit
 )

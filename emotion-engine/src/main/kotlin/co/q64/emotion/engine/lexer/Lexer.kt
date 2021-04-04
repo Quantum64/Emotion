@@ -1,9 +1,10 @@
-package co.q64.emotion.engine.compiler.lexer
+package co.q64.emotion.engine.lexer
 
 import co.q64.emotion.core.lang.Instruction
 import co.q64.emotion.core.opcode.Compress
 import co.q64.emotion.core.util.Codepage
-import co.q64.emotion.core.value.value
+import co.q64.emotion.core.value.parseLiteral
+import co.q64.emotion.engine.compiler.Lowerings
 import co.q64.emotion.engine.compress.Compressors
 import co.q64.emotion.engine.opcode.Opcodes
 
@@ -18,7 +19,7 @@ object Lexer {
                     Opcodes.decode(buffer + next).let { pending ->
                         result + when (val marker = pending.marker) {
                             is Compress -> Instruction.Load(
-                                Compressors.decompress(marker, iterator).value() // TODO parse numbers
+                                parseLiteral(Compressors.decompress(marker, iterator))
                             )
                             else -> Instruction.Execute(pending)
                         } to emptyList()
@@ -26,5 +27,6 @@ object Lexer {
                 } else result to buffer + next
             }
             .let { (instructions, _) -> instructions }
+            .let { Lowerings.raise(it) }
     }
 }

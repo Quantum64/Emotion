@@ -5,7 +5,7 @@ import co.q64.emotion.engine.compress.Compressors
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
-class TestLengthEncoders {
+class LengthEncoderTest {
 
     @Test
     fun `length encoder round trip`() {

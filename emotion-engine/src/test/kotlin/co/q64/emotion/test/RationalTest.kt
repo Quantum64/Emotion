@@ -5,7 +5,7 @@ import co.q64.emotion.core.math.rational
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 
-class TestRational {
+class RationalTest {
     @Test
     fun `test single digit print`() {
         2.rational().toString() shouldBe "2"
