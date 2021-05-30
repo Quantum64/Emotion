@@ -1,6 +1,6 @@
 package co.q64.emotion.core.extension
 
-fun String.emotionCodePointCount(beginIndex: Int, endIndex: Int): Int {
+fun String.emotionCodePointCount(beginIndex: Int = 0, endIndex: Int = length): Int {
     var count = endIndex - beginIndex
     var i = beginIndex
     while (i < endIndex - 1) {
